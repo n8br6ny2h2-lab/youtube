@@ -87,12 +87,37 @@ def calendar(days: int = 14) -> list[dict]:
     return out
 
 
+def retry_thumbnails() -> list[str]:
+    """Kapak yüklenememiş videolar için (ör. kanal telefonla doğrulanınca) kapağı yeniden dener."""
+    from . import youtube
+    done = []
+    rows = db.query("SELECT u.id, u.youtube_id, u.response, v.thumbnail FROM uploads u JOIN videos v ON v.id=u.video_id "
+                    "WHERE u.status='uploaded' AND u.response LIKE '%kapak yüklenemedi%'")
+    for r in rows:
+        try:
+            youtube.set_thumbnail(r["youtube_id"], Paths.root / r["thumbnail"])
+        except Exception as exc:
+            if "permissions" in str(exc):
+                logger.info("Özel kapak için kanalın telefonla doğrulanması gerekiyor (youtube.com/verify)")
+                break
+            continue
+        resp = json.loads(r["response"] or "{}")
+        resp["notes"] = [n for n in resp.get("notes", []) if "kapak" not in n] + ["kapak sonradan yüklendi"]
+        db.update("uploads", r["id"], response=resp)
+        done.append(r["youtube_id"])
+    return done
+
+
 def publish_due(hours_ahead: int = 72, max_uploads: int = 4, force_private_test: bool = False) -> list[dict]:
     """Yaklaşan slotlardaki videoları YouTube'a yükler (planlı veya test için özel)."""
     from . import youtube
     if not youtube.connected():
         logger.warning("YouTube bağlı değil; yükleme atlandı")
         return []
+    try:
+        retry_thumbnails()
+    except Exception as exc:
+        logger.warning(f"Kapak yeniden deneme: {exc}")
     pub = settings()["publishing"]
     auto = bool(db.kv_get("auto_publish", pub["auto_publish"]))
     kit = brand_mod.load()
