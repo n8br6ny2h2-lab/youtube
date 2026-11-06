@@ -18,3 +18,4 @@ stories/*
 thumbnails/*
 !*/.gitkeep
 node_modules/
+logs/*.md

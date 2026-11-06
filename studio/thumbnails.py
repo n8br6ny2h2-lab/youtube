@@ -56,7 +56,9 @@ def _first_prop(story: dict) -> dict | None:
 
 
 def _text_svg(text: str, size: int, color: str = "#FFFFFF", stroke: int = 14, width: int = 1280, anchor: str = "middle", x: str = "50%") -> str:
-    t = html.escape(tr_upper(text) if len(text) < 16 else text)
+    raw = tr_upper(text) if len(text) < 22 else text
+    size = min(size, int(width / (0.66 * max(1, len(raw)))))  # metni genişliğe sığdır
+    t = html.escape(raw)
     return (f'<svg width="{width}" height="{int(size*1.25)}"><text x="{x}" y="{size}" text-anchor="{anchor}" font-family="&quot;Baloo 2&quot;" '
             f'font-weight="800" font-size="{size}" fill="{color}" stroke="#2B2D42" stroke-width="{stroke}" stroke-linejoin="round" '
             f'paint-order="stroke">{t}</text></svg>')

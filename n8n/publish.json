@@ -52,10 +52,32 @@
           "timeout": 30000
         }
       }
+    },
+    {
+      "id": "8e731071-94dc-4fcb-823e-b032f015556a",
+      "name": "Elle çalıştır",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        180
+      ],
+      "parameters": {}
     }
   ],
   "connections": {
     "Zamanlayıcı": {
+      "main": [
+        [
+          {
+            "node": "Stüdyo: publish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Elle çalıştır": {
       "main": [
         [
           {

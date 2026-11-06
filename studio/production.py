@@ -132,7 +132,8 @@ def produce_shorts(story: dict, long_result: dict, limit: int | None = None) -> 
     for s in tlp["scenes"]:
         if s["id"] != "outro" and not any(c["scene_ids"] == [s["id"]] for c in cands):
             first = next((b["text"] for b in s["beats"]), "")
-            cands.append({"title": story["title"], "scene_ids": [s["id"]], "hook_text": first if first.endswith("?") else "Bak neler oluyor!"})
+            line = next((b["text"] for b in s["beats"] if b["speaker"] != "narrator" and 12 <= len(b["text"]) <= 60), first)
+            cands.append({"title": line[:70], "scene_ids": [s["id"]], "hook_text": first if first.endswith("?") else "Bak neler oluyor!"})
     scored = []
     for c in cands:
         sub = [s for s in tlp["scenes"] if s["id"] in c["scene_ids"]]
