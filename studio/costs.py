@@ -66,10 +66,13 @@ def llm_cost(model: str, input_tokens: int, output_tokens: int) -> float:
 
 
 def youtube_quota_used_today() -> float:
-    prefix = _local_now().strftime("%Y-%m-%d")
-    row = db.one(
-        "SELECT COALESCE(SUM(units),0) s FROM costs WHERE service='youtube' AND substr(created_at,1,10)=?", (prefix,)
-    )
+    """YouTube kotası ABD Pasifik saatiyle gece yarısı sıfırlanır; sayaç da o güne göre tutulur."""
+    from datetime import timezone as _tz
+    from zoneinfo import ZoneInfo
+    pt = ZoneInfo("America/Los_Angeles")
+    start = datetime.now(pt).replace(hour=0, minute=0, second=0, microsecond=0).astimezone(_tz.utc)
+    row = db.one("SELECT COALESCE(SUM(units),0) s FROM costs WHERE service='youtube' AND created_at >= ?",
+                 (start.isoformat(timespec="seconds"),))
     return float(row["s"]) if row else 0.0
 
 
