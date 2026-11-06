@@ -26,77 +26,92 @@
     {
       "chapter": "Sessizliğe hoş geldin",
       "visual": "night sky stars timelapse",
-      "text": "Hoş geldin. Bu gece acele etmeyeceğiz. Rahat bir yere uzan, omuzlarını gevşet ve nefesini yavaşlat. Birlikte evrenin en sessiz köşelerine doğru, yavaş yavaş bir yolculuğa çıkacağız. Hiçbir şeyi ezberlemen gerekmiyor. Sadece dinle ve merakının seni taşımasına izin ver."
+      "text": "Hoş geldin. Bu gece acele etmeyeceğiz. Rahat bir yere uzan, omuzlarını gevşet ve nefesini yavaşlat. Birlikte evrenin en sessiz köşelerine doğru, yavaş yavaş bir yolculuğa çıkacağız. Hiçbir şeyi ezberlemen gerekmiyor. Sadece dinle ve merakının seni taşımasına izin ver.",
+      "nasa": "Milky Way"
     },
     {
       "chapter": "Uzayda neden ses yok?",
       "visual": "space nebula",
-      "text": "Bir sesin duyulabilmesi için titreşimi taşıyacak bir ortam gerekir. Dünya'da bu ortam çoğu zaman havadır. Uzayın büyük bölümü ise neredeyse tamamen boştur. Orada sesi bir yerden başka bir yere taşıyacak kadar madde yoktur. Bu yüzden iki dev yıldız çarpışsa bile, yakınında durabilsen hiçbir şey duymazdın. Evren, gördüğümüz kadar parlak, ama duyduğumuz kadar sessizdir."
+      "text": "Bir sesin duyulabilmesi için titreşimi taşıyacak bir ortam gerekir. Dünya'da bu ortam çoğu zaman havadır. Uzayın büyük bölümü ise neredeyse tamamen boştur. Orada sesi bir yerden başka bir yere taşıyacak kadar madde yoktur. Bu yüzden iki dev yıldız çarpışsa bile, yakınında durabilsen hiçbir şey duymazdın. Evren, gördüğümüz kadar parlak, ama duyduğumuz kadar sessizdir.",
+      "nasa": "nebula Hubble"
     },
     {
       "chapter": "Işığın uzun yolculuğu",
       "visual": "sunrise over earth from space",
-      "text": "Güneş'ten çıkan ışık, Dünya'ya yaklaşık sekiz dakikada ulaşır. Yani gökyüzüne baktığında Güneş'i aslında sekiz dakika önceki hâliyle görürsün. Gece gördüğün yıldızların ışığı ise çok daha uzun yolculuklar yapmıştır. Bazılarının ışığı yola çıktığında, henüz bugünkü şehirlerimiz yoktu. Gökyüzüne bakmak, bir bakıma geçmişe bakmaktır."
+      "text": "Güneş'ten çıkan ışık, Dünya'ya yaklaşık sekiz dakikada ulaşır. Yani gökyüzüne baktığında Güneş'i aslında sekiz dakika önceki hâliyle görürsün. Gece gördüğün yıldızların ışığı ise çok daha uzun yolculuklar yapmıştır. Bazılarının ışığı yola çıktığında, henüz bugünkü şehirlerimiz yoktu. Gökyüzüne bakmak, bir bakıma geçmişe bakmaktır.",
+      "nasa": "Earth sunrise from space station"
     },
     {
       "chapter": "Komşu galaksi Andromeda",
       "visual": "galaxy milky way night",
-      "text": "Karanlık bir gecede, şehir ışıklarından uzakta, gökyüzünde küçük ve bulanık bir leke görebilirsin. Bu, Andromeda galaksisidir. Yaklaşık iki buçuk milyon ışık yılı uzaktadır ve çıplak gözle görebildiğimiz en uzak cisimlerden biridir. Bu gece gözüne ulaşan ışık, Andromeda'dan ayrıldığında, Dünya'da henüz insanlar yoktu. Yüz milyarlarca yıldızdan oluşan bu dev yapı, uzaklardan sessizce bize göz kırpar."
+      "text": "Karanlık bir gecede, şehir ışıklarından uzakta, gökyüzünde küçük ve bulanık bir leke görebilirsin. Bu, Andromeda galaksisidir. Yaklaşık iki buçuk milyon ışık yılı uzaktadır ve çıplak gözle görebildiğimiz en uzak cisimlerden biridir. Bu gece gözüne ulaşan ışık, Andromeda'dan ayrıldığında, Dünya'da henüz insanlar yoktu. Yüz milyarlarca yıldızdan oluşan bu dev yapı, uzaklardan sessizce bize göz kırpar.",
+      "nasa": "Andromeda galaxy"
     },
     {
       "chapter": "En uzaktaki yolcu: Voyager 1",
       "visual": "space probe planet",
-      "text": "Bin dokuz yüz yetmiş yedi yılında iki küçük uzay aracı yola çıktı. Voyager 1 ve Voyager 2. Önce Jüpiter'in ve Satürn'ün yanından geçtiler, onların fotoğraflarını çektiler. Sonra yollarına devam ettiler. Voyager 1, iki bin on iki yılında Güneş'in etki alanının sınırını geçerek yıldızlar arası uzaya ulaştı. Bugün insan yapımı en uzak cisimdir ve hâlâ, çok zayıf da olsa, Dünya'ya sinyal göndermektedir."
+      "text": "Bin dokuz yüz yetmiş yedi yılında iki küçük uzay aracı yola çıktı. Voyager 1 ve Voyager 2. Önce Jüpiter'in ve Satürn'ün yanından geçtiler, onların fotoğraflarını çektiler. Sonra yollarına devam ettiler. Voyager 1, iki bin on iki yılında Güneş'in etki alanının sınırını geçerek yıldızlar arası uzaya ulaştı. Bugün insan yapımı en uzak cisimdir ve hâlâ, çok zayıf da olsa, Dünya'ya sinyal göndermektedir.",
+      "nasa": "Voyager spacecraft"
     },
     {
       "chapter": "Altın plak",
       "visual": "vinyl record slow",
-      "text": "Voyager araçlarının her birinde altın kaplı bir plak bulunur. Bu plaklarda Dünya'dan sesler vardır. Rüzgârın uğultusu, yağmurun sesi, kuşların ötüşü ve farklı dillerde selamlar. Bir de müzik vardır. Plakların bir gün başka birileri tarafından bulunup bulunmayacağını bilmiyoruz. Ama bu küçük kayıtlar, sessiz uzayda Dünya'nın seslerini taşıyan bir mektup gibi yollarına devam ediyor."
+      "text": "Voyager araçlarının her birinde altın kaplı bir plak bulunur. Bu plaklarda Dünya'dan sesler vardır. Rüzgârın uğultusu, yağmurun sesi, kuşların ötüşü ve farklı dillerde selamlar. Bir de müzik vardır. Plakların bir gün başka birileri tarafından bulunup bulunmayacağını bilmiyoruz. Ama bu küçük kayıtlar, sessiz uzayda Dünya'nın seslerini taşıyan bir mektup gibi yollarına devam ediyor.",
+      "nasa": "Voyager Golden Record"
     },
     {
       "chapter": "Soluk mavi nokta",
       "visual": "earth from space slow",
-      "text": "Bin dokuz yüz doksan yılında, Voyager 1 Dünya'dan milyarlarca kilometre uzaktayken, kamerasını son bir kez geriye çevirdi. Çektiği fotoğrafta Dünya, bir güneş ışını şeridinin içinde, bir pikselden bile küçük, soluk mavi bir nokta olarak görünüyordu. Bütün okyanuslar, bütün dağlar, tanıdığımız herkes, o küçücük noktanın içindeydi. Bu fotoğraf, evrenin büyüklüğü karşısında evimizin ne kadar küçük ve ne kadar değerli olduğunu hatırlatır."
+      "text": "Bin dokuz yüz doksan yılında, Voyager 1 Dünya'dan milyarlarca kilometre uzaktayken, kamerasını son bir kez geriye çevirdi. Çektiği fotoğrafta Dünya, bir güneş ışını şeridinin içinde, bir pikselden bile küçük, soluk mavi bir nokta olarak görünüyordu. Bütün okyanuslar, bütün dağlar, tanıdığımız herkes, o küçücük noktanın içindeydi. Bu fotoğraf, evrenin büyüklüğü karşısında evimizin ne kadar küçük ve ne kadar değerli olduğunu hatırlatır.",
+      "nasa": "Pale Blue Dot"
     },
     {
       "chapter": "Evrenin dev boşlukları",
       "visual": "dark clouds slow night",
-      "text": "Galaksiler evrende rastgele dağılmamıştır. İnce iplikler ve duvarlar boyunca kümelenirler. Bu yapıların arasında ise devasa boşluklar vardır. Gökbilimciler bunlara kozmik boşluk der. Bu bölgelerde galaksi çok azdır. Bilinen en büyük boşluklardan biri olan Çoban boşluğu, yüz milyonlarca ışık yılı genişliğindedir. Orada bir gezegende yaşasaydın, gece gökyüzü bizimkinden çok daha karanlık olurdu."
+      "text": "Galaksiler evrende rastgele dağılmamıştır. İnce iplikler ve duvarlar boyunca kümelenirler. Bu yapıların arasında ise devasa boşluklar vardır. Gökbilimciler bunlara kozmik boşluk der. Bu bölgelerde galaksi çok azdır. Bilinen en büyük boşluklardan biri olan Çoban boşluğu, yüz milyonlarca ışık yılı genişliğindedir. Orada bir gezegende yaşasaydın, gece gökyüzü bizimkinden çok daha karanlık olurdu.",
+      "nasa": "galaxy cluster Hubble deep field"
     },
     {
       "chapter": "Satürn'ün halkaları",
       "visual": "saturn planet rings",
-      "text": "Satürn'ün halkaları uzaktan katı ve pürüzsüz görünür. Aslında milyarlarca parçadan oluşurlar. Bu parçaların çoğu buzdur. Bazıları bir toz tanesi kadar küçük, bazıları bir ev kadar büyüktür. Halkalar yüz binlerce kilometre genişliğe yayılır, ama kalınlıkları çoğu yerde yalnızca birkaç on metre ile bir kilometre arasındadır. Güneş ışığı bu buzlara çarptığında halkalar sessizce parıldar."
+      "text": "Satürn'ün halkaları uzaktan katı ve pürüzsüz görünür. Aslında milyarlarca parçadan oluşurlar. Bu parçaların çoğu buzdur. Bazıları bir toz tanesi kadar küçük, bazıları bir ev kadar büyüktür. Halkalar yüz binlerce kilometre genişliğe yayılır, ama kalınlıkları çoğu yerde yalnızca birkaç on metre ile bir kilometre arasındadır. Güneş ışığı bu buzlara çarptığında halkalar sessizce parıldar.",
+      "nasa": "Saturn rings Cassini"
     },
     {
       "chapter": "Jüpiter'in büyük fırtınası",
       "visual": "jupiter planet",
-      "text": "Jüpiter'de, Büyük Kırmızı Leke adı verilen dev bir fırtına vardır. Bu fırtına o kadar büyüktür ki içine Dünya sığabilir. En az yüz elli yılı aşkın süredir gözlemlenmektedir. Son yıllarda yavaş yavaş küçüldüğü görülüyor, ama hâlâ Güneş Sistemi'nin en büyük fırtınasıdır. Bizden yüz milyonlarca kilometre uzakta, durmadan dönen bir rüzgâr düşün. Ve burada, odanda, her şey sakin."
+      "text": "Jüpiter'de, Büyük Kırmızı Leke adı verilen dev bir fırtına vardır. Bu fırtına o kadar büyüktür ki içine Dünya sığabilir. En az yüz elli yılı aşkın süredir gözlemlenmektedir. Son yıllarda yavaş yavaş küçüldüğü görülüyor, ama hâlâ Güneş Sistemi'nin en büyük fırtınasıdır. Bizden yüz milyonlarca kilometre uzakta, durmadan dönen bir rüzgâr düşün. Ve burada, odanda, her şey sakin.",
+      "nasa": "Jupiter Great Red Spot"
     },
     {
       "chapter": "Plüton'un kalbi",
       "visual": "frozen ice landscape",
-      "text": "İki bin on beş yılında New Horizons adlı uzay aracı Plüton'un yanından geçti ve ilk kez yakından fotoğraflarını çekti. Fotoğraflarda Plüton'un yüzeyinde, kalbe benzeyen büyük ve açık renkli bir bölge göründü. Bu bölgenin bir kısmı donmuş azottan oluşan geniş bir buz ovasıdır. Güneş'ten bu kadar uzakta, gün ışığı çok zayıftır. Plüton'da öğle vakti bile, bizim alacakaranlığımıza benzer."
+      "text": "İki bin on beş yılında New Horizons adlı uzay aracı Plüton'un yanından geçti ve ilk kez yakından fotoğraflarını çekti. Fotoğraflarda Plüton'un yüzeyinde, kalbe benzeyen büyük ve açık renkli bir bölge göründü. Bu bölgenin bir kısmı donmuş azottan oluşan geniş bir buz ovasıdır. Güneş'ten bu kadar uzakta, gün ışığı çok zayıftır. Plüton'da öğle vakti bile, bizim alacakaranlığımıza benzer.",
+      "nasa": "Pluto New Horizons"
     },
     {
       "chapter": "Kuyruklu yıldızların yönü",
       "visual": "comet night sky",
-      "text": "Kuyruklu yıldızlar çoğunlukla buz, toz ve kayadan oluşur. Güneş'e yaklaştıklarında ısınırlar ve buzları gaza dönüşmeye başlar. Böylece arkalarında uzun, parlak bir kuyruk oluşur. İlginç olan şudur: Bu kuyruk her zaman kuyruklu yıldızın gittiği yönün tersini göstermez. Güneş rüzgârı yüzünden kuyruk, genellikle Güneş'ten uzağa doğru uzanır. Kuyruklu yıldız Güneş'ten uzaklaşırken, kuyruğu önünden bile gidebilir."
+      "text": "Kuyruklu yıldızlar çoğunlukla buz, toz ve kayadan oluşur. Güneş'e yaklaştıklarında ısınırlar ve buzları gaza dönüşmeye başlar. Böylece arkalarında uzun, parlak bir kuyruk oluşur. İlginç olan şudur: Bu kuyruk her zaman kuyruklu yıldızın gittiği yönün tersini göstermez. Güneş rüzgârı yüzünden kuyruk, genellikle Güneş'ten uzağa doğru uzanır. Kuyruklu yıldız Güneş'ten uzaklaşırken, kuyruğu önünden bile gidebilir.",
+      "nasa": "comet"
     },
     {
       "chapter": "Evrenin en eski ışığı",
       "visual": "aurora borealis slow",
-      "text": "Evrendeki en eski ışık hâlâ çevremizde dolaşıyor. Buna kozmik mikrodalga arka plan ışıması denir. Evren çok gençken yayılmış bu ışık, milyarlarca yıl boyunca yol aldıkça soğumuş ve gözle görülemeyecek kadar zayıflamıştır. Bugün sıcaklığı mutlak sıfırın sadece yaklaşık üç derece üzerindedir. Bilim insanları bu ışığı ölçerek evrenin yaklaşık on üç virgül sekiz milyar yaşında olduğunu hesaplar."
+      "text": "Evrendeki en eski ışık hâlâ çevremizde dolaşıyor. Buna kozmik mikrodalga arka plan ışıması denir. Evren çok gençken yayılmış bu ışık, milyarlarca yıl boyunca yol aldıkça soğumuş ve gözle görülemeyecek kadar zayıflamıştır. Bugün sıcaklığı mutlak sıfırın sadece yaklaşık üç derece üzerindedir. Bilim insanları bu ışığı ölçerek evrenin yaklaşık on üç virgül sekiz milyar yaşında olduğunu hesaplar.",
+      "nasa": "Webb deep field galaxies"
     },
     {
       "chapter": "Ay'ın sessiz yüzü",
       "visual": "full moon clouds",
-      "text": "Bize en yakın sessiz dünya ise Ay'dır. Ay'ın havası yoktur, bu yüzden üzerinde rüzgâr esmez ve sesler yayılmaz. Astronotların bıraktığı ayak izleri, rüzgâr ve yağmur olmadığı için çok uzun yıllar boyunca yerinde kalabilir. Ay, her gece aynı yüzünü bize gösterir. Çünkü kendi etrafında dönmesi ile Dünya'nın etrafında dönmesi aynı sürede tamamlanır."
+      "text": "Bize en yakın sessiz dünya ise Ay'dır. Ay'ın havası yoktur, bu yüzden üzerinde rüzgâr esmez ve sesler yayılmaz. Astronotların bıraktığı ayak izleri, rüzgâr ve yağmur olmadığı için çok uzun yıllar boyunca yerinde kalabilir. Ay, her gece aynı yüzünü bize gösterir. Çünkü kendi etrafında dönmesi ile Dünya'nın etrafında dönmesi aynı sürede tamamlanır.",
+      "nasa": "Moon surface Apollo"
     },
     {
       "chapter": "Kapanış",
       "visual": "calm night lake stars",
-      "text": "Şimdi yavaşça geri dönüyoruz. Andromeda'nın uzak ışığından, Voyager'ın sessiz yolculuğundan, Ay'ın hareketsiz tozlarından. Evren büyük ve sessiz. Ama sen şu an güvendesin, sıcak ve rahat bir yerdesin. Nefesini bir kez daha yavaşlat. Gözlerin ağırlaşıyorsa bırak kapansın. Bir sonraki gece, yeni bir merakla görüşmek üzere. İyi geceler."
+      "text": "Şimdi yavaşça geri dönüyoruz. Andromeda'nın uzak ışığından, Voyager'ın sessiz yolculuğundan, Ay'ın hareketsiz tozlarından. Evren büyük ve sessiz. Ama sen şu an güvendesin, sıcak ve rahat bir yerdesin. Nefesini bir kez daha yavaşlat. Gözlerin ağırlaşıyorsa bırak kapansın. Bir sonraki gece, yeni bir merakla görüşmek üzere. İyi geceler.",
+      "nasa": "Earth at night city lights"
     }
   ],
   "shorts": [

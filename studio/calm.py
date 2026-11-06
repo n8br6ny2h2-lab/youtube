@@ -144,6 +144,72 @@ def pexels_clips(query: str, need: int, used: set) -> list[Path]:
     return out
 
 
+NASA_SKIP = re.compile(r"conference|briefing|portrait|meeting|ceremony|crew|astronaut|launch|technician|engineer|logo|chart|diagram|graph", re.I)
+
+
+def nasa_stills(query: str, need: int, used: set) -> list[Path]:
+    """NASA görüntü arşivinden (kamu malı) yüksek çözünürlüklü fotoğraf indirir; lisansı kaydeder."""
+    cache = Paths.images / "nasa"
+    cache.mkdir(parents=True, exist_ok=True)
+    r = httpx.get("https://images-api.nasa.gov/search", params={"q": query, "media_type": "image"}, timeout=30)
+    r.raise_for_status()
+    out = []
+    for item in r.json()["collection"]["items"][:25]:
+        d = item["data"][0]
+        nid = d["nasa_id"]
+        if nid in used or NASA_SKIP.search(d.get("title", "") + " " + " ".join(d.get("keywords", [])[:10])):
+            continue
+        dst = cache / f"{re.sub(r'[^A-Za-z0-9_-]', '_', nid)}.jpg"
+        if not dst.exists():
+            try:
+                files = httpx.get(item["href"], timeout=30).json()
+            except Exception:
+                continue
+            pick = None
+            for suffix in ("~large.jpg", "~orig.jpg", "~medium.jpg"):
+                cand = next((u for u in files if u.endswith(suffix)), None)
+                if not cand:
+                    continue
+                cand = cand.replace("http://", "https://")
+                head = httpx.head(cand, timeout=30)
+                if head.status_code == 200 and int(head.headers.get("content-length", 0) or 0) < 30_000_000:
+                    pick = cand
+                    break
+            if not pick:
+                continue
+            img = httpx.get(pick, timeout=120).content
+            dst.write_bytes(img)
+            try:
+                from PIL import Image
+                with Image.open(dst) as im:
+                    w_, h_ = im.size
+                if w_ < 1000 or h_ < 560:
+                    dst.unlink(); continue
+            except Exception:
+                dst.unlink(missing_ok=True); continue
+            db.insert("licenses", created_at=db.now(), asset_path=str(dst.relative_to(ROOT)), kind="stock_image", source="NASA Image and Video Library",
+                      license="NASA medya kullanım yönergeleri: genellikle telifsiz (kamu malı); NASA onayı ima edilmez",
+                      author=d.get("center", "NASA"), url=f"https://images.nasa.gov/details/{nid}")
+        used.add(nid)
+        out.append(dst)
+        if len(out) >= need:
+            break
+    return out
+
+
+def still_clip(img: Path, seconds: float, idx: int, w: int, h: int, out: Path) -> Path:
+    """Fotoğraftan yavaş yakınlaşan/kayan (Ken Burns) klip."""
+    frames = max(1, int(seconds * FPS))
+    zin = idx % 2 == 0
+    z = "min(zoom+0.0005,1.12)" if zin else "if(eq(on,0),1.12,max(zoom-0.0005,1.0))"
+    vf = (f"scale={w*2}:{h*2}:force_original_aspect_ratio=increase,crop={w*2}:{h*2},"
+          f"zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}:s={w}x{h}:fps={FPS},"
+          f"eq=brightness=-0.03:saturation=0.92,fade=t=in:st=0:d=0.8,fade=t=out:st={max(0.1, seconds-0.8):.2f}:d=0.8,format=yuv420p")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-loop", "1", "-i", str(img), "-t", f"{seconds:.3f}", "-vf", vf,
+                    "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", str(out)], check=True)
+    return out
+
+
 FALLBACK_BGS = {"space": "space", "night": "night", "ocean": "lake", "nature": "forest", "forest": "forest", "snow": "snow"}
 
 
@@ -290,17 +356,28 @@ def build_video(tlp: dict, work: Path, out: Path, mix: Path, w: int, h: int, ass
         end = (segs[i + 1]["start"] - offset) if i + 1 < len(segs) else total
         timeline.append((s["visual"], end - (s["start"] - offset)))
     n = 0
+    nasa_q = {s["visual"]: s.get("nasa") for s in segs}
     for vis, seconds in timeline:
         k = max(1, math.ceil(seconds / CLIP_SECONDS))
         per = seconds / k
-        srcs = []
-        try:
-            srcs = pexels_clips(vis, k, used)
-        except Exception as exc:
-            logger.warning(f"Pexels '{vis}': {exc}")
+        srcs, stills = [], []
+        if nasa_q.get(vis):
+            try:
+                stills = nasa_stills(nasa_q[vis], k, used)
+            except Exception as exc:
+                logger.warning(f"NASA '{nasa_q[vis]}': {exc}")
+        if not stills:
+            try:
+                srcs = pexels_clips(vis, k, used)
+            except Exception as exc:
+                logger.warning(f"Pexels '{vis}': {exc}")
         for j in range(k):
-            src = srcs[j % len(srcs)] if srcs else fallback_clip(vis, per, n)
-            parts.append(_norm_clip(src, clips_dir / f"{n:04d}.mp4", per, w, h))
+            dst = clips_dir / f"{n:04d}.mp4"
+            if stills:
+                parts.append(still_clip(stills[j % len(stills)], per, n, w, h, dst))
+            else:
+                src = srcs[j % len(srcs)] if srcs else fallback_clip(vis, per, n)
+                parts.append(_norm_clip(src, dst, per, w, h))
             n += 1
     lst = clips_dir / "list.txt"
     lst.write_text("".join(f"file '{p.name}'\n" for p in parts))
@@ -359,7 +436,8 @@ def make_thumbnail(script: dict, video: Path, out_dir: Path, portrait: bool = Fa
 
 def metadata(script: dict, kind: str = "long", short: dict | None = None) -> dict:
     sources = "\n".join(f"• {s}" for s in script.get("sources", []))
-    disclosure = ("Anlatım yapay zekâ destekli seslendirmeyle hazırlanmıştır. Görüntüler: Pexels (telifsiz). "
+    vis_credit = "NASA (kamu malı; NASA'nın onayı anlamına gelmez)" if any(s.get("nasa") for s in script.get("segments", [])) else "Pexels (telifsiz)"
+    disclosure = (f"Anlatım yapay zekâ destekli seslendirmeyle hazırlanmıştır. Görüntüler: {vis_credit}. "
                   "Müzik: kanala özgü, kodla üretilmiş ortam müziği.")
     if kind == "long":
         title = f"{script['title']} 🌙 Uykudan Önce Dinle | Gece Kütüphanesi"
