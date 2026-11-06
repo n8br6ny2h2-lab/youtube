@@ -459,7 +459,7 @@ def build_video(tlp: dict, work: Path, out: Path, mix: Path, w: int, h: int, ass
                 "-map", "[out]", "-map", "1:a"]
     else:
         cmd += ["-filter_complex", f"[0:v][2:v]overlay=0:0[g];[g]{vf}[out]", "-map", "[out]", "-map", "1:a"]
-    cmd += ["-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-r", str(FPS), "-c:a", "aac", "-b:a", "192k",
+    cmd += ["-c:v", "libx264", "-preset", "medium", "-crf", "22", "-pix_fmt", "yuv420p", "-r", str(FPS), "-c:a", "aac", "-b:a", "192k",
             "-ar", "48000", "-t", f"{total:.3f}", "-movflags", "+faststart", str(out)]
     subprocess.run(cmd, check=True)
     return out
