@@ -36,3 +36,4 @@ channels/*/music/
 channels/*/subtitles/
 channels/*/published/
 channels/*/stories/
+channels/*/*.log
