@@ -44,8 +44,14 @@ def research(queries: list[str] | None = None) -> dict:
                            data={"likes": st.get("likeCount"), "tags": it["snippet"].get("tags", [])[:10]})
                 db.insert("research", **row)
                 rows.append(row)
-    except PermissionError as exc:
-        msg = {"available": False, "reason": str(exc) + " — araştırma için YOUTUBE_API_KEY veya Google bağlantısı gerekir."}
+    except Exception as exc:
+        reason = str(exc)
+        reason = re.sub(r"key=[^&\s\"]+", "key=[REDACTED]", reason)  # anahtar loglara yazılmasın
+        if "API key not valid" in reason:
+            reason = "YOUTUBE_API_KEY geçersiz (Google reddetti)"
+        elif "quota" in reason.lower():
+            reason = "YouTube API kotası doldu"
+        msg = {"available": False, "reason": reason[:300] + " — araştırma için geçerli YOUTUBE_API_KEY veya Google bağlantısı gerekir."}
         db.kv_set("research_insights", msg)
         logger.warning(msg["reason"])
         return msg
