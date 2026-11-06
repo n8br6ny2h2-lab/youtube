@@ -4,6 +4,9 @@ import * as E from './economy.js';
 import { load, persist, wipe, today, exportSave, importSave } from './save.js';
 import { Store, Ads, Sfx, haptic, share } from './services.js';
 import { Game, RUN_SKILLS } from './game.js';
+import { animatePortraits } from './art.js';
+const HERO_W = { kaya: 'sword', lina: 'bow', zerk: 'sword', nyx: 'staff' };
+const heroW = id => (id === S.hero ? stats().wtype : HERO_W[id]);
 import { $, $$, esc, modal, toast, confirmBox, rewardPopup, itemCell, itemStatsHtml, affixRow, bar, closeAllModals } from './ui.js';
 
 const loaded = load();
@@ -33,6 +36,8 @@ async function boot() {
   await Promise.all([store.init(), ads.init()]);
   render();
   setInterval(tick, 1000);
+  const portraitLoop = time => { if (!game) animatePortraits(time); requestAnimationFrame(portraitLoop); };
+  requestAnimationFrame(portraitLoop);
   document.addEventListener('click', onClick);
   document.addEventListener('visibilitychange', () => { if (document.hidden && game && !game.paused) pauseMenu(); save(true); });
   $('#splash').addEventListener('click', () => {
@@ -88,7 +93,7 @@ function navBadges() {
 function topHtml() {
   const st = stats(), h = D.HEROES[S.hero];
   return `<div class="tb-left" data-act="settings">
-      <div class="avatar" style="--hc:${h.color}">${h.icon}</div>
+      <div class="avatar" style="--hc:${h.color}"><canvas class="hero-cv" data-small="1" data-face="1" data-hero="${S.hero}" data-w="${st.wtype}"></canvas></div>
       <div><div class="pname">${esc(S.playerName)}${S.vip ? ' <span class="vip">VIP</span>' : ''}</div><div class="power">⚡ ${fmt(st.power)} Güç</div></div>
     </div>
     <div class="tb-res">
@@ -125,8 +130,7 @@ function battleHtml() {
       </div>
       <div class="hero-pedestal">
         <div class="hero-glow" style="--hc:${h.color}"></div>
-        <div class="hero-emoji">${h.icon}</div>
-        ${S.pet ? `<div class="pet-emoji">${D.PETS[S.pet].icon}</div>` : ''}
+        <canvas class="hero-cv home-cv" data-hero="${S.hero}" data-w="${st.wtype}" data-pet="${S.pet || ''}" data-color="${h.color}"></canvas>
       </div>
       <div class="hero-label">${h.name} • ${h.title}</div>
       ${bar(best, 10, 'ch-bar')}
@@ -158,7 +162,7 @@ function gearHtml() {
     <div class="hero-stage" style="--hc:${h.color}">
       <div class="slots">${['weapon', 'helmet', 'armor'].map(slotHtml).join('')}</div>
       <div class="hero-mid" data-act="heroes">
-        <div class="hero-emoji big">${h.icon}</div>
+        <canvas class="hero-cv gear-cv" data-hero="${S.hero}" data-w="${st.wtype}" data-color="${h.color}"></canvas>
         <div class="hname">${h.name} <small>Sv${S.heroes[S.hero].lvl}</small></div>
         <div class="hpow">⚡ ${fmt(st.power)}</div>
         <div class="hchange">Kahraman ›</div>
@@ -517,7 +521,7 @@ function heroesModal() {
         btn = `<div class="col gap sm">${S.hero === id ? '<span class="tag green">Seçili</span>' : `<button class="btn small green" data-h="sel" data-id="${id}">Seç</button>`}
           <button class="btn small gold" data-h="up" data-id="${id}">⇧ ${own.shards}/${c.shards}🧩 🪙${fmt(c.gold)}</button></div>`;
       }
-      return `<div class="hrow ${own ? '' : 'locked'}" style="--hc:${h.color}"><div class="hicon">${h.icon}</div>
+      return `<div class="hrow ${own ? '' : 'locked'}" style="--hc:${h.color}"><div class="hicon"><canvas class="hero-cv" data-small="1" data-face="1" data-hero="${id}" data-w="${heroW(id)}"></canvas></div>
         <div class="hinfo"><b>${h.name} <small>${h.title}${own ? ` • Sv${own.lvl}` : ''}</small></b><span>${h.passive}</span><small>⚔️${fmt(st.atk)} ❤️${fmt(st.hp)} ⚡${fmt(st.power)}</small></div>${btn}</div>`;
     }).join('')}<p class="muted small center">Kahraman parçaları 🧩 sandıklardan, kitlerden ve Elmas Sandık bonuslarından gelir. Her seviye +%6 saldırı ve can.</p>`;
   };

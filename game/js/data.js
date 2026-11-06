@@ -2,7 +2,7 @@
 
 export const GAME = {
   name: 'Efsun Avcısı',
-  version: '1.0.0',
+  version: '1.1.0',
   energyPerRun: 5,
   energyMax: 30,
   energyRegenSec: 300,
