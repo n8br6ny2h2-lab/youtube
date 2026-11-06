@@ -1,0 +1,123 @@
+# Efsun Avcısı — bulutta Android ve iOS derlemesi (bilgisayar gerekmez)
+#
+# Gizli anahtarlar (Settings > Secrets and variables > Actions) yoksa:
+#   Android: imzasız test APK'sı üretir    iOS: simülatör için derleyip derlemenin hatasız olduğunu doğrular
+# Gizli anahtarlar eklenince:
+#   Android: imzalı AAB (Google Play'e yüklenecek dosya)    iOS: imzalı derleme + otomatik TestFlight yüklemesi
+#
+# Kullanılan gizli anahtarlar (hepsi isteğe bağlı):
+#   GOOGLE_SERVICES_JSON_B64, GOOGLE_SERVICE_INFO_PLIST_B64          Firebase yapılandırma dosyaları (base64)
+#   ANDROID_KEYSTORE_B64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD   Play yükleme anahtarı
+#   APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8_B64          App Store Connect API anahtarı
+name: Mobil Derleme
+
+on:
+  push:
+    paths: ['game/**', '.github/workflows/mobile-build.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: game
+
+jobs:
+  android:
+    name: Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      BUILD_NUMBER: ${{ github.run_number }}
+      HAS_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_B64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: game/package-lock.json }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21, cache: gradle }
+      - name: Bağımlılıklar
+        run: npm ci --no-audit --no-fund
+      - name: Android projesi
+        run: |
+          npm run build
+          npx cap add android
+          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" ]; then echo "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 -d > android/app/google-services.json; fi
+          npm run native-setup
+          npm run assets
+          npx cap sync android
+      - name: Test APK (imzasız)
+        if: env.HAS_KEYSTORE != 'true'
+        working-directory: game/android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+      - name: İmzalı AAB (Google Play)
+        if: env.HAS_KEYSTORE == 'true'
+        working-directory: game/android
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          ./gradlew bundleRelease --no-daemon --stacktrace \
+            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/upload.jks" \
+            -Pandroid.injected.signing.store.password="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+            -Pandroid.injected.signing.key.alias="${{ secrets.ANDROID_KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ secrets.ANDROID_KEY_PASSWORD }}"
+          rm -f "$RUNNER_TEMP/upload.jks"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: efsun-avcisi-android-${{ github.run_number }}
+          path: |
+            game/android/app/build/outputs/apk/debug/*.apk
+            game/android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+          retention-days: 30
+
+  ios:
+    name: iOS
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      BUILD_NUMBER: ${{ github.run_number }}
+      HAS_SIGNING: ${{ secrets.ASC_KEY_P8_B64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: game/package-lock.json }
+      - name: En yeni Xcode
+        run: |
+          X=$(ls -d /Applications/Xcode_*.app | grep -v beta | sort -V | tail -1)
+          sudo xcode-select -s "$X/Contents/Developer"
+          xcodebuild -version
+      - name: Bağımlılıklar
+        run: npm ci --no-audit --no-fund
+      - name: iOS projesi
+        run: |
+          npm run build
+          npx cap add ios
+          if [ -n "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 }}" ]; then echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 }}" | base64 -D > ios/App/App/GoogleService-Info.plist; fi
+          npm run native-setup
+          npm run assets
+          npx cap sync ios
+      - name: Derleme kontrolü (simülatör, imzasız)
+        if: env.HAS_SIGNING != 'true'
+        working-directory: game/ios/App
+        run: |
+          xcodebuild -project App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build | tail -40
+          test ${PIPESTATUS[0]} -eq 0
+      - name: İmzalı derleme ve TestFlight'a yükleme
+        if: env.HAS_SIGNING == 'true'
+        working-directory: game/ios/App
+        run: |
+          KEY="$RUNNER_TEMP/AuthKey.p8"
+          echo "${{ secrets.ASC_KEY_P8_B64 }}" | base64 -D > "$KEY"
+          AUTH="-allowProvisioningUpdates -authenticationKeyPath $KEY -authenticationKeyID ${{ secrets.ASC_KEY_ID }} -authenticationKeyIssuerID ${{ secrets.ASC_ISSUER_ID }}"
+          xcodebuild -project App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }} CODE_SIGN_STYLE=Automatic $AUTH archive | tail -40
+          test ${PIPESTATUS[0]} -eq 0
+          python3 -c "import plistlib,sys; plistlib.dump({'method':'app-store-connect','destination':'upload','teamID':sys.argv[1],'signingStyle':'automatic','manageAppVersionAndBuildNumber':False}, open(sys.argv[2],'wb'))" "${{ secrets.APPLE_TEAM_ID }}" "$RUNNER_TEMP/export.plist"
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+            -exportPath "$RUNNER_TEMP/export" $AUTH | tail -40
+          test ${PIPESTATUS[0]} -eq 0
+          rm -f "$KEY"
+          echo "✅ TestFlight'a yüklendi (App Store Connect'te işlenmesi 10-30 dk sürer)"

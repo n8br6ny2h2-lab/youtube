@@ -47,6 +47,50 @@ patch(plist, xml => {
   return xml;
 });
 
+
+// ---------------- Sürüm numaraları (package.json + BUILD_NUMBER) ----------------
+const pkgVersion = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
+const build = process.env.BUILD_NUMBER || '1';
+
+// ---------------- Android: Google / Play Oyunlar girişi + sürüm ----------------
+patch(join(root, 'android/variables.gradle'), g => g.includes('rgcfaIncludeGoogle') ? g
+  : g.replace(/ext \{/, "ext {\n    rgcfaIncludeGoogle = true\n    androidxCredentialsVersion = '1.3.0'"));
+patch(join(root, 'android/app/build.gradle'), g => g
+  .replace(/versionCode \d+/, `versionCode ${build}`)
+  .replace(/versionName "[^"]*"/, `versionName "${pkgVersion}"`));
+
+// ---------------- iOS: yetkiler, Firebase dosyası, sadece iPhone, sürüm ----------------
+const ent = join(root, 'ios/App/App/App.entitlements');
+if (existsSync(join(root, 'ios/App/App')) && !existsSync(ent)) {
+  writeFileSync(ent, `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+\t<key>com.apple.developer.applesignin</key>
+\t<array><string>Default</string></array>
+\t<key>com.apple.developer.game-center</key>
+\t<true/>
+</dict>
+</plist>
+`); changed++; console.log('oluşturuldu:', ent);
+}
+patch(plist, xml => addKey(xml, 'ITSAppUsesNonExemptEncryption', '<false/>'));
+const hasFirebasePlist = existsSync(join(root, 'ios/App/App/GoogleService-Info.plist'));
+patch(join(root, 'ios/App/App.xcodeproj/project.pbxproj'), p => {
+  if (!p.includes('CODE_SIGN_ENTITLEMENTS')) p = p.replace(/(\t+)INFOPLIST_FILE = App\/Info\.plist;/g, '$1CODE_SIGN_ENTITLEMENTS = App/App.entitlements;\n$1INFOPLIST_FILE = App/Info.plist;');
+  p = p.replace(/TARGETED_DEVICE_FAMILY = "1,2";/g, 'TARGETED_DEVICE_FAMILY = 1;');
+  p = p.replace(/MARKETING_VERSION = [^;]+;/g, `MARKETING_VERSION = ${pkgVersion};`).replace(/CURRENT_PROJECT_VERSION = [^;]+;/g, `CURRENT_PROJECT_VERSION = ${build};`);
+  // GoogleService-Info.plist dosyasını projeye ve "Copy Bundle Resources" adımına kaydet
+  if (hasFirebasePlist && !p.includes('GoogleService-Info.plist')) {
+    const F = 'E5F0A1B2C3D4E5F6A7B8C901', B = 'E5F0A1B2C3D4E5F6A7B8C902';
+    p = p.replace('/* End PBXBuildFile section */', `\t\t${B} /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ${F} /* GoogleService-Info.plist */; };\n/* End PBXBuildFile section */`);
+    p = p.replace('/* End PBXFileReference section */', `\t\t${F} /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };\n/* End PBXFileReference section */`);
+    p = p.replace(/(\t+)(\w+) \/\* capacitor\.config\.json \*\/,\n/, (m, tab) => `${m}${tab}${F} /* GoogleService-Info.plist */,\n`);
+    p = p.replace(/(\t+)(\w+) \/\* capacitor\.config\.json in Resources \*\/,\n/, (m, tab) => `${m}${tab}${B} /* GoogleService-Info.plist in Resources */,\n`);
+  }
+  return p;
+});
+
 console.log(changed ? `\n${changed} dosya güncellendi.` : '\nDeğişiklik gerekmedi.');
-console.log('Xcode\'da ayrıca: Signing & Capabilities > + Game Center, + Sign in with Apple, + In-App Purchase ekleyin.');
+console.log('Yetkiler (Game Center, Apple ile Giriş) App.entitlements ile eklendi; Xcode otomatik imzalamada bunları App ID\'ye kendisi işler.');
 console.log('Firebase: android/app/google-services.json ve ios/App/App/GoogleService-Info.plist dosyalarını koyun.');
