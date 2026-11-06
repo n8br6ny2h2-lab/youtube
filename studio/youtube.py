@@ -128,6 +128,10 @@ def _svc(name: str = "youtube", version: str = "v3", allow_key: bool = False):
         return build(name, version, credentials=creds, cache_discovery=False)
     if allow_key and has_key("YOUTUBE_API_KEY"):
         return build(name, version, developerKey=env("YOUTUBE_API_KEY"), cache_discovery=False)
+    if allow_key and env("YOUTUBE_API_KEY_VIA_PROXY") == "1":
+        # Bulut oturumu: anahtar ağ vekili tarafından x-goog-api-key başlığıyla eklenir; kodda/diskte anahtar yok
+        from google.auth.credentials import AnonymousCredentials
+        return build(name, version, credentials=AnonymousCredentials(), cache_discovery=False)
     raise PermissionError("YouTube bağlantısı yok (python main.py --mode auth)")
 
 
