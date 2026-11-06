@@ -24,9 +24,11 @@ export const CONFIG = {
     android: 'ca-app-pub-3940256099942544/5224354917', // Google'ın TEST kimliği — yayından önce kendi kimliğinizle değiştirin
     ios: 'ca-app-pub-3940256099942544/1712485313',
   },
+  // Aylık Kart ve Sezon Bileti: Apple'da "Non-Renewing Subscription", Google Play'de tüketilebilir ürün
+  timedProducts: ['monthly_card', 'battle_pass'],
 };
 
-const isNative = () => !!(window.Capacitor?.isNativePlatform?.() || window.cordova);
+export const isNative = () => !!(window.Capacitor?.isNativePlatform?.() || window.cordova);
 
 // ---------------- IAP ----------------
 export class Store {
@@ -40,8 +42,11 @@ export class Store {
   }
 
   async init() {
-    if (isNative() && window.CdvPurchase) {
-      try { await this.initNative(); this.native = true; } catch (e) { console.warn('IAP başlatılamadı', e); }
+    // Telefonda ASLA test mağazasına düşülmez: eklenti yoksa ya da açılamazsa satın alma kapalı kalır.
+    this.device = isNative();
+    if (this.device) {
+      if (!window.CdvPurchase) { this.failed = 'Mağaza eklentisi bulunamadı'; }
+      else { try { await this.initNative(); this.native = true; } catch (e) { this.failed = 'Mağazaya bağlanılamadı'; console.warn('IAP başlatılamadı', e); } }
     }
     this.ready = true;
   }
@@ -51,7 +56,8 @@ export class Store {
     const platform = window.Capacitor?.getPlatform?.() === 'ios' ? Platform.APPLE_APPSTORE : Platform.GOOGLE_PLAY;
     store.register(PRODUCTS.map(p => ({
       id: p.id, platform,
-      type: p.type === 'consumable' ? ProductType.CONSUMABLE : ProductType.NON_CONSUMABLE,
+      type: CONFIG.timedProducts.includes(p.id) && platform === Platform.APPLE_APPSTORE ? ProductType.NON_RENEWING_SUBSCRIPTION
+        : p.type === 'consumable' ? ProductType.CONSUMABLE : ProductType.NON_CONSUMABLE,
     })));
     if (CONFIG.validatorUrl) store.validator = CONFIG.validatorUrl;
     store.when()
@@ -71,6 +77,7 @@ export class Store {
   async buy(id) {
     const product = PRODUCTS.find(p => p.id === id);
     if (!product) return false;
+    if (this.device && !this.native) { this.onError?.((this.failed || 'Mağaza kullanılamıyor') + '. İnternet bağlantını kontrol edip tekrar dene.'); return false; }
     if (this.native) {
       const { store } = window.CdvPurchase;
       const offer = store.get(id)?.getOffer();
@@ -92,24 +99,39 @@ export class Store {
 
 // ---------------- Ödüllü reklam ----------------
 export class Ads {
-  constructor() { this.native = null; this.onSimulate = null; }
+  constructor() { this.native = null; this.onSimulate = null; this.canRequest = true; this.privacyRequired = false; }
+  // Google'ın önerdiği sıra: (1) UMP onay formu (AB/İngiltere vb.)  (2) iOS ATT izni  (3) AdMob başlatma
   async init() {
     const AdMob = window.Capacitor?.Plugins?.AdMob;
-    if (isNative() && AdMob) {
-      try {
-        // iOS: Uygulama İzleme Şeffaflığı (ATT) izni — reklam kimliği için Apple zorunlu tutar
-        if (window.Capacitor.getPlatform() === 'ios') {
-          const st = await AdMob.trackingAuthorizationStatus().catch(() => null);
-          if (st?.status === 'notDetermined') await AdMob.requestTrackingAuthorization().catch(() => {});
-        }
-        await AdMob.initialize({ initializeForTesting: true }); this.native = AdMob;
-      } catch (e) { console.warn(e); }
-    }
+    if (!isNative() || !AdMob) return;
+    try {
+      let info = await AdMob.requestConsentInfo().catch(() => null);
+      if (info?.isConsentFormAvailable && info.status === 'REQUIRED') info = await AdMob.showConsentForm().catch(() => info);
+      this.canRequest = info ? info.canRequestAds !== false : true;
+      this.privacyRequired = info?.privacyOptionsRequirementStatus === 'REQUIRED';
+      if (window.Capacitor.getPlatform() === 'ios') {
+        const st = await AdMob.trackingAuthorizationStatus().catch(() => null);
+        if (st?.status === 'notDetermined') await AdMob.requestTrackingAuthorization().catch(() => {});
+      }
+      const testing = [CONFIG.admob.android, CONFIG.admob.ios].some(id => id.startsWith('ca-app-pub-3940256099942544'));
+      await AdMob.initialize({ initializeForTesting: testing, maxAdContentRating: 'ParentalGuidance' });
+      this.native = AdMob;
+    } catch (e) { console.warn('Reklam başlatılamadı', e); }
+  }
+  // Ayarlar > Reklam gizlilik seçenekleri (onay toplanan bölgelerde zorunlu)
+  async privacyOptions() {
+    const AdMob = window.Capacitor?.Plugins?.AdMob;
+    if (!AdMob) return false;
+    await AdMob.showPrivacyOptionsForm();
+    const info = await AdMob.requestConsentInfo().catch(() => null);
+    if (info) this.canRequest = info.canRequestAds !== false;
+    return true;
   }
   // true = ödül kazanıldı
   async rewarded(vip) {
     if (vip) return true;
     if (this.native) {
+      if (!this.canRequest) return false;
       try {
         const adId = window.Capacitor.getPlatform() === 'ios' ? CONFIG.admob.ios : CONFIG.admob.android;
         await this.native.prepareRewardVideoAd({ adId });
@@ -117,6 +139,7 @@ export class Ads {
         return !!r;
       } catch (e) { return false; }
     }
+    if (isNative()) return false; // telefonda reklam yüklenemediyse ödül verilmez
     return this.onSimulate ? this.onSimulate() : true;
   }
 }

@@ -8,6 +8,9 @@ Saf HTML5 + JavaScript (derleme adımı yok). Tarayıcıda PWA olarak çalışı
 cd game && python3 -m http.server 8080   →  http://localhost:8080
 ```
 
+
+> **Yayına hazırlık:** Adım adım yayın rehberi `store/RELEASE.md`, mağaza metinleri `store/LISTING.md`, ikon/ekran görüntüleri `store/` ve `assets/` içinde. Yüklemeden önce `npm run release-check` çalıştır; eksik kalan her şeyi listeler.
+
 ---
 
 ## 1. Oyun döngüsü

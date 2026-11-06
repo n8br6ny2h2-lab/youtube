@@ -2,7 +2,7 @@
 
 export const GAME = {
   name: 'Efsun Avcısı',
-  version: '1.2.0',
+  version: '1.0.0',
   energyPerRun: 5,
   energyMax: 30,
   energyRegenSec: 300,
@@ -10,8 +10,8 @@ export const GAME = {
   waveLen: 18,
   idleCapHours: 12,
   shareUrl: '',   // mağaza bağlantınız (ör. https://play.google.com/store/apps/details?id=...) — boşsa sayfa adresi
-  privacyUrl: '', // oyunun gizlilik politikası adresi — mağazalar zorunlu tutar
-  termsUrl: '',   // kullanım şartları adresi
+  privacyUrl: 'legal/privacy.html', // oyun içinde açılır; mağaza formuna ise bu sayfanın herkese açık adresini yazın
+  termsUrl: 'legal/terms.html',
 };
 
 export const RARITIES = [
@@ -272,9 +272,10 @@ export const DIFFS = [
 ];
 
 export const NEWS = [
-  { tag: 'GÜNCELLEME', date: 'Kasım 2026', title: 'v1.2: Zorluk seviyeleri geldi!', body: 'Her bölümü Normal, Zor ve Kabus seviyelerinde oyna. Zor seviyede 2.5×, Kabus\'ta 5× ganimet! Yeni düşmanlar: Hücumcu Domuz ve Bölünen Balçık. Kombo sistemi: art arda öldür, bonus altın kazan.' },
+  { tag: 'ÇIKIŞ', date: 'Kasım 2026', title: 'Efsun Avcısı yayında!', body: 'Efsun Diyarı\'na hoş geldin! 5 bölüm, 6 boss, 4 kahraman ve yüzlerce eşya seni bekliyor. Her bölümü Normal, Zor ve Kabus seviyelerinde oyna; zorlaştıkça ganimet de büyür.' },
   { tag: 'SEZON', date: 'Kasım 2026', title: 'Sezon 1: Efsunun Uyanışı', body: 'Efsun Bileti\'nin 30 kademesinde Mitik Ayaz Silahı seni bekliyor. Günlük görevleri tamamlayarak bilet XP\'si kazan.' },
-  { tag: 'İPUCU', date: '', title: 'Bosslar uyarı verir', body: 'Kırmızı daire = yere vuruş, kırmızı şerit = hücum. Kırmızı alanın dışına çık! Domuzlar da hücumdan önce kırmızı şerit gösterir.' },
+  { tag: 'İPUCU', date: '', title: 'Bosslar uyarı verir', body: 'Kırmızı daire = yere vuruş, kırmızı şerit = hücum. Kırmızı alanın dışına çık! Yaban domuzları da hücumdan önce kırmızı şerit gösterir.' },
+  { tag: 'İPUCU', date: '', title: 'Güç yetmiyor mu?', body: 'Aynı 3 eşyayı birleştir, Gelişim\'te yetenek al, efsunlarını yenile. Önerilen gücün altındaysan önceki bölümleri tekrar oynayıp ganimet topla.' },
 ];
 
 // Hediye kodları (çevrimdışı sürüm). Canlıda kodlar sunucuda doğrulanmalı.
@@ -294,4 +295,4 @@ export const FAQ = [
 ];
 
 export const WELCOME_MAIL = { id: 'welcome', from: 'Efsun Konseyi', title: 'Hoş geldin, Avcı!', body: 'Efsun Diyarı\'na hoş geldin! Yolculuğuna başlaman için küçük bir hediye hazırladık. Bol şans!', rew: { gems: 150, gold: 3000, runes: 10 } };
-export const UPDATE_MAIL = { id: 'v120', from: 'Geliştirici Ekibi', title: 'v1.2 Güncelleme Hediyesi', body: 'Zorluk seviyeleri ve yeni düşmanlar geldi! Güncelleme şerefine bu hediyeyi kabul et.', rew: { gems: 100, energy: 15, scrolls: 20 } };
+export const UPDATE_MAIL = { id: 'launch', from: 'Geliştirici Ekibi', title: 'Çıkış Kutlaması 🎉', body: 'Efsun Avcısı\'nın ilk oyuncularından biri olduğun için teşekkürler! Çıkış şerefine bu hediyeyi kabul et.', rew: { gems: 100, energy: 15, scrolls: 20 } };

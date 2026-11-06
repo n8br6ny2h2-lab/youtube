@@ -1,6 +1,6 @@
 // Efsun Avcısı — savaş motoru (Canvas 2D, 60 FPS, mobil dokunmatik joystick)
 import { chapterInfo, GAME } from './data.js';
-import { drawHero, drawEnemy as artEnemy, drawPet as artPet } from './art.js';
+import { drawHero, drawEnemy as artEnemy, drawPet as artPet, ART } from './art.js';
 
 const TAU = Math.PI * 2;
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -117,7 +117,19 @@ export class Game {
     window.addEventListener('resize', this.h.resize);
   }
 
+  // Otomatik performans modu: 3 sn boyunca ortalama 40 FPS'in altındaysa kaliteyi düşür
+  watchPerf(dt) {
+    const pf = this.perf;
+    if (this.paused || this.cfg.quality === 'low' || this.cfg.fps === 30 || pf.checked > 2) return;
+    pf.t += dt; pf.n++;
+    if (pf.t >= 3) {
+      const fps = pf.n / pf.t; pf.t = 0; pf.n = 0; pf.checked++;
+      if (fps < 40) { this.cfg.quality = 'low'; ART.lite = true; this.resize(); this.amb = null; this.cfg.onLowPerf?.(); }
+    }
+  }
+
   destroy() {
+    ART.glow = true; ART.lite = false;
     cancelAnimationFrame(this.raf);
     this.running = false;
     const c = this.c;
@@ -141,13 +153,23 @@ export class Game {
 
   start() {
     this.running = true;
+    ART.glow = false; ART.lite = this.cfg.quality === 'low';
+    this.perf = { t: 0, n: 0, checked: 0 };
     let last = performance.now();
     const loop = now => {
       if (!this.running) return;
       if (this.cfg.fps === 30 && now - last < 30) { this.raf = requestAnimationFrame(loop); return; }
-      const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      if (!this.paused) this.update(dt * this.timeScale);
-      this.draw();
+      // RAF zaman damgası start() anından önce olabilir: dt asla negatif olmamalı
+      const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = Math.max(last, now);
+      try {
+        if (!this.paused) this.update(dt * this.timeScale);
+        this.draw();
+      } catch (err) {
+        // tek bir karede hata olsa bile oyun donmasın
+        if (!this.errLogged) { console.error(err); this.errLogged = true; }
+        this.ctx.restore?.(); this.ctx.globalAlpha = 1; this.ctx.globalCompositeOperation = 'source-over';
+      }
+      this.watchPerf(dt);
       this.raf = requestAnimationFrame(loop);
     };
     this.raf = requestAnimationFrame(loop);
@@ -1071,7 +1093,7 @@ export class Game {
   }
 
   drawFx(f) {
-    const ctx = this.ctx, k = f.t / f.life;
+    const ctx = this.ctx, k = Math.max(0, Math.min(1, f.t / f.life));
     switch (f.type) {
       case 'slash': {
         ctx.strokeStyle = `rgba(255,255,255,${0.9 * (1 - k)})`; ctx.lineWidth = 14 * (1 - k) + 2;
@@ -1098,7 +1120,7 @@ export class Game {
         ctx.globalAlpha = 1; break;
       }
       case 'portal': {
-        const open = k < 0.3 ? k / 0.3 : 1 - (k - 0.3) / 0.7;
+        const open = Math.max(0, Math.min(1, k < 0.3 ? k / 0.3 : 1 - (k - 0.3) / 0.7));
         ctx.save(); ctx.translate(f.x, f.y); ctx.scale(1, 0.4);
         ctx.fillStyle = f.color; ctx.globalAlpha = 0.35 * open; ctx.beginPath(); ctx.arc(0, 0, f.r * open, 0, TAU); ctx.fill();
         ctx.strokeStyle = f.color; ctx.globalAlpha = open; ctx.lineWidth = 3;
@@ -1214,7 +1236,7 @@ export class Game {
     this.ambLast = { x: this.p.x, y: this.p.y };
     const dt = this.paused ? 0 : 1 / 60, t = this.time;
     const col = ['#d9f99d', '#fed7aa', '#ffffff', '#d8b4fe', '#fb923c'][k];
-    ctx.globalCompositeOperation = 'lighter';
+    const lite = this.cfg.quality === 'low';
     for (const a of this.amb) {
       a.x -= dx * a.s; a.y -= dy * a.s; a.ph += dt;
       if (k === 0) { a.x += Math.cos(a.ph * 0.7) * 20 * dt; a.y += Math.sin(a.ph * 0.9) * 15 * dt; }
@@ -1228,10 +1250,10 @@ export class Game {
       ctx.fillStyle = col;
       if (k === 1) { ctx.fillRect(a.x, a.y, 10 * a.s, 1.5); continue; }
       const rad = (k === 2 ? 2.2 : 1.8) * a.s;
-      ctx.beginPath(); ctx.arc(a.x, a.y, rad, 0, TAU); ctx.fill();
-      if (k !== 2) { ctx.globalAlpha *= 0.15; ctx.beginPath(); ctx.arc(a.x, a.y, rad * 2.6, 0, TAU); ctx.fill(); }
+      ctx.fillRect(a.x - rad, a.y - rad, rad * 2, rad * 2);
+      if (k !== 2 && !lite) { ctx.globalAlpha *= 0.15; ctx.fillRect(a.x - rad * 2.4, a.y - rad * 2.4, rad * 4.8, rad * 4.8); }
     }
-    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
   }
 
   // Paylaşım kartı için ekran görüntüsü

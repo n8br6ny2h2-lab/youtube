@@ -34,6 +34,7 @@ export class Account {
   async link(provider, alreadyLinked) {
     const P = PROVIDERS[provider];
     if (!this.native) {
+      if (this.platform !== 'web') throw new Error('Giriş hizmeti şu an kullanılamıyor');
       const ok = await this.onTestConfirm?.(provider);
       if (!ok) return null;
       return { provider, id: 'test-' + Math.random().toString(36).slice(2, 10), name: 'Test Oyuncu', test: true, at: Date.now() };

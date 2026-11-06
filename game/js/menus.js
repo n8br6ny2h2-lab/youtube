@@ -215,11 +215,12 @@ export function createMenus(app) {
         <div class="setgroup"><h4>Hesap & Veri</h4><div class="col gap">
           <button class="btn blue" data-b="account">🔗 Hesap & Bulut</button>
           <button class="btn grey" data-b="restore">🧾 Satın alımları geri yükle</button>
+          ${app.ads?.privacyRequired ? '<button class="btn grey" data-b="adprivacy">🛡️ Reklam gizlilik seçenekleri</button>' : ''}
           <div class="row gap"><button class="btn grey" data-b="export">💾 Yedek kodu al</button><button class="btn grey" data-b="import">📥 Yedekten yükle</button></div>
           <button class="btn red" data-b="reset">Bu cihazdaki ilerlemeyi sıfırla</button></div></div>
         <div class="setgroup"><h4>Yasal</h4><div class="col gap">
-          ${D.GAME.privacyUrl ? `<a class="btn grey" href="${D.GAME.privacyUrl}" target="_blank" rel="noopener">Gizlilik Politikası</a>` : ''}
-          ${D.GAME.termsUrl ? `<a class="btn grey" href="${D.GAME.termsUrl}" target="_blank" rel="noopener">Kullanım Şartları</a>` : ''}
+          <button class="btn grey" data-b="privacy">🔐 Gizlilik Politikası</button>
+          <button class="btn grey" data-b="terms">📄 Kullanım Şartları</button>
           <button class="btn grey" data-b="about">ℹ️ Hakkında & Lisanslar</button></div></div>
         <p class="muted center small">${D.GAME.name} v${D.GAME.version} • ${S().account.playerId}</p>`;
     };
@@ -238,7 +239,10 @@ export function createMenus(app) {
         const k = b.dataset.b;
         if (k === 'account') { m.close(); return account(); }
         if (k === 'about') { m.close(); return about(); }
+        if (k === 'privacy') return doc(D.GAME.privacyUrl, 'Gizlilik Politikası');
+        if (k === 'terms') return doc(D.GAME.termsUrl, 'Kullanım Şartları');
         if (k === 'restore') return app.restore();
+        if (k === 'adprivacy') { try { await app.ads.privacyOptions(); } catch (e) { toast('Şu an açılamıyor', 'bad'); } return; }
         if (k === 'export') return app.exportCode();
         if (k === 'import') return app.importCode();
         if (k === 'reset') { if (await confirmBox('Emin misin?', 'Bu cihazdaki tüm ilerleme silinecek. Bağlı bulut kaydın etkilenmez; satın alımlar mağazadan geri yüklenebilir.', 'Sıfırla')) app.wipeAll(); return; }
@@ -340,9 +344,13 @@ export function createMenus(app) {
         <p><b>Ebeveynler için:</b> Bu oyun isteğe bağlı uygulama içi satın almalar ve reklamlar içerir. Satın almaları cihazınızın ayarlarından (Ekran Süresi / Google Play ebeveyn denetimleri) kısıtlayabilirsiniz.</p>
         <p><b>Yazı tipleri:</b> Lilita One, Nunito — SIL Open Font License 1.1</p>
         <p><b>Grafik ve sesler:</b> oyun içinde kodla üretilmiştir.</p>
-        ${D.GAME.privacyUrl ? `<p><a href="${D.GAME.privacyUrl}" target="_blank" rel="noopener">Gizlilik Politikası</a></p>` : ''}
-        ${D.GAME.termsUrl ? `<p><a href="${D.GAME.termsUrl}" target="_blank" rel="noopener">Kullanım Şartları</a></p>` : ''}
-      </div>`, { cls: 'aboutbox' });
+        <div class="row gap"><button class="btn grey small" data-doc="privacy">🔐 Gizlilik</button><button class="btn grey small" data-doc="terms">📄 Şartlar</button></div>
+      </div>`, { cls: 'aboutbox' }).el.addEventListener('click', e => { const b = e.target.closest('[data-doc]'); if (b) doc(b.dataset.doc === 'privacy' ? D.GAME.privacyUrl : D.GAME.termsUrl, b.textContent); });
+  }
+
+  // Yasal metinleri oyunun içinde açar (telefonda dış bağlantı oyunu terk ettirmesin)
+  function doc(url, title) {
+    modal(`<h2>${esc(title)}</h2><iframe class="docframe" src="${esc(url)}" title="${esc(title)}"></iframe>`, { cls: 'docbox' });
   }
 
   // ================================================================ PROFİL

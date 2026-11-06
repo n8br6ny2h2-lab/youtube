@@ -1,5 +1,15 @@
 // Efsun Avcısı — prosedürel karakter ve düşman çizimleri (dosya/görsel gerektirmez)
 const TAU = Math.PI * 2;
+// Savaşta pahalı gölge-bulanıklığı kapatılır (mobil performans); menülerde açık kalır.
+export const ART = { glow: true, lite: false };
+// Performans modunda (ART.lite) gradyan yerine düz renk — çok sayıda düşman çizilirken belirgin hız kazandırır
+function grad(ctx, radial, args, c0, c1, flat = c1) {
+  if (ART.lite) return flat;
+  const g = radial ? ctx.createRadialGradient(...args) : ctx.createLinearGradient(...args);
+  g.addColorStop(0, c0); g.addColorStop(1, c1);
+  return g;
+}
+
 
 function rr(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -231,8 +241,7 @@ function slime(ctx, e, r, col, lx, ly, t) {
   const y = -hop * r * 0.45;
   const sq = 1 + (1 - hop) * 0.18 * (hop < 0.3 ? 1 : 0) + (e.hitS || 0) * 0.25;
   const w = r * sq * (1 + Math.sin(t * 9 + e.ph) * 0.03), h = r / sq;
-  const g = ctx.createRadialGradient(-r * 0.3, y - r * 0.4, r * 0.1, 0, y, r * 1.2);
-  g.addColorStop(0, shade(col.startsWith('#') ? col : '#ffffff', 0.4)); g.addColorStop(1, col.startsWith('#') ? shade(col, -0.25) : col);
+  const g = grad(ctx, true, [-r * 0.3, y - r * 0.4, r * 0.1, 0, y, r * 1.2], shade(col.startsWith('#') ? col : '#ffffff', 0.4), col.startsWith('#') ? shade(col, -0.25) : col);
   ctx.fillStyle = g;
   ctx.beginPath();
   ctx.moveTo(-w, y + h * 0.6);
@@ -302,15 +311,14 @@ function boar(ctx, e, r, col, lx, ly, t) {
   ctx.save(); if (lx < 0) ctx.scale(-1, 1);
   ctx.fillStyle = dk;
   for (const [x, o] of [[-0.55, 1], [-0.2, -1], [0.3, 1], [0.6, -1]]) { rr(ctx, x * r - r * 0.1, r * 0.35 + o * run * 0.3, r * 0.2, r * 0.5, 3); ctx.fill(); }
-  const g = ctx.createRadialGradient(-r * 0.2, -r * 0.4, 2, 0, 0, r * 1.1);
-  g.addColorStop(0, shade(fur, 0.25)); g.addColorStop(1, dk);
+  const g = grad(ctx, true, [-r * 0.2, -r * 0.4, 2, 0, 0, r * 1.1], shade(fur, 0.25), dk);
   ctx.fillStyle = g; ell(ctx, -r * 0.1, 0, r * 0.95, r * 0.65); ctx.fill();
   ctx.fillStyle = dk; ctx.beginPath(); for (let i = 0; i < 5; i++) { ctx.moveTo(-r * 0.7 + i * r * 0.28, -r * 0.5); ctx.lineTo(-r * 0.6 + i * r * 0.28, -r * 0.85); ctx.lineTo(-r * 0.5 + i * r * 0.28, -r * 0.5); } ctx.fill();
   ctx.fillStyle = fur; ell(ctx, r * 0.75, -r * 0.05, r * 0.45, r * 0.4); ctx.fill();
   ctx.fillStyle = '#f9a8d4'; ell(ctx, r * 1.12, r * 0.05, r * 0.16, r * 0.14); ctx.fill();
   ctx.fillStyle = '#111'; circ(ctx, r * 1.08, r * 0.03, r * 0.035); ctx.fill(); circ(ctx, r * 1.16, r * 0.03, r * 0.035); ctx.fill();
   ctx.fillStyle = '#fef3c7'; ctx.beginPath(); ctx.moveTo(r * 0.95, r * 0.2); ctx.quadraticCurveTo(r * 1.2, r * 0.25, r * 1.15, -r * 0.15); ctx.lineTo(r * 1.05, r * 0.15); ctx.fill();
-  ctx.fillStyle = '#dc2626'; ctx.shadowColor = '#ef4444'; ctx.shadowBlur = e.aim > 0 ? 10 : 0; circ(ctx, r * 0.78, -r * 0.18, r * 0.08); ctx.fill(); ctx.shadowBlur = 0;
+  ctx.fillStyle = '#dc2626'; ctx.shadowColor = '#ef4444'; ctx.shadowBlur = ART.glow && e.aim > 0 ? 10 : 0; circ(ctx, r * 0.78, -r * 0.18, r * 0.08); ctx.fill(); ctx.shadowBlur = ART.glow ? 0 : 0;
   ctx.fillStyle = dk; ctx.beginPath(); ctx.moveTo(r * 0.55, -r * 0.35); ctx.lineTo(r * 0.5, -r * 0.7); ctx.lineTo(r * 0.75, -r * 0.4); ctx.fill();
   ctx.restore();
 }
@@ -326,8 +334,7 @@ function golem(ctx, e, r, col, lx, ly, t) {
   ell(ctx, -r * 1.0, y + r * 0.2 + sw, r * 0.38, r * 0.45, 0.3); ctx.fill();
   ell(ctx, r * 1.0, y + r * 0.2 - sw, r * 0.38, r * 0.45, -0.3); ctx.fill();
   // gövde
-  const g = ctx.createRadialGradient(-r * 0.3, y - r * 0.4, r * 0.2, 0, y, r * 1.1);
-  g.addColorStop(0, base === '#fff' ? '#fff' : shade(base, 0.25)); g.addColorStop(1, dk);
+  const g = grad(ctx, true, [-r * 0.3, y - r * 0.4, r * 0.2, 0, y, r * 1.1], base === '#fff' ? '#fff' : shade(base, 0.25), dk);
   ctx.fillStyle = g;
   ctx.beginPath();
   const pts = 9;
@@ -341,10 +348,10 @@ function golem(ctx, e, r, col, lx, ly, t) {
   ctx.globalAlpha = 1;
   // gözler (parlayan)
   ctx.fillStyle = glow;
-  ctx.shadowColor = glow; ctx.shadowBlur = 8;
+  ctx.shadowColor = glow; ctx.shadowBlur = ART.glow ? 8 : 0;
   rr(ctx, -r * 0.42 + lx * 3, y - r * 0.28 + ly * 2, r * 0.26, r * 0.12, 2); ctx.fill();
   rr(ctx, r * 0.16 + lx * 3, y - r * 0.28 + ly * 2, r * 0.26, r * 0.12, 2); ctx.fill();
-  ctx.shadowBlur = 0;
+  ctx.shadowBlur = ART.glow ? 0 : 0;
 }
 
 function bomb(ctx, e, r, col, lx, ly, t) {
@@ -356,8 +363,7 @@ function bomb(ctx, e, r, col, lx, ly, t) {
   ell(ctx, r * 0.4 - run * 0.4, r * 0.95, r * 0.28, r * 0.15); ctx.fill();
   ctx.save(); ctx.scale(sc, sc);
   const blink = fusing && Math.floor(e.fuse * 20) % 2 === 0;
-  const g = ctx.createRadialGradient(-r * 0.35, -r * 0.35, r * 0.1, 0, 0, r);
-  g.addColorStop(0, blink ? '#fca5a5' : col === '#ffffff' ? '#fff' : '#6b7280'); g.addColorStop(1, blink ? '#b91c1c' : '#111827');
+  const g = grad(ctx, true, [-r * 0.35, -r * 0.35, r * 0.1, 0, 0, r], blink ? '#fca5a5' : col === '#ffffff' ? '#fff' : '#6b7280', blink ? '#b91c1c' : '#111827');
   ctx.fillStyle = g; circ(ctx, 0, 0, r); ctx.fill();
   ctx.fillStyle = 'rgba(255,255,255,0.5)'; ell(ctx, -r * 0.4, -r * 0.45, r * 0.22, r * 0.13, -0.6); ctx.fill();
   ctx.fillStyle = '#57534e'; rr(ctx, -r * 0.25, -r * 1.15, r * 0.5, r * 0.3, 2); ctx.fill();
@@ -373,8 +379,7 @@ function mage(ctx, e, r, col, look, t) {
   const y = Math.sin(t * 3 + e.ph) * 4 - 4;
   const robe = col === '#ffffff' ? '#fff' : col;
   // gölge kuyruğu
-  const g = ctx.createLinearGradient(0, y - r, 0, y + r * 1.3);
-  g.addColorStop(0, shade(robe.startsWith('#') ? robe : '#ffffff', -0.1)); g.addColorStop(1, 'rgba(76,29,149,0.1)');
+  const g = grad(ctx, false, [0, y - r, 0, y + r * 1.3], shade(robe.startsWith('#') ? robe : '#ffffff', -0.1), 'rgba(76,29,149,0.1)', shade(robe.startsWith('#') ? robe : '#ffffff', -0.1));
   ctx.fillStyle = g;
   ctx.beginPath(); ctx.moveTo(-r * 0.9, y - r * 0.2); ctx.quadraticCurveTo(-r * 1.1, y + r * 0.9, -r * 0.4 + Math.sin(t * 5) * 3, y + r * 1.4);
   ctx.lineTo(r * 0.4 + Math.sin(t * 5 + 1) * 3, y + r * 1.4); ctx.quadraticCurveTo(r * 1.1, y + r * 0.9, r * 0.9, y - r * 0.2); ctx.closePath(); ctx.fill();
@@ -382,14 +387,14 @@ function mage(ctx, e, r, col, look, t) {
   ctx.fillStyle = shade(robe.startsWith('#') ? robe : '#ffffff', -0.3);
   ctx.beginPath(); ctx.moveTo(-r * 0.85, y); ctx.quadraticCurveTo(-r * 0.9, y - r * 1.2, 0, y - r * 1.9); ctx.quadraticCurveTo(r * 0.9, y - r * 1.2, r * 0.85, y); ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#0f0a1e'; ell(ctx, 0, y - r * 0.45, r * 0.55, r * 0.5); ctx.fill();
-  ctx.fillStyle = '#f0abfc'; ctx.shadowColor = '#f0abfc'; ctx.shadowBlur = 6;
+  ctx.fillStyle = '#f0abfc'; ctx.shadowColor = '#f0abfc'; ctx.shadowBlur = ART.glow ? 6 : 0;
   circ(ctx, -r * 0.2 + Math.cos(look) * 2, y - r * 0.45, r * 0.09); ctx.fill(); circ(ctx, r * 0.2 + Math.cos(look) * 2, y - r * 0.45, r * 0.09); ctx.fill();
   // küre
   const ox = Math.cos(look) * r * 1.1, oy = y + Math.sin(look) * r * 0.6;
   const charge = e.cd > 0 && e.cd < 0.6 ? 1.8 : 1;
-  ctx.fillStyle = '#f472b6'; ctx.shadowColor = '#f472b6'; ctx.shadowBlur = 12;
+  ctx.fillStyle = '#f472b6'; ctx.shadowColor = '#f472b6'; ctx.shadowBlur = ART.glow ? 12 : 0;
   circ(ctx, ox, oy, r * 0.25 * charge + Math.sin(t * 8) * 1.2); ctx.fill();
-  ctx.shadowBlur = 0;
+  ctx.shadowBlur = ART.glow ? 0 : 0;
 }
 
 // ---------------------------------------------------------------------- BOSSLAR
@@ -408,10 +413,11 @@ function boss(ctx, e, r, col, lx, ly, t) {
 }
 
 function glowEyes(ctx, x, y, r, lx, ly, c = '#fde047') {
-  ctx.fillStyle = c; ctx.shadowColor = c; ctx.shadowBlur = 14;
+  if (!ART.glow) { ctx.globalAlpha = 0.3; ctx.fillStyle = c; ell(ctx, x - r * 0.22 + lx * 3, y + ly * 2, r * 0.2, r * 0.14); ctx.fill(); ell(ctx, x + r * 0.22 + lx * 3, y + ly * 2, r * 0.2, r * 0.14); ctx.fill(); ctx.globalAlpha = 1; }
+  ctx.fillStyle = c; ctx.shadowColor = c; ctx.shadowBlur = ART.glow ? 14 : 0;
   ell(ctx, x - r * 0.22 + lx * 3, y + ly * 2, r * 0.1, r * 0.07); ctx.fill();
   ell(ctx, x + r * 0.22 + lx * 3, y + ly * 2, r * 0.1, r * 0.07); ctx.fill();
-  ctx.shadowBlur = 0;
+  ctx.shadowBlur = ART.glow ? 0 : 0;
 }
 
 function treant(ctx, e, r, C, lx, ly, t) {
@@ -460,8 +466,8 @@ function scorpion(ctx, e, r, C, lx, ly, t) {
   for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + i * (0.42 + curl); px += Math.cos(a) * r * 0.28; py += Math.sin(a) * r * 0.28; segs.push([px, py, r * (0.24 - i * 0.02)]); }
   segs.forEach(([x, y, rr2], i) => { ctx.fillStyle = i % 2 ? sand : dk; circ(ctx, x, y, rr2); ctx.fill(); });
   const [sx, sy] = segs[segs.length - 1];
-  ctx.fillStyle = '#dc2626'; ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 8;
-  ctx.beginPath(); ctx.moveTo(sx - r * 0.08, sy); ctx.lineTo(sx - r * 0.05, sy + r * 0.38); ctx.lineTo(sx + r * 0.1, sy + r * 0.02); ctx.fill(); ctx.shadowBlur = 0;
+  ctx.fillStyle = '#dc2626'; ctx.shadowColor = '#ef4444'; ctx.shadowBlur = ART.glow ? 8 : 0;
+  ctx.beginPath(); ctx.moveTo(sx - r * 0.08, sy); ctx.lineTo(sx - r * 0.05, sy + r * 0.38); ctx.lineTo(sx + r * 0.1, sy + r * 0.02); ctx.fill(); ctx.shadowBlur = ART.glow ? 0 : 0;
   // gövde
   const g = ctx.createRadialGradient(-r * 0.2, -r * 0.1, 2, 0, 0, r * 0.7);
   g.addColorStop(0, sand === '#fff' ? '#fff' : shade(sand, 0.25)); g.addColorStop(1, dk);
@@ -537,7 +543,7 @@ function dragon(ctx, e, r, C, lx, ly, t) {
   for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(s * r * 0.2, -r * 0.92); ctx.quadraticCurveTo(s * r * 0.45, -r * 1.2, s * r * 0.35, -r * 1.4); ctx.lineTo(s * r * 0.1, -r * 0.95); ctx.fill(); }
   const mouth = e.state === 'act' || e.state === 'tele' ? r * 0.12 : r * 0.03;
   ctx.fillStyle = '#1e0536'; ell(ctx, 0, -r * 0.55, r * 0.2, mouth); ctx.fill();
-  if (mouth > r * 0.05) { ctx.fillStyle = '#f0abfc'; ctx.shadowColor = '#f0abfc'; ctx.shadowBlur = 16; circ(ctx, 0, -r * 0.55, r * 0.08); ctx.fill(); ctx.shadowBlur = 0; }
+  if (mouth > r * 0.05) { ctx.fillStyle = '#f0abfc'; ctx.shadowColor = '#f0abfc'; ctx.shadowBlur = ART.glow ? 16 : 0; circ(ctx, 0, -r * 0.55, r * 0.08); ctx.fill(); ctx.shadowBlur = ART.glow ? 0 : 0; }
   glowEyes(ctx, 0, -r * 0.75, r * 0.9, lx, ly, '#f0abfc');
 }
 

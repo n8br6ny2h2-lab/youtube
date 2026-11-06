@@ -60,7 +60,8 @@ async function boot() {
   });
   menus.showTitle();
   setInterval(cloudAutoSync, 180000);
-  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+  // PWA önbelleği yalnızca web sürümünde (uygulamada dosyalar zaten pakette; önbellek güncellemeleri geciktirir)
+  if ('serviceWorker' in navigator && location.protocol === 'https:' && !window.Capacitor?.isNativePlatform?.()) navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
 function tick() {
@@ -122,7 +123,7 @@ function bindNative() {
 
 const menus = createMenus({
   get S() { return S; },
-  sfx, account, fmt: n => E.fmt(n),
+  sfx, account, ads, fmt: n => E.fmt(n),
   save: now => save(now), render: () => render(), play: n => play(n), stats: () => stats(),
   grant: (rew, title) => { rewardPopup(E.grant(S, rew), title); save(true); render(); },
   rewText: r => rewText(r),
@@ -745,6 +746,8 @@ function grantProduct(id, txId) {
   if (txId && S.txIds.includes(txId)) return;
   const p = D.PRODUCT[id]; if (!p) return;
   if (txId) S.txIds.push(txId);
+  // tek seferlik ürün zaten verildiyse (ör. "geri yükle" tekrarı) ikinci kez verme
+  if ((p.once && S.purchases[id]) || (p.kind === 'vip' && S.vip)) { save(true); return; }
   if (S.txIds.length > 300) S.txIds = S.txIds.slice(-300);
   S.purchases[id] = (S.purchases[id] || 0) + 1;
   let list = [], title = 'Satın alma başarılı!';
@@ -839,6 +842,7 @@ function startBattle(chapter, mods = null) {
     sfx: play, haptic: vib, onHud: hud, onLevelUp: levelUpModal, onDeath: deathModal, onEnd: endModal,
     dmgNumbers: S.settings.dmgNumbers, shake: S.settings.shake, fps: S.settings.fps,
     onBoss: on => sfx.music(on ? 'boss' : 'battle'),
+    onLowPerf: () => { if (S.settings.quality !== 'low') { S.settings.quality = 'low'; save(); toast('⚡ Akıcı oyun için performans modu açıldı (Ayarlar > Grafik)'); } },
     onInput: () => { const t = $('#tut'); if (t) t.remove(); },
   });
   initHud();

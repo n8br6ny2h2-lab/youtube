@@ -438,3 +438,6 @@ input[type=range] { flex: none; width: 150px; padding: 0; border: 0; background:
 .lb-row.me { border: 1.5px solid var(--gold); background: #78350f66; }
 .lb-row .rk { width: 28px; text-align: center; font-family: var(--head); } .lb-row b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .lb-row em { font-style: normal; color: #fde68a; }
 .lb-me { display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 12px; background: #0006; margin-top: 8px; } .lb-me b { color: #fde68a; }
+
+.docbox { max-width: 720px; height: 88vh; display: flex; flex-direction: column; }
+.docframe { flex: 1; width: 100%; border: 0; border-radius: 12px; background: #0b0d17; }
