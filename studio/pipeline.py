@@ -97,6 +97,29 @@ def do_analytics() -> dict:
     return {"fetched": f.get("available"), "reason": f.get("reason"), "learnings": lrn, "report": rep["path"], "schedule": opt}
 
 
+def cleanup(days: int = 7) -> dict:
+    """Yüklenmiş videoların ara render dosyalarını siler (timeline.json ve final videolar kalır)."""
+    import time as _t
+    freed, cutoff = 0, _t.time() - days * 86400
+    for d in Paths.scenes.glob("ep_*"):
+        if d.stat().st_mtime > cutoff:
+            continue
+        for sub in d.iterdir():
+            if sub.name in ("timeline.json",):
+                continue
+            size = sum(f.stat().st_size for f in sub.rglob("*") if f.is_file()) if sub.is_dir() else sub.stat().st_size
+            shutil.rmtree(sub, ignore_errors=True) if sub.is_dir() else sub.unlink(missing_ok=True)
+            freed += size
+    # 30 günden eski ve yüklenmiş final videolar
+    for r in db.query("SELECT v.path FROM videos v JOIN uploads u ON u.video_id=v.id WHERE u.status='uploaded' "
+                      "AND u.created_at < datetime('now','-30 days')"):
+        f = Paths.root / r["path"]
+        if f.exists():
+            freed += f.stat().st_size
+            f.unlink()
+    return {"freed_mb": round(freed / 1e6, 1)}
+
+
 def full() -> dict:
     """Ajan ekibiyle günlük döngü: Yönetmen → Trend Avcısı → Senarist → Kontrolcü → Telif → Animatör → Shorts → Yayıncı."""
     from . import agents
@@ -109,6 +132,10 @@ def full() -> dict:
         out["analytics"] = _run("analytics", do_analytics)
     except Exception as exc:
         out["analytics"] = {"error": str(exc)}
+    try:
+        out["cleanup"] = cleanup()
+    except Exception as exc:
+        out["cleanup"] = {"error": str(exc)}
     return out
 
 
