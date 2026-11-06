@@ -140,7 +140,7 @@ def produce_shorts(story: dict, long_result: dict, limit: int | None = None) -> 
         if not sub:
             continue
         dur = sum(s["beats"][-1]["start"] + s["beats"][-1]["dur"] - s["beats"][0]["start"] for s in sub) + 4
-        if dur < 12 or dur > 58:
+        if dur < 18 or dur > 56:  # QC sınırı 15-60 sn; tahmin payı bırakılır
             continue
         scored.append({**c, "score": _score_short(tlp, c["scene_ids"]), "est": dur})
     scored.sort(key=lambda c: -c["score"])

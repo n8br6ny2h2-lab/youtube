@@ -209,8 +209,13 @@ def build_html(tlp: dict, project: Path, layout: Layout, brand: dict, title_over
         shown = {b["show_prop"] for b in sc["beats"] if b.get("show_prop", -1) >= 0}
         n = len(props)
         span = min(W * 0.62, 260 * n * layout.prop_scale)
+        char_xs = [_slot_x(layout, c["slot"]) for c in sc["characters"]]
         for pi, p in enumerate(props):
             px = W / 2 + (pi - (n - 1) / 2) * (span / max(1, n - 1) if n > 1 else 0)
+            if n == 1 and any(abs(px - cx) < 180 for cx in char_xs):
+                # tek nesne bir karakterin tam üstüne düşüyorsa boş tarafa kaydır
+                free = [x for x in (W * 0.28, W * 0.72) if all(abs(x - cx) > 220 for cx in char_xs)]
+                px = free[0] if free else px
             py = layout.prop_y - (60 if n > 3 and pi % 2 else 0)
             parts.append(f'<g transform="translate({px:.0f} {py:.0f})"><g id="{sid}p{pi}" class="prop">'
                          f'{prop_svg(p["kind"], p["color"], p.get("label") or None, layout.prop_scale)}</g></g>')
