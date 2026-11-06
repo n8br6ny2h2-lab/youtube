@@ -1,0 +1,11 @@
+{
+  "appId": "com.efsunavcisi.game",
+  "appName": "Efsun Avcısı",
+  "webDir": "www",
+  "backgroundColor": "#0b0d17",
+  "android": { "allowMixedContent": false },
+  "ios": { "contentInset": "never" },
+  "plugins": {
+    "AdMob": { "appIdAndroid": "ca-app-pub-3940256099942544~3347511713", "appIdIos": "ca-app-pub-3940256099942544~1458002511" }
+  }
+}

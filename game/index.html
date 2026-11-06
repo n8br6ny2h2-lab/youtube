@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d17">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Efsun Avcısı — tek parmakla oynanan aksiyon RPG. Eşyalarını efsunla, setleri tamamla, bossları yen!">
+  <meta property="og:title" content="Efsun Avcısı">
+  <meta property="og:description" content="Kaç dalga dayanabilirsin? Eşyalarını efsunla, bossları yen, arkadaşlarına meydan oku!">
+  <title>Efsun Avcısı</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="splash">
+    <div class="logo"><span>EFSUN</span><span>AVCISI</span></div>
+    <div class="splash-hero">🏹</div>
+    <div class="tap">Başlamak için dokun</div>
+    <small>v1.0 • Tek parmakla oyna</small>
+  </div>
+
+  <div id="menu">
+    <header id="top"></header>
+    <main id="screen"></main>
+    <nav id="nav">
+      <button data-act="tab" data-tab="shop"><span>🛒</span><small>Mağaza</small></button>
+      <button data-act="tab" data-tab="gear"><span>🎒</span><small>Ekipman</small></button>
+      <button data-act="tab" data-tab="battle" class="center"><span>⚔️</span><small>Savaş</small></button>
+      <button data-act="tab" data-tab="talent"><span>🌟</span><small>Gelişim</small></button>
+      <button data-act="tab" data-tab="quest"><span>📜</span><small>Görevler</small></button>
+    </nav>
+  </div>
+
+  <div id="battle" hidden>
+    <canvas id="cv"></canvas>
+    <div id="hud"></div>
+  </div>
+
+  <div id="modals"></div>
+  <div id="toasts"></div>
+
+  <noscript>Bu oyun için JavaScript gerekir.</noscript>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

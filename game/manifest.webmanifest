@@ -1,0 +1,16 @@
+{
+  "name": "Efsun Avcısı",
+  "short_name": "Efsun Avcısı",
+  "description": "Tek parmakla oynanan aksiyon RPG: efsunla, birleştir, bossları yen.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#0b0d17",
+  "theme_color": "#0b0d17",
+  "lang": "tr",
+  "categories": ["games"],
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
