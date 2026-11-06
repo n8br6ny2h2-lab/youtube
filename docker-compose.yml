@@ -1,0 +1,26 @@
+# docker compose up -d  → panel: http://localhost:8080  · n8n: http://localhost:5678
+services:
+  studio:
+    build: .
+    env_file: .env
+    environment:
+      - DASHBOARD_HOST=0.0.0.0
+    ports: ["127.0.0.1:8080:8080"]
+    volumes:
+      - ./:/app
+    restart: unless-stopped
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    environment:
+      - GENERIC_TIMEZONE=Europe/Istanbul
+      - TZ=Europe/Istanbul
+      - STUDIO_URL=http://studio:8080
+      - DASHBOARD_TOKEN=${DASHBOARD_TOKEN}
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+    ports: ["127.0.0.1:5678:5678"]
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n:/workflows:ro
+    restart: unless-stopped
+volumes:
+  n8n_data:

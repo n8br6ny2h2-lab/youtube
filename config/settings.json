@@ -1,0 +1,103 @@
+{
+  "timezone": "Europe/Istanbul",
+  "language": "tr",
+  "target_age": "2-8",
+  "video": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "min_long_seconds": 60,
+    "target_long_seconds": 150,
+    "shorts_per_long": 3,
+    "shorts_min_seconds": 15,
+    "shorts_max_seconds": 60
+  },
+  "audio": {
+    "target_lufs": -14.0,
+    "music_gain_db": -20.0,
+    "tts_engine": "auto",
+    "piper_voice": "models/piper/tr_TR-dfki-medium.onnx"
+  },
+  "whisper": {
+    "engine": "faster-whisper",
+    "model": "small",
+    "compute_type": "int8"
+  },
+  "llm": {
+    "provider": "auto",
+    "model": "claude-opus-5-5",
+    "effort": "medium",
+    "max_tokens": 32000
+  },
+  "schedule": {
+    "long": [
+      [
+        "tue",
+        "18:00"
+      ],
+      [
+        "thu",
+        "18:00"
+      ],
+      [
+        "sun",
+        "18:00"
+      ]
+    ],
+    "shorts": [
+      [
+        "mon",
+        "19:00"
+      ],
+      [
+        "tue",
+        "12:00"
+      ],
+      [
+        "wed",
+        "19:00"
+      ],
+      [
+        "thu",
+        "12:00"
+      ],
+      [
+        "fri",
+        "19:00"
+      ],
+      [
+        "sat",
+        "12:00"
+      ],
+      [
+        "sun",
+        "19:00"
+      ]
+    ],
+    "fixed_days": 30,
+    "min_videos_for_optimization": 12
+  },
+  "publishing": {
+    "auto_publish": false,
+    "default_privacy": "private",
+    "made_for_kids": true,
+    "category_id": "1",
+    "contains_synthetic_media": false,
+    "upload_quota_units": 1600,
+    "daily_quota_units": 10000
+  },
+  "budget": {
+    "daily_usd": 3.0,
+    "monthly_usd": 40.0,
+    "currency": "USD"
+  },
+  "ideas": {
+    "min_score_to_produce": 70,
+    "priority_score": 85,
+    "max_improve_rounds": 2
+  },
+  "dashboard": {
+    "host": "127.0.0.1",
+    "port": 8080
+  }
+}

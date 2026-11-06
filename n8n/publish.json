@@ -1,0 +1,72 @@
+{
+  "id": "bkPublish01",
+  "name": "Bulutkent - Saatlik yayın kuyruğu",
+  "active": false,
+  "settings": {
+    "timezone": "Europe/Istanbul",
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "id": "3cf9e379-64b0-4e99-b516-0b5163d9def4",
+      "name": "Zamanlayıcı",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "5 * * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "b1be51e7-4589-4e92-9843-66bf13ef9eab",
+      "name": "Stüdyo: publish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.STUDIO_URL || 'http://studio:8080' }}/api/run/publish",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Token",
+              "value": "={{ $env.DASHBOARD_TOKEN }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Zamanlayıcı": {
+      "main": [
+        [
+          {
+            "node": "Stüdyo: publish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "tags": []
+}

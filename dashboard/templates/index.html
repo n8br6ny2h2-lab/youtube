@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Bulutkent Stüdyo</title>
+<style>
+:root{--bg:#F4FAFF;--card:#fff;--ink:#2B2D42;--muted:#6B7280;--line:#E3EEF7;--sky:#4FC3F7;--coral:#FF7A59;--leaf:#43A047;--sun:#FFD54F;--bad:#E53935}
+@media (prefers-color-scheme:dark){:root{--bg:#10151C;--card:#18202A;--ink:#E8EEF5;--muted:#9AA6B2;--line:#26313D}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--ink)}
+header{display:flex;align-items:center;gap:14px;padding:14px 20px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header img{height:46px}header h1{font-size:20px;margin:0}header .sub{color:var(--muted);font-size:13px}
+.wrap{max-width:1280px;margin:0 auto;padding:18px 16px 60px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card h2{font-size:15px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.kpi b{display:block;font-size:22px}.kpi span{color:var(--muted);font-size:12px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{border:0;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;background:var(--sky);color:#fff}
+button.alt{background:var(--coral)}button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:disabled{opacity:.5;cursor:wait}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.pill{display:inline-block;padding:1px 8px;border-radius:20px;font-size:12px;font-weight:700;background:var(--line)}
+.ok{background:#E3F6E5;color:#1B5E20}.no{background:#FDE4E4;color:#B71C1C}.warn{background:#FFF4D6;color:#8A5A00}
+@media (prefers-color-scheme:dark){.ok{background:#1E3A23;color:#A5D6A7}.no{background:#3E1E1E;color:#EF9A9A}.warn{background:#3A3016;color:#FFE082}}
+.banner{width:100%;border-radius:10px;border:1px solid var(--line)}
+.vids{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.vid{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}.vid img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}
+.vid.short img{aspect-ratio:9/16;max-height:300px}.vid .m{padding:8px 10px;font-size:13px}.vid a{color:var(--sky);font-weight:700;text-decoration:none}
+.muted{color:var(--muted)}pre{white-space:pre-wrap;font-size:12px;margin:0;max-height:220px;overflow:auto}
+.cal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}.slot{border:1px solid var(--line);border-radius:10px;padding:8px;font-size:12px}
+.slot.long{border-left:4px solid var(--coral)}.slot.short{border-left:4px solid var(--sky)}
+video{width:100%;border-radius:10px;background:#000}
+</style>
+</head>
+<body>
+<header><img src="/media/logos/logo.png" alt=""/><div><h1 id="bname">Bulutkent Stüdyo</h1><div class="sub" id="slogan"></div></div>
+<div style="margin-left:auto" class="sub" id="job"></div></header>
+<div class="wrap">
+  <div class="kpis" id="kpis"></div>
+  <div class="card" style="margin-top:14px"><h2>Görevler</h2>
+    <div class="btns">
+      <button onclick="run('full')" class="alt">Tam döngü (FULL)</button>
+      <button onclick="run('research')">Fikir üret / araştır</button>
+      <button onclick="run('story')">Hikâye yaz</button>
+      <button onclick="run('video')">Video üret</button>
+      <button onclick="run('shorts')">Shorts çıkar</button>
+      <button onclick="run('publish')">Yayın kuyruğu</button>
+      <button onclick="run('analytics')">Analitik + rapor</button>
+    </div>
+    <p class="muted" style="margin:8px 0 0">Görevler arka planda çalışır; aynı anda tek görev. Token gerekiyorsa adres çubuğuna <code>?token=...</code> ekleyin.</p>
+  </div>
+  <div class="grid" style="margin-top:14px">
+    <div class="card"><h2>Kanal markası</h2><img class="banner" src="/media/banners/banner_2560x1440.png" alt="banner"/>
+      <div style="display:flex;gap:10px;margin-top:10px;align-items:center"><img src="/media/brand/profile_800.png" style="width:64px;border-radius:50%"/>
+      <div id="chan" class="muted"></div></div></div>
+    <div class="card"><h2>Bağlantılar</h2><table id="conns"></table></div>
+    <div class="card"><h2>Maliyet ve bütçe</h2><div id="costs"></div></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h2>Son video önizleme</h2><div id="preview" class="muted">Henüz video yok.</div></div>
+  <div class="card" style="margin-top:14px"><h2>Videolar ve Shorts <span class="muted" id="vcount"></span></h2><div class="vids" id="vids"></div></div>
+  <div class="grid" style="margin-top:14px">
+    <div class="card"><h2>Yayın takvimi <span class="muted">Europe/Istanbul</span></h2><div class="cal" id="cal"></div></div>
+    <div class="card"><h2>Fikir havuzu</h2><table id="ideas"></table></div>
+  </div>
+  <div class="grid" style="margin-top:14px">
+    <div class="card"><h2>Haftalık performans raporu</h2><div id="report"></div></div>
+    <div class="card"><h2>Üretim geçmişi</h2><table id="runs"></table></div>
+    <div class="card"><h2>Hata kayıtları</h2><table id="errors"></table></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h2>YouTube API yetenekleri</h2><table id="caps"></table></div>
+</div>
+<script>
+const tok=new URLSearchParams(location.search).get('token')||'';
+const J=u=>fetch(u).then(r=>r.json());
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pill=(ok,t)=>`<span class="pill ${ok?'ok':'no'}">${t||(ok?'hazır':'yok')}</span>`;
+async function run(m){const r=await fetch('/api/run/'+m+(tok?'?token='+tok:''),{method:'POST'});const j=await r.json();
+  if(!r.ok){alert(j.busy?('Şu an çalışan görev: '+j.busy):(j.detail||'Hata'));}poll();}
+async function poll(){const j=await J('/api/job');document.getElementById('job').textContent=j.mode?('Çalışıyor: '+j.mode+' ('+j.started+')'):(j.error?'Son görev hata verdi':'Boşta');
+  document.querySelectorAll('.btns button').forEach(b=>b.disabled=!!j.mode);if(j.mode)setTimeout(()=>{poll();load();},5000);}
+async function load(){
+  const s=await J('/api/status');
+  document.getElementById('bname').textContent=(s.brand||'Bulutkent')+' Stüdyo';document.getElementById('slogan').textContent=s.brand_kit?.slogan||'';
+  const c=s.counts;document.getElementById('kpis').innerHTML=[['Bugün üretilen',s.today_produced],['Fikir',c.ideas],['Hikâye',c.stories],['Video',c.videos],['Yükleme',c.uploads],['Hata',c.errors],
+   ['Abone',s.channel?.subscribers??'—'],['Kanal izlenme',s.channel?.views??'—']].map(([k,v])=>`<div class="kpi"><b>${v}</b><span>${k}</span></div>`).join('');
+  document.getElementById('chan').innerHTML=s.channel?.exists?`<b>${esc(s.channel.title)}</b><br>${esc(s.channel.custom_url||'')} · ${s.channel.videos} video`:'YouTube kanalı bağlı değil';
+  const a=s.apis,l=s.local;document.getElementById('conns').innerHTML=[
+   ['YouTube (OAuth)',pill(s.youtube_connected,s.youtube_connected?'bağlı':(s.client_secret_present?'yetki bekliyor':'istemci dosyası yok'))],
+   ['Otomatik yayın',pill(s.auto_publish,s.auto_publish?'açık':'kapalı (özel yükleme)')],
+   ['Claude API',pill(a.claude,a.claude?'bağlı':'yok → yerel motor')],['ElevenLabs',pill(a.elevenlabs,a.elevenlabs?'bağlı':'yok → Piper')],
+   ['Piper Türkçe ses',pill(l.piper_tr_voice)],['Whisper modeli',pill(l.whisper_model)],['HyperFrames',pill(l.hyperframes)],['FFmpeg',pill(l.ffmpeg)],
+   ['n8n',pill(l.n8n)],['YouTube API anahtarı (araştırma)',pill(a.youtube_api_key)],['Pexels / Pixabay / Unsplash',pill(a.pexels||a.pixabay||a.unsplash,(a.pexels||a.pixabay||a.unsplash)?'var':'isteğe bağlı')]
+  ].map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+  document.getElementById('caps').innerHTML='<tr><th>İşlem</th><th>API</th><th>Not</th></tr>'+s.capabilities.map(x=>`<tr><td>${esc(x.operation)}</td><td>${pill(x.api,x.api?'evet':'hayır (manuel)')}</td><td class="muted">${esc(x.note)}</td></tr>`).join('');
+  const co=await J('/api/costs');document.getElementById('costs').innerHTML=`<div class="kpis"><div class="kpi"><b>$${co.today_usd}</b><span>Bugün / $${co.daily_limit}</span></div>
+   <div class="kpi"><b>$${co.month_usd}</b><span>Bu ay / $${co.monthly_limit}</span></div><div class="kpi"><b>${co.youtube_quota_today}</b><span>YouTube kota (bugün)</span></div></div>
+   <table style="margin-top:8px"><tr><th>Servis</th><th>Durum</th><th>Ücretsiz alternatif</th></tr>${co.services.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td class="muted">${esc(r[2])}</td></tr>`).join('')}</table>`;
+  const v=await J('/api/videos');document.getElementById('vcount').textContent=v.length+' kayıt';
+  document.getElementById('vids').innerHTML=v.map(x=>`<div class="vid ${x.kind}"><img loading="lazy" src="${x.thumb_url||''}"/><div class="m"><b>${esc(x.title)}</b><br>
+   <span class="muted">${x.kind==='long'?'Uzun':'Shorts'} · ${x.duration_s?x.duration_s.toFixed(0)+' sn':''}</span> ${pill(x.qc_passed,x.qc_passed?'QC geçti':'QC kaldı')} <span class="pill warn">${esc(x.status)}</span><br>
+   <a href="${x.url}" target="_blank">İzle</a> ${x.youtube_id?` · <a href="https://youtu.be/${x.youtube_id}" target="_blank">YouTube (${esc(x.privacy)})</a>`:''}</div></div>`).join('');
+  const last=v.find(x=>x.kind==='long');if(last)document.getElementById('preview').innerHTML=`<video controls preload="metadata" poster="${last.thumb_url}" src="${last.url}"></video><div class="muted">${esc(last.title)}</div>`;
+  const sc=await J('/api/schedule');document.getElementById('cal').innerHTML=sc.calendar.map(x=>`<div class="slot ${x.kind}"><b>${x.day} ${x.time}</b><br>${x.kind==='long'?'Uzun':'Shorts'}<br><span class="muted">${esc(x.title||'boş — kaliteli içerik bekleniyor')}</span></div>`).join('');
+  const id=await J('/api/ideas');document.getElementById('ideas').innerHTML='<tr><th>Fikir</th><th>Puan*</th><th>Durum</th></tr>'+id.slice(0,15).map(x=>`<tr><td>${esc(x.title)}<br><span class="muted">${x.category} · ${x.source}</span></td><td>${x.score}</td><td>${esc(x.status)}</td></tr>`).join('')+'<tr><td colspan=3 class="muted">*Dahili tahmini puan; izlenme garantisi değildir.</td></tr>';
+  const rp=await J('/api/report');const r=rp.report;document.getElementById('report').innerHTML=`<div class="muted">${esc(r.week)}</div>
+   <p>Üretim: <b>${r.production.long}/3</b> uzun, <b>${r.production.shorts}/7</b> Shorts · Yükleme: ${r.production.uploads}</p>
+   <p>${r.analytics.available?'Analitik verisi mevcut.':'<span class="pill warn">Veri yok</span> Sonuç uydurulmadı.'}</p>
+   <p class="muted">Abone geçmişi: ${rp.subscribers.length?rp.subscribers.map(x=>x.value).join(' → '):'veri yok'}</p>
+   <p class="muted">Araştırma: ${rp.research?.available?rp.research.videos+' video analiz edildi':esc(rp.research?.reason||'henüz yapılmadı')}</p>`;
+  const ru=await J('/api/runs');document.getElementById('runs').innerHTML='<tr><th>Görev</th><th>Durum</th><th>Başlangıç</th></tr>'+ru.slice(0,12).map(x=>`<tr><td>${x.mode}</td><td>${pill(x.status==='ok',x.status)}</td><td class="muted">${x.started_at}</td></tr>`).join('');
+  const er=await J('/api/errors');document.getElementById('errors').innerHTML=er.length?'<tr><th>Aşama</th><th>Mesaj</th><th>#</th></tr>'+er.slice(0,12).map(x=>`<tr><td>${x.stage}</td><td class="muted">${esc(x.message).slice(0,140)}</td><td>${x.attempts}</td></tr>`).join(''):'<tr><td class="muted">Hata yok</td></tr>';
+}
+load();poll();
+</script>
+</body>
+</html>

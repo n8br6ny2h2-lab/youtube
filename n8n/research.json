@@ -1,0 +1,72 @@
+{
+  "id": "bkResearch01",
+  "name": "Bulutkent - Günlük araştırma ve fikir üretimi",
+  "active": false,
+  "settings": {
+    "timezone": "Europe/Istanbul",
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "id": "6387292a-5076-4792-87b6-31218e738f17",
+      "name": "Zamanlayıcı",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "10 9 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "af3f9873-d581-49ca-bccf-d4a3401683e6",
+      "name": "Stüdyo: research",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.STUDIO_URL || 'http://studio:8080' }}/api/run/research",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Token",
+              "value": "={{ $env.DASHBOARD_TOKEN }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Zamanlayıcı": {
+      "main": [
+        [
+          {
+            "node": "Stüdyo: research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "tags": []
+}

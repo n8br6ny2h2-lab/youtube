@@ -1,0 +1,72 @@
+{
+  "id": "bkAnalyt01",
+  "name": "Bulutkent - Günlük analitik ve haftalık rapor",
+  "active": false,
+  "settings": {
+    "timezone": "Europe/Istanbul",
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "id": "d288168a-a984-4fb1-bc8f-05d2489b48fe",
+      "name": "Zamanlayıcı",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "20 6 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "9c388923-82b7-4195-93d8-8023cabc5ca2",
+      "name": "Stüdyo: analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.STUDIO_URL || 'http://studio:8080' }}/api/run/analytics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Token",
+              "value": "={{ $env.DASHBOARD_TOKEN }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Zamanlayıcı": {
+      "main": [
+        [
+          {
+            "node": "Stüdyo: analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "tags": []
+}
