@@ -58,6 +58,11 @@ video{width:100%;border-radius:10px;background:#000}
     <div class="card"><h2>Bağlantılar</h2><table id="conns"></table></div>
     <div class="card"><h2>Maliyet ve bütçe</h2><div id="costs"></div></div>
   </div>
+  <div class="grid" style="margin-top:14px">
+    <div class="card"><h2>Ekip (ajanlar) <span class="muted" id="lastrun"></span></h2><div id="team"></div></div>
+    <div class="card"><h2>Trend radarı <span class="muted" id="radarnote"></span></h2><table id="radar"></table></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h2>İş emirleri</h2><table id="orders"></table></div>
   <div class="card" style="margin-top:14px"><h2>Son video önizleme</h2><div id="preview" class="muted">Henüz video yok.</div></div>
   <div class="card" style="margin-top:14px"><h2>Videolar ve Shorts <span class="muted" id="vcount"></span></h2><div class="vids" id="vids"></div></div>
   <div class="grid" style="margin-top:14px">
@@ -110,6 +115,12 @@ async function load(){
    <p class="muted">Abone geçmişi: ${rp.subscribers.length?rp.subscribers.map(x=>x.value).join(' → '):'veri yok'}</p>
    <p class="muted">Araştırma: ${rp.research?.available?rp.research.videos+' video analiz edildi':esc(rp.research?.reason||'henüz yapılmadı')}</p>`;
   const ru=await J('/api/runs');document.getElementById('runs').innerHTML='<tr><th>Görev</th><th>Durum</th><th>Başlangıç</th></tr>'+ru.slice(0,12).map(x=>`<tr><td>${x.mode}</td><td>${pill(x.status==='ok',x.status)}</td><td class="muted">${x.started_at}</td></tr>`).join('');
+  const tm=await J('/api/team');
+  document.getElementById('team').innerHTML=tm.team.map(a=>`<div style="margin:4px 0"><b>${esc(a.name)}</b> <span class="muted">— ${esc(a.role)}</span></div>`).join('');
+  document.getElementById('lastrun').textContent=tm.last?('son çalışma: '+(tm.last.finished||tm.last.started||'')):'';
+  const rd=tm.radar;document.getElementById('radarnote').textContent=rd?rd.data_note:'henüz çalışmadı';
+  document.getElementById('radar').innerHTML=rd?'<tr><th>Tema</th><th>Puan*</th><th>Kanıt</th></tr>'+rd.ranked.slice(0,8).map(r=>`<tr><td>${esc(r.name)}${r.season?' <span class="pill warn">mevsim</span>':''}</td><td>${r.score}</td><td class="muted">${r.matching_videos} video · ${r.trend_velocity} izlenme/saat</td></tr>`).join('')+'<tr><td colspan=3 class="muted">*Dahili tahmin; garanti değildir.</td></tr>':'';
+  document.getElementById('orders').innerHTML='<tr><th>Veren → Alan</th><th>Görev</th><th>Durum</th></tr>'+tm.orders.slice(0,20).map(o=>`<tr><td>${esc(o.issuer)} → <b>${esc(o.agent)}</b></td><td>${esc(o.task)}</td><td>${pill(['done','approved'].includes(o.status),o.status)}</td></tr>`).join('');
   const er=await J('/api/errors');document.getElementById('errors').innerHTML=er.length?'<tr><th>Aşama</th><th>Mesaj</th><th>#</th></tr>'+er.slice(0,12).map(x=>`<tr><td>${x.stage}</td><td class="muted">${esc(x.message).slice(0,140)}</td><td>${x.attempts}</td></tr>`).join(''):'<tr><td class="muted">Hata yok</td></tr>';
 }
 load();poll();

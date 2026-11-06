@@ -59,8 +59,13 @@ def _text_svg(text: str, size: int, color: str = "#FFFFFF", stroke: int = 14, wi
     raw = tr_upper(text) if len(text) < 22 else text
     size = min(size, int(width / (0.66 * max(1, len(raw)))))  # metni genişliğe sığdır
     t = html.escape(raw)
-    return (f'<svg width="{width}" height="{int(size*1.25)}"><text x="{x}" y="{size}" text-anchor="{anchor}" font-family="&quot;Baloo 2&quot;" '
-            f'font-weight="800" font-size="{size}" fill="{color}" stroke="#2B2D42" stroke-width="{stroke}" stroke-linejoin="round" '
+    gid = f"tg{abs(hash((text, size, color))) % 10**8}"
+    light = "#FFFFFF" if color.upper() != "#FFFFFF" else "#FFFFFF"
+    bottom = "#FFE082" if color.upper() == "#FFFFFF" else color
+    return (f'<svg class="tt" width="{width}" height="{int(size*1.3)}"><defs><linearGradient id="{gid}" x1="0" y1="0" x2="0" y2="1">'
+            f'<stop offset="0.15" stop-color="{light}"/><stop offset="1" stop-color="{bottom}"/></linearGradient></defs>'
+            f'<text x="{x}" y="{size}" text-anchor="{anchor}" font-family="&quot;Baloo 2&quot;" '
+            f'font-weight="800" font-size="{size}" fill="url(#{gid})" stroke="#2B2D42" stroke-width="{stroke}" stroke-linejoin="round" '
             f'paint-order="stroke">{t}</text></svg>')
 
 
@@ -131,7 +136,15 @@ def make(story: dict, out_dir: Path, portrait: bool = False, prefix: str = "thum
     w, h = (1080, 1920) if portrait else (1280, 720)
     out_dir.mkdir(parents=True, exist_ok=True)
     cs = concepts(story, w, h)
-    jobs = [(html_page(body, w, h), w, h, out_dir / f"{prefix}_{name}.png") for name, body in cs]
+    overlay = (f'<div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 55%,rgba(10,16,48,.38) 100%)"></div>'
+               + "".join(f'<div style="position:absolute;left:{x}%;top:{y}%;width:{s}px;height:{s}px;border-radius:50%;'
+                         f'background:radial-gradient(circle,rgba(255,255,255,.55),rgba(255,255,255,0) 70%)"></div>'
+                         for x, y, s in [(8, 12, 90), (88, 8, 70), (78, 70, 110), (4, 78, 60), (55, 5, 50)]))
+    css = ("svg[id^=sv]{filter:drop-shadow(0 0 10px rgba(255,255,255,.95)) drop-shadow(0 0 22px rgba(255,255,255,.55)) "
+           "drop-shadow(0 22px 26px rgba(20,24,60,.45))} .tt{filter:drop-shadow(0 8px 0 rgba(20,24,60,.35)) drop-shadow(0 0 18px rgba(255,255,255,.35))}")
+    def wrap(body):
+        return f'<div style="position:relative;width:{w}px;height:{h}px;overflow:hidden">{body}{overlay}</div>'
+    jobs = [(html_page(wrap(body), w, h, css=css), w, h, out_dir / f"{prefix}_{name}.png") for name, body in cs]
     render_many(jobs)
     results = []
     for (name, _), (_, _, _, p) in zip(cs, jobs):

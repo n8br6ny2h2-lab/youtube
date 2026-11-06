@@ -59,6 +59,10 @@ CREATE TABLE IF NOT EXISTS licenses (
 CREATE TABLE IF NOT EXISTS learnings (
   id INTEGER PRIMARY KEY, created_at TEXT, key TEXT, value REAL, evidence TEXT
 );
+CREATE TABLE IF NOT EXISTS orders (
+  id INTEGER PRIMARY KEY, created_at TEXT, finished_at TEXT, issuer TEXT, agent TEXT, task TEXT, payload TEXT,
+  status TEXT DEFAULT 'open', result TEXT
+);
 CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT);
 """
 

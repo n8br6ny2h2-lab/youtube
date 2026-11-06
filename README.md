@@ -18,6 +18,30 @@ Whisper altyazı → kalite kontrol → kapak → Shorts → takvime koy → You
 | Yazı tipleri | Baloo 2 + Nunito (SIL OFL, `templates/fonts/`) |
 | Dosyalar | `logos/logo.png`, `logos/watermark.png`, `brand/profile_800.png`, `banners/banner_2560x1440.png` (güvenli alan 1546x423), `characters/*_sheet.png` |
 
+## Ajan ekibi (günlük döngü)
+
+`python main.py` (veya `--mode full`) artık ajan ekibini çalıştırır. Her emir `orders` tablosuna yazılır ve panelde **Ekip / İş emirleri** bölümünde görünür.
+
+| Ajan | Görevi |
+|---|---|
+| **Yönetmen** | Günün planını yapar, diğer ajanlara iş emri verir, son kararı verir |
+| **Trend Avcısı** | YouTube Türkiye popüler listeleri, son 7 günün çocuk aramalarındaki izlenme hızı ve mevsim/özel gün takvimiyle temaları 0-100 puanlar |
+| **Senarist** | Seçilen temadan 3 farklı özgün taslak yazar (Claude varsa Claude, yoksa tema şablonu) |
+| **Viral Kontrolcü** | Taslakları 100 puanlık ölçütle puanlar, 70 altını reddeder; videonun ilk saniyelerini, başlığını ve kapağını denetler |
+| **Telif ve Güvenlik** | Senaryo ve varlık lisanslarını denetler; başka markaya ait isim, tehlikeli davranış veya lisanssız dış medya varsa **veto eder** |
+| **Animatör** | Uzun videoyu üretir (HyperFrames + FFmpeg + kalite kontrol) |
+| **Shorts Editörü** | Whisper zamanlarıyla, kendi başına anlaşılır 2-3 Shorts çıkarır |
+| **Yayıncı** | Takvime koyar ve YouTube'a yükler |
+
+Temalar (`studio/trends.py`): uzay, dinozor, kış/kar, yeni yıl, arabalar, doğum günü, bahar, sonbahar, müzik/dans, hayvanlar, okul.
+Kanal çocuklara özel kalır; trendlerden yalnızca **konu** alınır, başkalarının videosu, karakteri veya müziği kullanılmaz.
+Puanlar dahili tahmindir, izlenme garantisi değildir.
+
+## Görsel stil
+
+Karakterlerde yumuşak hacim (iç gölge + ışık), sahnelerde ışık hüzmeleri, ufuk pusu, ön plan detayı, bokeh ve kenar karartması;
+kapaklarda karakter parlaması, derin gölge ve degrade başlık. Hepsi kodla üretilir; karakterler her videoda birebir aynıdır.
+
 ## Kurulum
 
 ```bash

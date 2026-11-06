@@ -16,7 +16,7 @@ import numpy as np
 from loguru import logger
 
 from . import audio, subtitles, tts
-from .characters import CHARACTERS, character_svg, speaker_color, speaker_name
+from .characters import CHARACTERS, VOL_DEFS, character_svg, speaker_color, speaker_name
 from .config import Paths
 from .world import background_svg, prop_svg
 
@@ -370,7 +370,7 @@ html,body{{width:{W}px;height:{H}px;overflow:hidden;background:#BDEBFF}}
         f'<!doctype html><html lang="tr"><head><meta charset="UTF-8"/><meta name="viewport" content="width={W}, height={H}"/>'
         f'<script src="gsap.min.js"></script><script src="runtime.js"></script><style>{css}</style></head><body>'
         f'<div id="root" data-composition-id="main" data-start="0" data-duration="{total:.3f}" data-width="{W}" data-height="{H}">'
-        f'{"".join(clips)}</div>'
+        f'<svg width="0" height="0" style="position:absolute">{VOL_DEFS}</svg>{"".join(clips)}</div>'
         f'<script>window.__timelines=window.__timelines||{{}};const tl=gsap.timeline({{paused:true}});\n'
         + "\n".join(x for x in js if x)
         + '\nwindow.__timelines["main"]=tl;tl.seek(0);</script></body></html>'

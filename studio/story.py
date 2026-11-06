@@ -546,6 +546,61 @@ def t_songs(rnd):
                                   {"title": f"{animal[0].capitalize()} dansı!", "scene_ids": ["s3"], "hook_text": f"Bir {animal[0]} gibi dans edebilir misin?"}]}
 
 
+def t_theme(rnd, theme_key: str):
+    """Trend temasından özgün macera: görev → 3 keşif (renk/sayı öğrenimi) → çözüm → mesaj."""
+    from .trends import THEMES
+    th = THEMES[theme_key]
+    a, b, c = _cast(rnd, 3)
+    bgs = th["bgs"]
+    items = th["items"]
+    nums = ["Bir", "İki", "Üç"]
+    hooks = {
+        "space": "Eyvah! Roketimizin parçaları dağıldı! Ay'a nasıl gideceğiz?",
+        "dino": "Şşş! Ormandan kocaman ayak sesleri geliyor... Kim acaba?",
+        "winter": "Baksana! Gökyüzünden beyaz beyaz bir şeyler yağıyor!",
+        "newyear": "Yeni yıl ağacımızın süsleri nerede? Hepsi kaybolmuş!",
+        "cars": "Vın vın! Büyük araba yarışı başlıyor! Kuralları biliyor musun?",
+        "birthday": "Şşş! Bugün çok gizli bir sürpriz hazırlıyoruz!",
+        "spring": "Bu minicik tohum gerçekten kocaman bir çiçek mi olacak?",
+        "autumn": "Yapraklar neden kırmızı, sarı ve turuncu oldu?",
+        "music": "Bu akşam büyük dans gösterisi var ama müziğimiz yok!",
+        "animals": "Cik cik! Bu minik kuş yuvasını kaybetmiş!",
+        "school": "Yarın ilk okul günü! Çantamızda neler olmalı?",
+    }
+    scenes = [S("s1", bgs[0], "adventure", [(a, "left", "right"), (b, "right", "left")], [
+        B(a, hooks.get(theme_key, "Bugün Bulutkent'te büyük bir macera var!"), "surprised", "look_around", "whoosh"),
+        B("narrator", f"Bulutkent'te bugün çok özel bir gün. {_nm(a)} ve {_nm(b)} bir görev üstlendi.", "happy", "idle"),
+        B(b, f"Görevimiz: {th['goal']}!", "excited", "jump", "boing"),
+        B(a, CHARACTERS[a].catchphrase, "excited", "hop"),
+        B("narrator", "Sen de bize katılır mısın? Gözlerini dört aç!", "happy", "idle", "sparkle"),
+    ])]
+    for i, (kind, col, label) in enumerate(items):
+        who = [a, b, c][i]
+        other = [b, c, a][i]
+        bg = bgs[min(i, len(bgs) - 1)] if i else bgs[-1 if len(bgs) > 2 else 0]
+        q_line = rnd.choice([f"Bu {label.lower()} ne renk? Hadi söyle!", f"{label} nerede saklanıyor? Sen gördün mü?",
+                             f"Sence {label.lower()} ne işimize yarayacak?"])
+        scenes.append(S(f"s{i+2}", bg, "adventure", [(who, "left", "right"), (other, "right", "left")], [
+            B("narrator", q_line, "thinking", "idle", "sparkle"),
+            B(who, f"Buldum! {label}! Rengi {col}!", "excited", "point", "pop", 0),
+            B(other, f"Harika! {nums[i]}... Görevin {['ilk', 'ikinci', 'son'][i]} parçası tamam!", "happy", "clap", "ding"),
+            B(who, rnd.choice(["Birlikte çalışınca her şey daha kolay!", "Acele etmeden, dikkatle bakınca bulduk!", "Bir sonraki ipucuna gidelim!"]), "happy", "nod"),
+        ], [P(kind, col, label)]))
+    scenes.append(S("s5", bgs[0], "happy", [(a, "left", "right"), (c, "center", "right"), (b, "right", "left")], [
+        B("narrator", "Ve görev tamamlandı!", "excited", "idle", "tada"),
+        B(c, "Hepsini bulduk: " + ", ".join(x[2].lower() for x in items) + "!", "excited", "dance"),
+        B(b, "Sence en çok hangisini sevdin?", "happy", "point"),
+        B(a, "Birlikte başardık! Bir sonraki macerada görüşürüz!", "laughing", "wave", "sparkle"),
+    ], [P(k, cl, lb) for k, cl, lb in items]))
+    return {"title": f"{_nm(a)} ile {th['title']}", "thumb_text": th["thumb"], "category": "animal_adventure",
+            "theme": theme_key, "learning_goal": f"Renkler, sayma ve iş birliği ({th['name'].lower()})",
+            "moral": "Birlikte çalışınca her görev kolaylaşır.", "summary": f"{_nm(a)} ve arkadaşları {th['goal']} için yola çıkar.",
+            "hook": scenes[0]["beats"][0]["text"], "tags": [th["name"].lower(), "çocuk macera", *[x[2].lower() for x in items]],
+            "scenes": scenes,
+            "shorts_candidates": [{"title": f"{items[0][2]} bulundu!", "scene_ids": ["s1", "s2"], "hook_text": scenes[0]["beats"][0]["text"]},
+                                  {"title": f"{th['name']}: büyük final!", "scene_ids": ["s4", "s5"], "hook_text": "Son parça nerede? Görev tamamlanacak mı?"}]}
+
+
 TEMPLATES = {"colors": t_colors, "numbers": t_numbers, "shapes": t_shapes, "sharing": t_sharing,
              "friendship": t_friendship, "animal_adventure": t_friendship, "bedtime": t_bedtime, "riddles": t_riddles,
              "funny": t_funny, "songs": t_songs, "educational": t_shapes}
@@ -594,6 +649,7 @@ def write(idea: dict) -> dict:
             f"Karakter kitabı:\n{json.dumps(bible(), ensure_ascii=False)}\n\n"
             f"Kategori: {idea['category']} ({CATEGORIES.get(idea['category'], '')})\n"
             f"Fikir başlığı: {idea['title']}\nFikir: {idea['premise']}\n"
+            f"Günün trend teması: {idea.get('theme') or 'yok'} (temayı özgün biçimde işle; başka markaların karakter/şarkılarını kullanma)\n"
             f"Kullanılabilecek arka planlar: {json.dumps(BACKGROUNDS, ensure_ascii=False)}\n"
             "Bu fikirden özgün, sıcak ve eğlenceli bir bölüm senaryosu yaz."
         )
@@ -604,7 +660,10 @@ def write(idea: dict) -> dict:
             logger.warning(f"Claude hikâyesi alınamadı, yerel motora geçiliyor: {exc}")
     if story is None:
         seed = int(idea.get("seed") or idea.get("id") or 0)
-        story = local_story(idea["category"], seed)
+        if idea.get("theme"):
+            story = t_theme(random.Random(seed), idea["theme"])
+        else:
+            story = local_story(idea["category"], seed)
         if idea.get("title") and idea.get("source") == "local":
             story["title"] = idea["title"]
     story = normalize(story)
@@ -612,7 +671,7 @@ def write(idea: dict) -> dict:
     fp = _fingerprint(story)
     if db.one("SELECT id FROM stories WHERE path LIKE ?", (f"%{fp}%",)):
         raise ValueError("Bu hikâye daha önce üretildi (tekrar engellendi)")
-    path = Paths.stories / f"story_{fp}.json"
+    path = Paths.stories / (f"story_{story['theme']}_{fp}.json" if story.get("theme") else f"story_{fp}.json")
     story["_meta"] = {"engine": engine, "idea_id": idea.get("id"), "fingerprint": fp, "safety": check}
     path.write_text(json.dumps(story, ensure_ascii=False, indent=2), encoding="utf-8")
     sid = db.insert("stories", idea_id=idea.get("id"), created_at=db.now(), title=story["title"], category=story["category"],

@@ -98,6 +98,21 @@ def do_analytics() -> dict:
 
 
 def full() -> dict:
+    """Ajan ekibiyle günlük döngü: Yönetmen → Trend Avcısı → Senarist → Kontrolcü → Telif → Animatör → Shorts → Yayıncı."""
+    from . import agents
+    out = {}
+    try:
+        out["team"] = _run("director", agents.Director().run_day)
+    except Exception as exc:
+        out["team"] = {"error": str(exc)}
+    try:
+        out["analytics"] = _run("analytics", do_analytics)
+    except Exception as exc:
+        out["analytics"] = {"error": str(exc)}
+    return out
+
+
+def full_legacy() -> dict:
     out = {}
     for name, fn in (("research", research), ("story", story), ("video", video), ("shorts", shorts), ("publish", publish), ("analytics", do_analytics)):
         try:

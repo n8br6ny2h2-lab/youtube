@@ -271,7 +271,7 @@ def search_videos(query: str, max_results: int = 25, region: str = "TR", lang: s
     if not ids:
         return []
     _quota("videos.list")
-    v = svc.videos().list(part="snippet,statistics,contentDetails", id=",".join(ids)).execute()
+    v = svc.videos().list(part="snippet,statistics,contentDetails,status", id=",".join(ids)).execute()
     return v.get("items", [])
 
 

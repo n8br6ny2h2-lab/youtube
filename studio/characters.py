@@ -329,13 +329,43 @@ def svg_bulut() -> str:
 SVG_BUILDERS = {"pofi": svg_pofi, "lili": svg_lili, "tombi": svg_tombi, "bobo": svg_bobo, "bulut": svg_bulut}
 
 
+# Profesyonel görünüm: her gövde parçasına yumuşak hacim (iç gölge + üst-sol ışık + kenar ışığı)
+VOL_DEFS = (
+    '<defs>'
+    '<filter id="bk-vol" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">'
+    '<feGaussianBlur in="SourceAlpha" stdDeviation="9" result="b"/>'
+    # alt-sağ iç gölge
+    '<feOffset in="b" dx="-9" dy="-12" result="o1"/>'
+    '<feComposite in="SourceAlpha" in2="o1" operator="arithmetic" k2="1" k3="-1" result="rim1"/>'
+    '<feFlood flood-color="#1B1F3B" flood-opacity="0.30"/><feComposite in2="rim1" operator="in" result="shadow"/>'
+    # üst-sol ışık
+    '<feOffset in="b" dx="7" dy="10" result="o2"/>'
+    '<feComposite in="SourceAlpha" in2="o2" operator="arithmetic" k2="1" k3="-1" result="rim2"/>'
+    '<feFlood flood-color="#FFFFFF" flood-opacity="0.42"/><feComposite in2="rim2" operator="in" result="light"/>'
+    '<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="shadow"/><feMergeNode in="light"/></feMerge>'
+    '</filter>'
+    '<filter id="bk-drop" x="-20%" y="-20%" width="140%" height="140%">'
+    '<feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#1B1F3B" flood-opacity="0.22"/></filter>'
+    '</defs>'
+)
+
+
+def _styled(svg: str) -> str:
+    svg = svg.replace('<g class="head"', '<g class="head" filter="url(#bk-vol)"', 1)
+    for cls in ("torso", "shell", "bob-cloud"):
+        svg = svg.replace(f'class="{cls}"', f'class="{cls}" filter="url(#bk-vol)"')
+    for cls in ("arm-l", "arm-r"):
+        svg = svg.replace(f'<g class="{cls}"', f'<g class="{cls}" filter="url(#bk-vol)"', 1)
+    return svg
+
+
 def character_svg(cid: str, inst_id: str, x: float, y: float, scale: float = 1.0, facing: str = "right") -> str:
     """Bir karakter örneği. Dış grup konum (GSAP x/y), .flip yön, .bob gövde animasyonu için."""
     flip = -1 if facing == "left" else 1
     return (
         f'<g id="{inst_id}" class="inst char-{cid}" transform="translate({x:.1f} {y:.1f})">'
         f'<g class="scale" transform="scale({scale:.3f})"><g class="flip" transform="scale({flip} 1)">'
-        f'<g class="act"><g class="bob">{SVG_BUILDERS[cid]()}</g></g></g></g></g>'
+        f'<g class="act"><g class="bob" filter="url(#bk-drop)">{_styled(SVG_BUILDERS[cid]())}</g></g></g></g></g>'
     )
 
 
@@ -362,7 +392,7 @@ def standalone_svg(cid: str, size: int = 512, emotion_css: str = "", width: int 
         vb = "-200 -470 400 480"
     return (
         f'<svg id="{uid}" xmlns="http://www.w3.org/2000/svg" viewBox="{vb}" width="{width or size}" height="{size}">'
-        f"<style>{scope_css(emotion_css, uid)}</style>{SVG_BUILDERS[cid]()}</svg>"
+        f'<style>{scope_css(emotion_css, uid)}</style>{VOL_DEFS}<g filter="url(#bk-drop)">{_styled(SVG_BUILDERS[cid]())}</g></svg>'
     )
 
 

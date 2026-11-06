@@ -104,6 +104,13 @@ def runs_():
     return db.query("SELECT id, mode, status, started_at, finished_at FROM runs ORDER BY id DESC LIMIT 40")
 
 
+@app.get("/api/team")
+def team_():
+    from studio import agents
+    return {"team": agents.team(), "orders": db.query("SELECT id, created_at, issuer, agent, task, status, result FROM orders ORDER BY id DESC LIMIT 40"),
+            "last": db.kv_get("director_last"), "radar": db.kv_get("trend_radar")}
+
+
 @app.get("/api/costs")
 def costs_():
     return costs.summary()

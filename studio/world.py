@@ -17,6 +17,8 @@ BACKGROUNDS = {
     "garden": "Tombi'nin bahçesi (sebzeler, çit)",
     "night": "Yıldızlı tepe (gece, ay, ateş böcekleri)",
     "bedroom": "Uyku odası (gece lambası, pencerede ay)",
+    "snow": "Karlı Bulutkent (kış, kardan adam, çam ağaçları)",
+    "space": "Bulutkent uzay yolculuğu (gezegenler, yıldızlar)",
 }
 
 COLORS = {
@@ -24,7 +26,7 @@ COLORS = {
     "mor": "#8E24AA", "pembe": "#EC407A", "kahverengi": "#8D6E63", "beyaz": "#FFFFFF", "siyah": "#263238",
 }
 
-PROPS = ["ball", "apple", "balloon", "star", "circle", "square", "triangle", "heart", "flower", "gift", "kite",
+PROPS = ["rocket", "planet", "snowman", "dino", "firtree", "car", "ball", "apple", "balloon", "star", "circle", "square", "triangle", "heart", "flower", "gift", "kite",
          "umbrella", "cake", "book", "number", "strawberry", "carrot", "leaf", "moon", "drum", "paintbrush", "basket"]
 
 
@@ -80,7 +82,7 @@ def background_svg(kind: str, seed: int = 0, width: int = 1920, height: int = 10
     vb = "0 0 1920 1080"
     if kind == "meadow":
         inner = (
-            _sky("#7FD3FF", "#D9F4FF", f"sky{seed}")
+            _sky("#7FD3FF", "#D9F4FF", f"sky{kind}{seed}")
             + '<circle class="sun" cx="1650" cy="170" r="95" fill="#FFE066"/><circle cx="1650" cy="170" r="125" fill="#FFE066" opacity=".25"/>'
             + "".join(_cloud(rnd.randint(0, 1700), rnd.randint(70, 300), rnd.uniform(0.7, 1.2)) for _ in range(4))
             + '<path d="M 0 700 Q 400 560 900 680 T 1920 640 L 1920 1080 L 0 1080 Z" fill="#9CDB7E"/>'
@@ -90,7 +92,7 @@ def background_svg(kind: str, seed: int = 0, width: int = 1920, height: int = 10
         )
     elif kind == "forest":
         inner = (
-            _sky("#A8E6CF", "#E8F8EE", f"sky{seed}")
+            _sky("#A8E6CF", "#E8F8EE", f"sky{kind}{seed}")
             + "".join(_tree(x, 760, rnd.uniform(1.2, 1.6), "#2E7D32", "#388E3C") for x in range(-50, 2000, 260))
             + '<rect y="760" width="1920" height="320" fill="#6DBE6A"/>'
             + "".join(_tree(x, 860, rnd.uniform(1.0, 1.3), "#43A047", "#66BB6A") for x in (120, 1800))
@@ -102,7 +104,7 @@ def background_svg(kind: str, seed: int = 0, width: int = 1920, height: int = 10
         )
     elif kind == "village":
         inner = (
-            _sky("#81D4FA", "#E1F5FE", f"sky{seed}")
+            _sky("#81D4FA", "#E1F5FE", f"sky{kind}{seed}")
             + "".join(_cloud(rnd.randint(0, 1700), rnd.randint(60, 250), rnd.uniform(0.7, 1.1)) for _ in range(3))
             + '<path d="M 0 640 Q 960 520 1920 640 L 1920 1080 L 0 1080 Z" fill="#A5D6A7"/>'
             + _house(260, 760, "#FFCC80", "#E57373") + _house(640, 720, "#B3E5FC", "#7986CB", 0.85)
@@ -126,7 +128,7 @@ def background_svg(kind: str, seed: int = 0, width: int = 1920, height: int = 10
         )
     elif kind == "lake":
         inner = (
-            _sky("#80DEEA", "#E0F7FA", f"sky{seed}")
+            _sky("#80DEEA", "#E0F7FA", f"sky{kind}{seed}")
             + "".join(_cloud(rnd.randint(0, 1700), rnd.randint(60, 260), rnd.uniform(0.6, 1.0)) for _ in range(3))
             + '<path d="M 0 600 Q 500 520 1000 590 T 1920 560 L 1920 700 L 0 700 Z" fill="#A5D6A7"/>'
             + '<rect y="680" width="1920" height="230" fill="#4FC3F7"/>'
@@ -136,7 +138,7 @@ def background_svg(kind: str, seed: int = 0, width: int = 1920, height: int = 10
         )
     elif kind == "garden":
         inner = (
-            _sky("#9BE7FF", "#F1FBFF", f"sky{seed}")
+            _sky("#9BE7FF", "#F1FBFF", f"sky{kind}{seed}")
             + '<circle cx="250" cy="180" r="85" fill="#FFE066"/>'
             + "".join(_cloud(rnd.randint(300, 1700), rnd.randint(60, 240), rnd.uniform(0.6, 1.0)) for _ in range(3))
             + '<rect y="640" width="1920" height="440" fill="#8BC34A"/>'
@@ -151,7 +153,7 @@ def background_svg(kind: str, seed: int = 0, width: int = 1920, height: int = 10
         )
     elif kind == "night":
         inner = (
-            _sky("#1A237E", "#5C6BC0", f"sky{seed}")
+            _sky("#1A237E", "#5C6BC0", f"sky{kind}{seed}")
             + '<circle cx="1550" cy="200" r="90" fill="#FFF9C4"/><circle cx="1585" cy="175" r="80" fill="#3949AB" opacity=".0"/>'
             + "".join(f'<circle class="star" cx="{rnd.randint(0,1920)}" cy="{rnd.randint(20,560)}" r="{rnd.uniform(2,5):.1f}" fill="#FFF"/>' for _ in range(70))
             + '<path d="M 0 720 Q 500 600 1000 700 T 1920 680 L 1920 1080 L 0 1080 Z" fill="#283593"/>'
@@ -170,9 +172,75 @@ def background_svg(kind: str, seed: int = 0, width: int = 1920, height: int = 10
             + '<rect x="1640" y="640" width="60" height="150" fill="#8D6E63"/><path d="M 1610 640 L 1730 640 L 1700 560 L 1640 560 Z" fill="#FFE082"/>'
             + '<circle cx="1670" cy="600" r="160" fill="#FFE082" opacity=".12"/>'
         )
+    elif kind == "snow":
+        pines = "".join(
+            f'<g class="sway" transform="translate({x} {y}) scale({s:.2f})"><rect x="-10" y="-40" width="20" height="40" fill="#795548"/>'
+            f'<path d="M 0 -260 L 90 -40 L -90 -40 Z" fill="#2E7D5B"/><path d="M 0 -260 L 60 -120 L -60 -120 Z" fill="#fff" opacity=".85"/></g>'
+            for x, y, s in [(120, 820, 1.2), (330, 780, .9), (1620, 800, 1.1), (1820, 830, 1.3)])
+        inner = (
+            _sky("#B3E5FC", "#F1F8FF", f"sky{kind}{seed}")
+            + "".join(_cloud(rnd.randint(0, 1700), rnd.randint(60, 240), rnd.uniform(0.6, 1.1)) for _ in range(3))
+            + '<path d="M 0 640 Q 500 540 1000 620 T 1920 600 L 1920 1080 L 0 1080 Z" fill="#E3F2FD"/>'
+            + '<path d="M 0 760 Q 600 690 1100 760 T 1920 740 L 1920 1080 L 0 1080 Z" fill="#FFFFFF"/>' + pines
+            + "".join(f'<circle class="firefly" cx="{rnd.randint(0,1920)}" cy="{rnd.randint(0,1000)}" r="{rnd.uniform(3,7):.1f}" fill="#fff"/>' for _ in range(60))
+        )
+    elif kind == "space":
+        planets = (
+            '<circle cx="1500" cy="260" r="120" fill="#FFB74D"/><ellipse cx="1500" cy="260" rx="200" ry="34" fill="none" stroke="#FFE0B2" stroke-width="12" opacity=".9"/>'
+            '<circle cx="330" cy="200" r="60" fill="#81D4FA"/><circle cx="310" cy="185" r="14" fill="#4FC3F7"/>'
+            '<circle cx="1760" cy="620" r="45" fill="#CE93D8"/>'
+        )
+        inner = (
+            _sky("#0D1B4C", "#3A1C71", f"sky{kind}{seed}")
+            + "".join(f'<circle class="star" cx="{rnd.randint(0,1920)}" cy="{rnd.randint(0,1080)}" r="{rnd.uniform(1.5,4.5):.1f}" fill="#fff"/>' for _ in range(110))
+            + planets
+            + '<path d="M 0 860 Q 960 760 1920 860 L 1920 1080 L 0 1080 Z" fill="#B0BEC5"/>'
+            + "".join(f'<ellipse cx="{x}" cy="{y}" rx="{r}" ry="{r*0.35:.0f}" fill="#90A4AE"/>' for x, y, r in [(300, 950, 60), (900, 1000, 90), (1500, 940, 50), (1200, 1040, 40)])
+        )
     else:
         return background_svg("meadow", seed, width, height, portrait)
-    return inner if not portrait else inner  # aynı içerik; kırpma viewBox/preserveAspectRatio ile yapılır
+    return inner + _atmos(kind, seed)  # dikey kırpma viewBox/preserveAspectRatio ile yapılır
+
+
+OUTDOOR_DAY = {"meadow", "forest", "village", "lake", "garden", "snow", "beach"}
+NIGHT = {"night", "space"}
+
+
+def _atmos(kind: str, seed: int) -> str:
+    """Sinematik katman: ışık hüzmeleri, ufuk pusu, ön plan detayı, bokeh ve kenar karartması."""
+    rnd = random.Random(seed * 31 + 7)
+    g = f"at{seed}{kind[:3]}"
+    sx, sy = (250, 180) if kind == "garden" else (1650, 170)
+    out = [f'<defs>'
+           f'<radialGradient id="{g}v" cx="50%" cy="45%" r="75%"><stop offset="60%" stop-color="#000" stop-opacity="0"/>'
+           f'<stop offset="100%" stop-color="#0B1030" stop-opacity="{0.42 if kind in NIGHT else 0.22}"/></radialGradient>'
+           f'<linearGradient id="{g}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/>'
+           f'<stop offset=".55" stop-color="#FFF8E1" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
+           f'<radialGradient id="{g}s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFF6C8" stop-opacity=".75"/>'
+           f'<stop offset="1" stop-color="#FFF6C8" stop-opacity="0"/></radialGradient>'
+           f'<linearGradient id="{g}r" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFBEA" stop-opacity=".38"/>'
+           f'<stop offset="1" stop-color="#FFFBEA" stop-opacity="0"/></linearGradient>'
+           f'</defs>']
+    if kind in OUTDOOR_DAY:
+        out.append(f'<rect x="0" y="470" width="1920" height="320" fill="url(#{g}h)"/>')  # ufuk pusu
+        out.append(f'<circle cx="{sx}" cy="{sy}" r="420" fill="url(#{g}s)"/>')  # güneş parıltısı
+        xs = [(700, 160), (1000, 110), (1250, 190), (1520, 120)] if sx > 960 else [(150, 160), (520, 110), (780, 190), (1080, 120)]
+        out.append('<g class="rays" opacity=".9">' + "".join(
+            f'<path d="M {sx} {sy - 50} L {x} 1080 L {x + w} 1080 Z" fill="url(#{g}r)"/>' for x, w in xs) + "</g>")
+        if kind not in ("lake", "beach", "snow"):
+            out.append("".join(  # ön plan çim öbekleri
+                f'<path d="M {x} 1080 q 6 -{h} 12 0 q 6 -{h*0.8:.0f} 12 0 q 5 -{h*1.1:.0f} 12 0 Z" fill="#4E9F45" opacity=".85"/>'
+                for x, h in [(rnd.randint(0, 1880), rnd.randint(40, 90)) for _ in range(26)]))
+        out.append("".join(  # havada süzülen polen/bokeh
+            f'<circle class="firefly" cx="{rnd.randint(0,1920)}" cy="{rnd.randint(120,900)}" r="{rnd.uniform(3,9):.1f}" fill="#fff" opacity="{rnd.uniform(.15,.4):.2f}"/>'
+            for _ in range(14)))
+    elif kind in NIGHT:
+        out.append(f'<circle cx="1550" cy="200" r="380" fill="url(#{g}s)" opacity=".55"/>')
+        out.append(f'<rect x="0" y="600" width="1920" height="300" fill="url(#{g}h)" opacity=".35"/>')
+    else:  # iç mekân: pencereden süzülen ışık
+        out.append(f'<path d="M 1240 170 L 1660 170 L 1300 1080 L 700 1080 Z" fill="url(#{g}r)" opacity="{.35 if kind == "bedroom" else .7}"/>')
+    out.append(f'<rect width="1920" height="1080" fill="url(#{g}v)"/>')
+    return "".join(out)
 
 
 def background_wrapper(kind: str, seed: int, w: int, h: int) -> str:
@@ -211,6 +279,12 @@ def prop_svg(kind: str, color: str = "kırmızı", label: str | None = None, siz
         "drum": f'<ellipse cx="0" cy="-30" rx="60" ry="18" fill="#FFF3E0"/><path d="M -60 -30 L -60 40 Q 0 62 60 40 L 60 -30" fill="{c}"/><path d="M -60 -10 L -30 40 L 0 -10 L 30 40 L 60 -10" stroke="#FFD54F" stroke-width="5" fill="none"/>',
         "paintbrush": f'<rect x="-8" y="-60" width="16" height="90" rx="6" fill="#8D6E63"/><rect x="-11" y="20" width="22" height="16" fill="#B0BEC5"/><path d="M -11 36 L 11 36 Q 14 64 0 72 Q -14 64 -11 36 Z" fill="{c}"/>',
         "basket": f'<path d="M -70 -10 L 70 -10 L 52 55 L -52 55 Z" fill="#A1887F"/><path d="M -55 -10 Q 0 -90 55 -10" stroke="#8D6E63" stroke-width="9" fill="none"/>' + "".join(f'<path d="M {x} -10 L {x*0.75} 55" stroke="#8D6E63" stroke-width="4"/>' for x in (-40, -14, 14, 40)),
+        "rocket": f'<path d="M 0 -80 C 34 -50 36 10 26 50 L -26 50 C -36 10 -34 -50 0 -80 Z" fill="#ECEFF1" stroke="#90A4AE" stroke-width="4"/><circle cy="-15" r="16" fill="{c}" stroke="#fff" stroke-width="5"/><path d="M -26 20 L -50 60 L -24 50 Z M 26 20 L 50 60 L 24 50 Z" fill="{c}"/><path d="M -14 52 Q 0 100 14 52 Z" fill="#FFB300"/>',
+        "planet": f'<circle r="52" fill="{c}"/><ellipse rx="86" ry="18" fill="none" stroke="#FFE0B2" stroke-width="8" transform="rotate(-15)"/><circle cx="-16" cy="-18" r="10" fill="#fff" opacity=".35"/>',
+        "snowman": '<circle cy="30" r="44" fill="#fff" stroke="#CFD8DC" stroke-width="3"/><circle cy="-34" r="30" fill="#fff" stroke="#CFD8DC" stroke-width="3"/><path d="M 0 -34 L 26 -28 L 0 -26 Z" fill="#FF7043"/><circle cx="-10" cy="-42" r="4" fill="#263238"/><circle cx="10" cy="-42" r="4" fill="#263238"/><rect x="-26" y="-12" width="52" height="10" rx="5" fill="#E53935"/>',
+        "dino": f'<path d="M -60 40 Q -70 -10 -20 -10 L 20 -10 Q 30 -60 60 -60 Q 80 -60 78 -40 Q 76 -26 56 -28 Q 46 -10 44 10 Q 60 30 40 50 L 20 50 L 16 30 L -10 30 L -14 50 L -34 50 L -36 34 Q -60 50 -90 30 Z" fill="{c}"/><circle cx="62" cy="-46" r="5" fill="#263238"/>' + "".join(f'<path d="M {x} -10 l 8 -14 l 8 14 Z" fill="#FFD54F"/>' for x in (-20, -4, 12)),
+        "firtree": '<path d="M 0 -80 L 50 0 L -50 0 Z M 0 -40 L 64 40 L -64 40 Z" fill="#2E7D32"/><rect x="-10" y="40" width="20" height="24" fill="#795548"/><path d="M 0 -96 L 6 -84 L 19 -84 L 9 -76 L 13 -64 L 0 -71 L -13 -64 L -9 -76 L -19 -84 L -6 -84 Z" fill="#FFD600"/>' + "".join(f'<circle cx="{x}" cy="{y}" r="6" fill="{col}"/>' for x, y, col in [(-20, -10, "#E53935"), (18, 0, "#1E88E5"), (-30, 30, "#FDD835"), (28, 26, "#E53935"), (0, 14, "#8E24AA")]),
+        "car": f'<path d="M -80 20 L -70 -10 L -40 -14 L -20 -44 L 30 -44 L 50 -14 L 76 -8 L 80 20 Z" fill="{c}"/><rect x="-14" y="-38" width="38" height="22" rx="4" fill="#B3E5FC"/><circle cx="-44" cy="24" r="18" fill="#263238"/><circle cx="46" cy="24" r="18" fill="#263238"/><circle cx="-44" cy="24" r="7" fill="#B0BEC5"/><circle cx="46" cy="24" r="7" fill="#B0BEC5"/>',
     }.get(kind, f'<circle r="50" fill="{c}"/>')
     label_svg = ""
     if label and kind != "number":
