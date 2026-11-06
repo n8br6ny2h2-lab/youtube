@@ -8,9 +8,9 @@ Formda İngilizce cevap verin; aşağıdaki metinleri kopyalayıp yapıştırabi
 | Alan | Cevap |
 |---|---|
 | Organization / Name | Bulutkent (individual channel owner) |
-| Website | *(site adresi yayınlanınca)* `https://.../` |
-| Privacy Policy URL | `https://.../privacy.html` |
-| Terms of Service URL | `https://.../terms.html` |
+| Website | `https://n8br6ny2h2-lab.github.io/youtube/` |
+| Privacy Policy URL | `https://n8br6ny2h2-lab.github.io/youtube/privacy.html` |
+| Terms of Service URL | `https://n8br6ny2h2-lab.github.io/youtube/terms.html` |
 | Google Cloud project number / ID | Google Cloud Console > proje seçici > **Project number** (proje kimliği: `smiling-basis-513909-v6`) |
 | API client / OAuth client ID | `355033675589-dh5o56cfhpddivrstdcpsp9ofvfij2p1.apps.googleusercontent.com` |
 | APIs used | YouTube Data API v3, YouTube Analytics API |
@@ -44,7 +44,7 @@ Formda İngilizce cevap verin; aşağıdaki metinleri kopyalayıp yapıştırabi
 `docs/screenshots/` klasöründeki görüntüleri forma ekleyin (panel, takvim, iş emirleri, gizlilik sayfası).
 
 ### Google Cloud'da yapılacaklar (başvurudan önce)
-1. **Google Auth Platform → Branding**: Application home page = site adresi, Privacy policy = `.../privacy.html`,
-   Terms of service = `.../terms.html`, Authorized domains = sitenin alan adı.
+1. **Google Auth Platform → Branding**: Application home page = `https://n8br6ny2h2-lab.github.io/youtube/`, Privacy policy = `https://n8br6ny2h2-lab.github.io/youtube/privacy.html`,
+   Terms of service = `https://n8br6ny2h2-lab.github.io/youtube/terms.html`, Authorized domains = `n8br6ny2h2-lab.github.io`.
 2. **Audience → Publish app** (Test → In production). İzin 7 günde bir silinmez.
 3. **Data access**: kullanılan kapsamlar listelenir (youtube, youtube.upload, youtube.force-ssl, yt-analytics.readonly).
