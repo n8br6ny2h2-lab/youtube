@@ -210,15 +210,17 @@ def build_html(tlp: dict, project: Path, layout: Layout, brand: dict, title_over
         n = len(props)
         span = min(W * 0.62, 260 * n * layout.prop_scale)
         char_xs = [_slot_x(layout, c["slot"]) for c in sc["characters"]]
+        prop_parts = []
         for pi, p in enumerate(props):
             px = W / 2 + (pi - (n - 1) / 2) * (span / max(1, n - 1) if n > 1 else 0)
             if n == 1 and any(abs(px - cx) < 180 for cx in char_xs):
                 # tek nesne bir karakterin tam üstüne düşüyorsa boş tarafa kaydır
                 free = [x for x in (W * 0.28, W * 0.72) if all(abs(x - cx) > 220 for cx in char_xs)]
                 px = free[0] if free else px
-            py = layout.prop_y - (60 if n > 3 and pi % 2 else 0)
-            parts.append(f'<g transform="translate({px:.0f} {py:.0f})"><g id="{sid}p{pi}" class="prop">'
-                         f'{prop_svg(p["kind"], p["color"], p.get("label") or None, layout.prop_scale)}</g></g>')
+            crowd = 110 if (n >= 2 and len(sc["characters"]) >= 2) else 0  # kalabalık sahnede nesneler kafaların üstüne çıkar
+            py = layout.prop_y - crowd - (60 if n > 3 and pi % 2 else 0)
+            prop_parts.append(f'<g transform="translate({px:.0f} {py:.0f})"><g id="{sid}p{pi}" class="prop">'
+                              f'{prop_svg(p["kind"], p["color"], p.get("label") or None, layout.prop_scale)}</g></g>')
         # karakterler
         insts = {}
         for ci, ch in enumerate(sc["characters"]):
@@ -230,6 +232,7 @@ def build_html(tlp: dict, project: Path, layout: Layout, brand: dict, title_over
                 start_x = -260 if x < W / 2 else W + 260
             insts[ch["id"]] = {"iid": iid, "x": x, "start_x": start_x, "facing": ch["facing"]}
             parts.append(character_svg(ch["id"], iid, start_x, layout.ground, layout.scale, ch["facing"]))
+        parts.extend(prop_parts)  # nesneler ve etiketleri karakterlerin önünde
         nx, ny, ns = layout.narrator
         nar = f"{sid}n"
         parts.append(f'<g class="narrator-float">{character_svg("bulut", nar, nx, ny, ns, "right")}</g>')
