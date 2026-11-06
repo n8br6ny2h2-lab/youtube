@@ -6,9 +6,9 @@
 #   Android: imzalı AAB (Google Play'e yüklenecek dosya)    iOS: imzalı derleme + otomatik TestFlight yüklemesi
 #
 # Kullanılan gizli anahtarlar (hepsi isteğe bağlı):
-#   GOOGLE_SERVICES_JSON_B64, GOOGLE_SERVICE_INFO_PLIST_B64          Firebase yapılandırma dosyaları (base64)
+#   GOOGLE_SERVICES_JSON, GOOGLE_SERVICE_INFO_PLIST    Firebase dosyalarının İÇERİĞİ (olduğu gibi yapıştır)
 #   ANDROID_KEYSTORE_B64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD   Play yükleme anahtarı
-#   APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8_B64          App Store Connect API anahtarı
+#   APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8   App Store Connect API anahtarı (.p8 içeriği olduğu gibi)
 name: Mobil Derleme
 
 on:
@@ -18,7 +18,7 @@ on:
 
 concurrency:
   group: mobile-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false   # çalışan derleme yarıda kesilmesin; yenisi sırada bekler
 
 defaults:
   run:
@@ -32,19 +32,24 @@ jobs:
     env:
       BUILD_NUMBER: ${{ github.run_number }}
       HAS_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_B64 != '' }}
+      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+      KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with: { node-version: 22, cache: npm, cache-dependency-path: game/package-lock.json }
-      - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: 21, cache: gradle }
+      - uses: actions/setup-java@v5
+        with: { distribution: temurin, java-version: 21 }
       - name: Bağımlılıklar
         run: npm ci --no-audit --no-fund
       - name: Android projesi
         run: |
           npm run build
           npx cap add android
-          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" ]; then echo "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 -d > android/app/google-services.json; fi
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json; fi
           npm run native-setup
           npm run assets
           npx cap sync android
@@ -56,12 +61,12 @@ jobs:
         if: env.HAS_KEYSTORE == 'true'
         working-directory: game/android
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          printf '%s' "$KEYSTORE_B64" | tr -d ' \n\r' | base64 -d > "$RUNNER_TEMP/upload.jks"
           ./gradlew bundleRelease --no-daemon --stacktrace \
             -Pandroid.injected.signing.store.file="$RUNNER_TEMP/upload.jks" \
-            -Pandroid.injected.signing.store.password="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
-            -Pandroid.injected.signing.key.alias="${{ secrets.ANDROID_KEY_ALIAS }}" \
-            -Pandroid.injected.signing.key.password="${{ secrets.ANDROID_KEY_PASSWORD }}"
+            -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
           rm -f "$RUNNER_TEMP/upload.jks"
       - uses: actions/upload-artifact@v4
         with:
@@ -78,10 +83,15 @@ jobs:
     timeout-minutes: 60
     env:
       BUILD_NUMBER: ${{ github.run_number }}
-      HAS_SIGNING: ${{ secrets.ASC_KEY_P8_B64 != '' }}
+      HAS_SIGNING: ${{ secrets.ASC_KEY_P8 != '' }}
+      GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with: { node-version: 22, cache: npm, cache-dependency-path: game/package-lock.json }
       - name: En yeni Xcode
         run: |
@@ -94,7 +104,7 @@ jobs:
         run: |
           npm run build
           npx cap add ios
-          if [ -n "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 }}" ]; then echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 }}" | base64 -D > ios/App/App/GoogleService-Info.plist; fi
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then printf '%s' "$GOOGLE_SERVICE_INFO_PLIST" > ios/App/App/GoogleService-Info.plist; fi
           npm run native-setup
           npm run assets
           npx cap sync ios
@@ -110,12 +120,12 @@ jobs:
         working-directory: game/ios/App
         run: |
           KEY="$RUNNER_TEMP/AuthKey.p8"
-          echo "${{ secrets.ASC_KEY_P8_B64 }}" | base64 -D > "$KEY"
-          AUTH="-allowProvisioningUpdates -authenticationKeyPath $KEY -authenticationKeyID ${{ secrets.ASC_KEY_ID }} -authenticationKeyIssuerID ${{ secrets.ASC_ISSUER_ID }}"
+          printf '%s\n' "$ASC_KEY_P8" > "$KEY"
+          AUTH="-allowProvisioningUpdates -authenticationKeyPath $KEY -authenticationKeyID $ASC_KEY_ID -authenticationKeyIssuerID $ASC_ISSUER_ID"
           xcodebuild -project App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' \
-            -archivePath "$RUNNER_TEMP/App.xcarchive" DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }} CODE_SIGN_STYLE=Automatic $AUTH archive | tail -40
+            -archivePath "$RUNNER_TEMP/App.xcarchive" DEVELOPMENT_TEAM=$APPLE_TEAM_ID CODE_SIGN_STYLE=Automatic $AUTH archive | tail -40
           test ${PIPESTATUS[0]} -eq 0
-          python3 -c "import plistlib,sys; plistlib.dump({'method':'app-store-connect','destination':'upload','teamID':sys.argv[1],'signingStyle':'automatic','manageAppVersionAndBuildNumber':False}, open(sys.argv[2],'wb'))" "${{ secrets.APPLE_TEAM_ID }}" "$RUNNER_TEMP/export.plist"
+          python3 -c "import plistlib,sys; plistlib.dump({'method':'app-store-connect','destination':'upload','teamID':sys.argv[1],'signingStyle':'automatic','manageAppVersionAndBuildNumber':False}, open(sys.argv[2],'wb'))" "$APPLE_TEAM_ID" "$RUNNER_TEMP/export.plist"
           xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
             -exportPath "$RUNNER_TEMP/export" $AUTH | tail -40
           test ${PIPESTATUS[0]} -eq 0
