@@ -1,0 +1,190 @@
+{
+  "title": "Yıldızların Doğumu ve Uykusu",
+  "thumb_text": "Yıldızların Doğumu ve Uykusu",
+  "category": "space",
+  "description": "Bir yıldız nasıl doğar, nasıl yaşar ve sonunda nasıl sessizce uykuya dalar? Gaz bulutlarındaki yıldız doğumhanelerinden Güneş'in uzak geleceğine, Ülker yıldız kümesinden bin yıl önce gündüz gökyüzünde parlayan bir süpernovaya kadar, uykudan önce sakin bir yıldız yolculuğu.",
+  "tags": [
+    "yıldızlar",
+    "bulutsu",
+    "Güneş",
+    "süpernova",
+    "nötron yıldızı",
+    "Ülker",
+    "uzay belgeseli",
+    "uyku öncesi uzay"
+  ],
+  "sources": [
+    "NASA Science – Stars (science.nasa.gov/universe/stars)",
+    "NASA – Hubble: Orion Nebula, Eagle Nebula",
+    "NASA – Our Sun: Facts",
+    "NASA – Crab Nebula (SN 1054)",
+    "NASA – Neutron stars and pulsars",
+    "NASA – Webb: Southern Ring Nebula (2022)",
+    "ESA/Hubble – Pleiades",
+    "NASA – Why do stars twinkle? (spaceplace.nasa.gov)"
+  ],
+  "segments": [
+    {
+      "chapter": "Gökyüzüne bakmak",
+      "visual": "carina nebula stars",
+      "nasa_ids": [
+        "carina_nebula"
+      ],
+      "text": "Hoş geldin. Bu gece yıldızlardan konuşacağız. Rahatça uzan ve gözlerini yavaşça kapat. Gökyüzündeki her yıldız, bir zamanlar doğdu, uzun bir hayat sürdü ve bir gün o da sessizce sönecek. Biz de bu yolculuğu baştan sona, acele etmeden, birlikte izleyeceğiz."
+    },
+    {
+      "chapter": "Yıldız doğumhaneleri",
+      "visual": "orion nebula hubble",
+      "nasa_ids": [
+        "PIA01322",
+        "PIA22089"
+      ],
+      "text": "Yıldızlar, uzaydaki dev gaz ve toz bulutlarının içinde doğar. Bu bulutlara bulutsu denir. Orion Bulutsusu bunların en ünlülerinden biridir. Yaklaşık bin üç yüz ışık yılı uzaklıktadır ve karanlık bir gecede çıplak gözle bile bulanık bir leke gibi görülebilir. İçinde şu anda binlerce genç yıldız doğmaktadır."
+    },
+    {
+      "chapter": "Yaratılış Sütunları",
+      "visual": "eagle nebula pillars",
+      "nasa_ids": [
+        "PIA03096",
+        "PIA25433"
+      ],
+      "text": "Kartal Bulutsusu'nda, gaz ve tozdan oluşan dev sütunlar yükselir. Hubble Uzay Teleskobu'nun bin dokuz yüz doksan beş yılında çektiği fotoğrafla dünyaca tanınan bu yapılara Yaratılış Sütunları denir. Sütunlar birkaç ışık yılı uzunluğundadır. İçlerinde, yavaş yavaş yoğunlaşan gazdan yeni yıldızlar doğar."
+    },
+    {
+      "chapter": "Bir yıldızın ilk nefesi",
+      "visual": "protostar webb",
+      "nasa_ids": [
+        "PIA25432"
+      ],
+      "text": "Bir bulutun içindeki gaz, kendi ağırlığıyla yavaş yavaş büzülmeye başlar. Merkez giderek ısınır ve yoğunlaşır. Sıcaklık milyonlarca dereceye ulaştığında, hidrojen atomları birleşerek helyuma dönüşmeye başlar. Bu birleşme muazzam bir enerji açığa çıkarır. İşte o an, bir yıldız ilk kez parlar."
+    },
+    {
+      "chapter": "Bizim yıldızımız",
+      "visual": "sun solar dynamics",
+      "nasa_ids": [
+        "PIA26681",
+        "PIA17669"
+      ],
+      "text": "Güneş de bir yıldızdır ve aslında oldukça sıradan bir yıldızdır. Yaklaşık dört virgül altı milyar yaşındadır. Her saniye, çekirdeğinde milyonlarca ton hidrojeni helyuma dönüştürür. Bu sayede ısı ve ışık üretir. Dünya'daki yaşamın neredeyse tamamı, bu sessiz ve düzenli enerjiye bağlıdır."
+    },
+    {
+      "chapter": "Işığın Güneş'ten kaçışı",
+      "visual": "sun corona loops",
+      "nasa_ids": [
+        "PIA22662"
+      ],
+      "text": "Güneş'in çekirdeğinde üretilen enerji, yüzeye ulaşmak için çok uzun bir yol izler. Yoğun katmanlar arasında sayısız kez çarpışıp yön değiştirir. Bu yolculuk on binlerce yıl sürebilir. Ama yüzeye ulaştıktan sonra, Dünya'ya gelmesi yalnızca sekiz dakika kadar sürer. Bugün yüzüne dokunan ışık, aslında çok eski bir yolculuğun sonudur."
+    },
+    {
+      "chapter": "Yıldızların renkleri",
+      "visual": "star field colors",
+      "nasa": "star cluster Hubble",
+      "text": "Yıldızlara dikkatle bakarsan, hepsinin aynı renkte olmadığını görürsün. Bir yıldızın rengi, yüzeyinin sıcaklığını gösterir. Mavimsi yıldızlar en sıcak olanlardır. Kırmızımsı yıldızlar ise daha serindir. Güneş, ikisinin arasında, beyaza yakın sarımsı bir yıldızdır. Gece gökyüzü, aslında sıcaklıkların renkli bir haritasıdır."
+    },
+    {
+      "chapter": "Yıldızlar neden göz kırpar?",
+      "visual": "stars above earth atmosphere",
+      "nasa": "stars Earth atmosphere space station night",
+      "text": "Yıldızlar gece boyunca titreşiyor, göz kırpıyor gibi görünür. Bunun nedeni yıldızların kendisi değil, Dünya'nın atmosferidir. Yıldız ışığı bize ulaşırken hareket eden, farklı sıcaklıktaki hava katmanlarından geçer ve yolu hafifçe kırılır. Uzaydaki astronotlar için ise yıldızlar göz kırpmaz; sabit ve keskin noktalar olarak parlar."
+    },
+    {
+      "chapter": "Gündüz de yıldızlar orada",
+      "visual": "earth limb sunrise orbit",
+      "nasa_ids": [
+        "iss040e080833",
+        "iss071e439624"
+      ],
+      "text": "Gündüz gökyüzüne baktığında yıldızları göremezsin, ama onlar yine oradadır. Güneş'in ışığı atmosferde her yöne saçılır ve gökyüzünü aydınlatır. Bu parlaklık, yıldızların zayıf ışığını gizler. Güneş battığında ve gökyüzü karardığında, yıldızlar aslında hiç gitmedikleri yerlerinde yeniden belirir."
+    },
+    {
+      "chapter": "Ülker",
+      "visual": "pleiades cluster",
+      "nasa_ids": [
+        "PIA09262"
+      ],
+      "text": "Sonbahar ve kış akşamlarında gökyüzünde küçük, parlak bir yıldız topluluğu görebilirsin. Buna Ülker denir. Ülker, aynı bulutun içinden yaklaşık aynı zamanda doğmuş yıldızlardan oluşan bir kümedir. Bize yaklaşık dört yüz kırk ışık yılı uzaklıktadır. Gökbilim açısından oldukça gençtir; yaşı yaklaşık yüz milyon yıl olarak hesaplanır."
+    },
+    {
+      "chapter": "Kırmızı dev Betelgeuse",
+      "visual": "red supergiant star",
+      "nasa_ids": [
+        "PIA16680",
+        "PIA21475"
+      ],
+      "text": "Orion takımyıldızının omzunda, kırmızımsı bir yıldız parlar. Adı Betelgeuse'dür. Betelgeuse bir kırmızı süperdevdir. O kadar büyüktür ki, Güneş'in yerine konsaydı, dış katmanları Mars'ın yörüngesine ve hatta ötesine uzanabilirdi. Ömrünün sonlarına yaklaşmıştır. Gökbilimciler bir gün süpernova olarak patlayacağını düşünüyor, ama bunun ne zaman olacağı bilinmiyor."
+    },
+    {
+      "chapter": "Güneş'in uzak geleceği",
+      "visual": "red giant artist",
+      "nasa_ids": [
+        "PIA07221"
+      ],
+      "text": "Güneş de bir gün değişecek, ama bu çok uzak bir gelecekte olacak. Yaklaşık beş milyar yıl sonra yakıtı azalınca genişleyerek bir kırmızı deve dönüşecek. Daha sonra dış katmanlarını yavaşça uzaya bırakacak. Geriye, Dünya büyüklüğünde, sıcak ve sönük bir çekirdek kalacak. Buna beyaz cüce denir."
+    },
+    {
+      "chapter": "Yıldızların son nefesi",
+      "visual": "planetary nebula",
+      "nasa_ids": [
+        "PIA09178",
+        "southern_ring_nebula"
+      ],
+      "text": "Güneş gibi yıldızların uzaya bıraktığı bu katmanlar, renkli ve parlak kabuklar oluşturur. Bunlara gezegenimsi bulutsu denir. Adları yanıltıcıdır; gezegenlerle bir ilgileri yoktur. Helix Bulutsusu ve Webb Uzay Teleskobu'nun fotoğrafladığı Güney Halka Bulutsusu bunlardandır. Bir yıldızın veda ederken çizdiği zarif bir resim gibidirler."
+    },
+    {
+      "chapter": "Bin yıl önceki misafir yıldız",
+      "visual": "crab nebula",
+      "nasa_ids": [
+        "PIA03606",
+        "PIA17563"
+      ],
+      "text": "Büyük kütleli yıldızlar ömürlerinin sonunda süpernova olarak patlar. Bin elli dört yılında Çinli gökbilimciler gökyüzünde aniden beliren parlak bir yıldız kaydetti. Bu yıldız haftalarca gündüz bile görülebildi. Bugün aynı yerde, o patlamadan geriye kalan Yengeç Bulutsusu'nu görüyoruz. Hâlâ genişlemeye devam ediyor."
+    },
+    {
+      "chapter": "Nötron yıldızları",
+      "visual": "neutron star pulsar",
+      "nasa_ids": [
+        "PIA21085",
+        "PIA26274"
+      ],
+      "text": "Bazı süpernovalardan geriye nötron yıldızı denilen inanılmaz yoğun bir çekirdek kalır. Bir nötron yıldızı yalnızca bir şehir büyüklüğündedir, ama kütlesi Güneş'ten fazla olabilir. O kadar yoğundur ki, bir çay kaşığı kadar parçası Dünya'da yaklaşık bir milyar ton gelirdi. Bazıları saniyede onlarca kez döner."
+    },
+    {
+      "chapter": "Yıldız tozundan",
+      "visual": "milky way illustration",
+      "nasa_ids": [
+        "PIA20070"
+      ],
+      "text": "Vücudundaki karbonun, soluduğun oksijenin, kanındaki demirin büyük kısmı, çok eskiden yıldızların içinde oluştu. Bu elementler, yıldızlar yaşlanıp öldüğünde uzaya yayıldı. Sonra yeni yıldızların, gezegenlerin ve sonunda bizim yapı taşlarımız oldu. Yani gerçekten de yıldız tozundan yapılmışız."
+    },
+    {
+      "chapter": "Kadim yıldız kümeleri",
+      "visual": "globular cluster",
+      "nasa": "globular cluster Hubble",
+      "text": "Galaksimizin çevresinde, yüz binlerce yıldızın top şeklinde bir araya geldiği kümeler bulunur. Bunlara küresel küme denir. Küresel kümelerdeki yıldızlar, galaksimizin en yaşlı yıldızları arasındadır. Bazılarının on milyar yıldan daha yaşlı olduğu düşünülür. Uzaktan bakıldığında, karanlıkta parlayan bir avuç ışık gibidirler."
+    },
+    {
+      "chapter": "Kapanış",
+      "visual": "milky way center glow",
+      "nasa_ids": [
+        "PIA13932"
+      ],
+      "text": "Şimdi yavaşça geri dönüyoruz. Bulutsuların içinde doğan yıldızlardan, Ülker'in genç ışıklarından, Yengeç Bulutsusu'nun genişleyen tozlarından. Gökyüzündeki yıldızlar binlerce yıl boyunca sabırla parlamaya devam edecek. Sen de şimdi dinlenebilirsin. Nefesini yavaşlat, omuzlarını bırak. İyi geceler, yıldız tozu."
+    }
+  ],
+  "shorts": [
+    {
+      "segments": [
+        14
+      ],
+      "title": "Bir Çay Kaşığı Bir Milyar Ton",
+      "hook": "Bir çay kaşığı nasıl bir milyar ton gelir?"
+    },
+    {
+      "segments": [
+        13
+      ],
+      "title": "Gündüz Görülen Yıldız",
+      "hook": "Bin yıl önce gündüz gökyüzünde bir yıldız belirdi…"
+    }
+  ]
+}
