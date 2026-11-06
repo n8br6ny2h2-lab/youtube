@@ -19,3 +19,7 @@ thumbnails/*
 !*/.gitkeep
 node_modules/
 logs/*.md
+game/node_modules/
+game/www/
+game/android/
+game/ios/

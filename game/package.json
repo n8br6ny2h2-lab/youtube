@@ -1,0 +1,24 @@
+{
+  "name": "efsun-avcisi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Efsun Avcısı — mobil aksiyon RPG (HTML5 + Capacitor)",
+  "scripts": {
+    "dev": "python3 -m http.server 8080",
+    "build": "node scripts/build.mjs",
+    "android": "npm run build && npx cap sync android && npx cap open android",
+    "ios": "npm run build && npx cap sync ios && npx cap open ios",
+    "validator": "node server/validate.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/haptics": "^6.0.2",
+    "@capacitor/ios": "^6.2.0",
+    "@capacitor-community/admob": "^6.0.0",
+    "cordova-plugin-purchase": "^13.11.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.0"
+  }
+}
