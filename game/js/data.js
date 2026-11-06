@@ -2,7 +2,7 @@
 
 export const GAME = {
   name: 'Efsun Avcısı',
-  version: '1.1.0',
+  version: '1.2.0',
   energyPerRun: 5,
   energyMax: 30,
   energyRegenSec: 300,
@@ -11,6 +11,7 @@ export const GAME = {
   idleCapHours: 12,
   shareUrl: '',   // mağaza bağlantınız (ör. https://play.google.com/store/apps/details?id=...) — boşsa sayfa adresi
   privacyUrl: '', // oyunun gizlilik politikası adresi — mağazalar zorunlu tutar
+  termsUrl: '',   // kullanım şartları adresi
 };
 
 export const RARITIES = [
@@ -262,3 +263,35 @@ export const DAILY_CHALLENGES = [
   { name: 'Boss Yağmuru',     desc: '5., 8. ve 10. dalgada boss',            mods: { extraBoss: true } },
   { name: 'Kalabalık',        desc: 'Düşman sayısı 2×, düşmanlar zayıf',     mods: { spawnMul: 2, enemyHp: 0.6 } },
 ];
+
+// Zorluk seviyeleri — bir bölüm Normal'de temizlenince Zor, Zor'da temizlenince Kabus açılır
+export const DIFFS = [
+  { id: 0, name: 'Normal', icon: '⚔️', color: '#22c55e', mods: {},                                      loot: 1 },
+  { id: 1, name: 'Zor',    icon: '🔥', color: '#f97316', mods: { enemyHp: 4, enemyDmg: 2.7, eliteMul: 2, enemySpeed: 1.1 }, loot: 2.5 },
+  { id: 2, name: 'Kabus',  icon: '💀', color: '#e11d48', mods: { enemyHp: 9, enemyDmg: 4.2, eliteMul: 2.8, enemySpeed: 1.18 }, loot: 5 },
+];
+
+export const NEWS = [
+  { tag: 'GÜNCELLEME', date: 'Kasım 2026', title: 'v1.2: Zorluk seviyeleri geldi!', body: 'Her bölümü Normal, Zor ve Kabus seviyelerinde oyna. Zor seviyede 2.5×, Kabus\'ta 5× ganimet! Yeni düşmanlar: Hücumcu Domuz ve Bölünen Balçık. Kombo sistemi: art arda öldür, bonus altın kazan.' },
+  { tag: 'SEZON', date: 'Kasım 2026', title: 'Sezon 1: Efsunun Uyanışı', body: 'Efsun Bileti\'nin 30 kademesinde Mitik Ayaz Silahı seni bekliyor. Günlük görevleri tamamlayarak bilet XP\'si kazan.' },
+  { tag: 'İPUCU', date: '', title: 'Bosslar uyarı verir', body: 'Kırmızı daire = yere vuruş, kırmızı şerit = hücum. Kırmızı alanın dışına çık! Domuzlar da hücumdan önce kırmızı şerit gösterir.' },
+];
+
+// Hediye kodları (çevrimdışı sürüm). Canlıda kodlar sunucuda doğrulanmalı.
+export const GIFT_CODES = {
+  HOSGELDIN: { gems: 100, gold: 5000 },
+  EFSUN2026: { runes: 20, seals: 5 },
+  AVCILAR:   { energy: 20, scrolls: 30 },
+};
+
+export const FAQ = [
+  ['İlerlemem kaybolur mu?', 'Hesabını Game Center / Google Play Games veya Apple / Google ile bağlarsan ilerlemen buluta kaydedilir ve yeni telefonda geri yüklenir. Bağlamazsan ilerleme sadece bu cihazda kalır.'],
+  ['Satın aldığım şey gelmedi', 'Ayarlar > Satın alımları geri yükle\'ye dokun. Sorun sürerse oyuncu kimliğinle destek ekibine yaz.'],
+  ['Sandık olasılıkları nedir?', 'Mağazada her sandığın üzerindeki % düğmesinde tüm olasılıklar ve şans koruması yazılıdır.'],
+  ['Enerji nasıl dolar?', 'Her 5 dakikada 1 enerji dolar. Reklam izleyerek, elmasla veya Aylık Kart ile daha fazla enerji alabilirsin.'],
+  ['Oyun çok zor', 'Ekipmanını yükselt, 3 aynı eşyayı birleştir, Gelişim\'te yetenek al. Önerilen gücün altındaysan önceki bölümleri tekrar oynayıp ganimet topla.'],
+  ['Hesabımı nasıl silerim?', 'Ana Menü > Hesap > Hesabı Sil. Buluttaki tüm verilerin kalıcı olarak silinir.'],
+];
+
+export const WELCOME_MAIL = { id: 'welcome', from: 'Efsun Konseyi', title: 'Hoş geldin, Avcı!', body: 'Efsun Diyarı\'na hoş geldin! Yolculuğuna başlaman için küçük bir hediye hazırladık. Bol şans!', rew: { gems: 150, gold: 3000, runes: 10 } };
+export const UPDATE_MAIL = { id: 'v120', from: 'Geliştirici Ekibi', title: 'v1.2 Güncelleme Hediyesi', body: 'Zorluk seviyeleri ve yeni düşmanlar geldi! Güncelleme şerefine bu hediyeyi kabul et.', rew: { gems: 100, energy: 15, scrolls: 20 } };

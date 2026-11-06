@@ -3,9 +3,37 @@
   "appName": "Efsun Avcısı",
   "webDir": "www",
   "backgroundColor": "#0b0d17",
-  "android": { "allowMixedContent": false },
-  "ios": { "contentInset": "never" },
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "never"
+  },
   "plugins": {
-    "AdMob": { "appIdAndroid": "ca-app-pub-3940256099942544~3347511713", "appIdIos": "ca-app-pub-3940256099942544~1458002511" }
+    "AdMob": {
+      "appIdAndroid": "ca-app-pub-3940256099942544~3347511713",
+      "appIdIos": "ca-app-pub-3940256099942544~1458002511"
+    },
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "backgroundColor": "#0b0820",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "overlaysWebView": true,
+      "style": "DARK"
+    },
+    "LocalNotifications": {
+      "iconColor": "#f59e0b"
+    },
+    "FirebaseAuthentication": {
+      "skipNativeAuth": false,
+      "providers": [
+        "apple.com",
+        "gc.apple.com",
+        "google.com",
+        "playgames.google.com"
+      ]
+    }
   }
 }

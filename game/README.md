@@ -107,7 +107,28 @@ Oyun içi para birimleriyle satılanlar: sandıklar (Bronz / Elmas / Efsane, 10'
 
 ---
 
-## 5. Telefona paketleme
+## 5. Ana menü ve hesap sistemi
+
+**Ana menü (başlık ekranı):** OYNA, Hesap, Sıralama, Posta, Haberler, Hediye Kodu, Destek, Hakkında ve Ayarlar. Lobide sol üstteki ☰ aynı menüyü açar; avatar profil sayfasını açar.
+
+| Bölüm | İçerik |
+|---|---|
+| **Hesap & Bulut** | Game Center, Apple ile Giriş, Google Play Oyunlar, Google ile Giriş. İlk bağlantıda 200 💎. Bulut kaydı (kaydet / yükle, 3 dakikada bir otomatik). Oyuncu kimliği. **Hesabı sil** (Apple yönergesi 5.1.1(v) bunu zorunlu tutar) |
+| **Sıralama** | Bölüm, Güç, Düşman ve Kombo tabloları. iPhone ve Android oyuncuları aynı listede. İlk 50 ve senin sıran |
+| **Posta** | Hoş geldin ve güncelleme hediyeleri, tek tek ya da "Tümünü al" |
+| **Haberler** | Güncelleme notları, sezon duyuruları, ipuçları (`js/data.js` → `NEWS`) |
+| **Hediye kodu** | `HOSGELDIN`, `EFSUN2026`, `AVCILAR` (`GIFT_CODES`). Canlıda kodları sunucuya taşıyın |
+| **Ayarlar** | Efekt ve müzik ses seviyesi, titreşim, hasar sayıları, ekran sarsıntısı, grafik kalitesi, 30/60 FPS, enerji bildirimi, dil, satın alımları geri yükle, yedek kodu, sıfırlama, yasal bağlantılar |
+| **Destek & SSS** | Sık sorulan sorular, oyuncu kimliği, e-posta ile destek (`CONFIG.supportEmail`) |
+| **Profil** | İsim değiştirme, istatistikler, bağlı hesaplar, başarımlar |
+
+**Nasıl çalışıyor:** Telefonda tek eklenti kullanılıyor: `@capacitor-firebase/authentication`. Dört giriş yöntemi de bu eklentiyle yapılıyor. Oyuncu ikinci bir yöntem bağladığında bu, aynı Firebase hesabına ekleniyor (`linkWith…`). Böylece iPhone'dan Android'e geçen oyuncu ilerlemesini kaybetmiyor.
+
+Bulut kaydı ve sıralama `server/cloud.mjs` üzerinden çalışıyor. Sunucu, Firebase kimlik jetonunu Google'ın açık anahtarlarıyla doğruluyor: her oyuncu sadece kendi kaydına erişebiliyor, absürt skorlar reddediliyor ve skorlar geriye gitmiyor. Tarayıcıda gerçek giriş yapılamıyor; bunun yerine açıkça "Test" olarak işaretlenmiş bir bağlantı oluşuyor.
+
+> Game Center / Play Games'in kendi sıralama ekranları için Capacitor 8 uyumlu, bakımı süren bir eklenti bulunamadı. Bu yüzden sıralama oyunun kendi sunucusunda ve oyun içinde gösteriliyor.
+
+## 6. Telefona paketleme (Apple + Android)
 
 ```bash
 cd game
@@ -115,22 +136,36 @@ npm install
 npm run build                 # www/ klasörünü oluşturur
 npx cap add android           # ilk sefer
 npx cap add ios               # ilk sefer (macOS + Xcode)
-npm run android               # Android Studio açılır → Build > Generate Signed Bundle (AAB)
-npm run ios                   # Xcode açılır → Archive → App Store Connect
+npm run native-setup          # dikey ekran, bildirim izni, AdMob/Play Games kimlikleri, iOS izin metinleri
+npm run android               # Android Studio → Build > Generate Signed Bundle (AAB)
+npm run ios                   # Xcode → Product > Archive → App Store Connect
 ```
 
-Yayın öncesi kontrol listesi:
-1. `js/data.js` → `GAME.shareUrl` (mağaza bağlantısı) ve `GAME.privacyUrl` alanlarını doldurun.
-1. `capacitor.config.json` içindeki `appId` değerini kendi paket adınızla değiştirin.
-2. Play Console ve App Store Connect'te tablodaki ürün kimliklerini açın. Tüketilebilir / tüketilemez türlerini doğru seçin.
-3. AdMob uygulama ve reklam birimi kimliklerini girin.
-4. `server/validate.mjs` dosyasını bir sunucuya yükleyin ve `CONFIG.validatorUrl` alanını doldurun.
-5. Kahraman ve eşya emojilerini kendi çizimlerinizle değiştirin (isteğe bağlı). Bunun için `BASES` / `HEROES` içindeki `icon` alanlarına görsel yolu koyup arayüzde `<img>` gösterimi eklemek yeterli.
-6. Mağaza görselleri için oyundaki paylaşım kartını ve savaş ekran görüntülerini kullanın.
+### Firebase (giriş için zorunlu)
+1. console.firebase.google.com'da proje aç. Authentication > Sign-in method bölümünden **Apple, Google, Game Center, Play Games**'i etkinleştir.
+2. Android uygulaması ekle (`com.efsunavcisi.game`, SHA-1 parmak izi ile) → `google-services.json` dosyasını `android/app/` içine koy.
+3. iOS uygulaması ekle → `GoogleService-Info.plist` dosyasını Xcode'da `App/App` içine sürükle. İçindeki `REVERSED_CLIENT_ID` değerini `scripts/native-setup.mjs` dosyasına yaz.
 
----
+### Apple (App Store Connect + Xcode)
+- Xcode > Signing & Capabilities: **Game Center**, **Sign in with Apple**, **In-App Purchase**.
+- App Store Connect: Game Center'ı aç; uygulama içi ürünleri `PRODUCTS` kimlikleriyle oluştur.
+- Gizlilik etiketleri: Kimlik (kullanıcı kimliği), Kullanım verisi (oyun ilerlemesi), Satın almalar ve Reklam kimliği (AdMob ATT izni ile).
+- Yaş derecelendirmesi: "Sık / yoğun simüle kumar" sorusunda sandıklar için **olasılıkları yayımlanan rastgele ödüller** seçilir.
 
-## 6. Dosya yapısı ve denge ayarı
+### Android (Google Play Console)
+- Play Games Services'i yapılandır ve proje kimliğini `native-setup.mjs` → `playGamesAppId` alanına yaz.
+- Uygulama içi ürünleri aynı kimliklerle oluştur. Veri Güvenliği formunu doldur (kimlik, oyun ilerlemesi, satın almalar, reklam kimliği).
+- Hedef API seviyesi Capacitor 8 varsayılanlarıyla Play şartlarını karşılar.
+
+### Sunucular
+```bash
+cd game/server && npm install
+FIREBASE_PROJECT_ID=projen DATA_DIR=./data PORT=8788 npm run cloud     # bulut kaydı + sıralama
+GOOGLE_APPLICATION_CREDENTIALS=hesap.json npm run validator           # Google Play makbuz doğrulama
+```
+Sunucu adresini `js/services.js` → `CONFIG.cloudUrl` alanına yaz. Gizlilik politikası, kullanım şartları ve destek e-postasını da `GAME.privacyUrl`, `GAME.termsUrl` ve `CONFIG.supportEmail` alanlarına gir.
+
+## 7. Dosya yapısı ve denge ayarı
 
 ```
 game/
@@ -138,17 +173,21 @@ game/
 ├── js/data.js       ← TÜM DENGE: nadirlik, efsun değerleri, setler, kahramanlar, ürünler, görevler, bilet
 ├── js/economy.js    ← eşya üretimi, stat hesabı, yükseltme / efsun / birleştirme, sandık, ödüller
 ├── js/game.js       ← savaş motoru (düşmanlar, boss desenleri, beceriler, efektler)
-├── js/main.js       ← menüler, akışlar, mağaza, HUD
-├── js/services.js   ← IAP, reklam, ses sentezi, titreşim, paylaşım
+├── js/main.js       ← lobi, akışlar, mağaza, HUD
+├── js/menus.js      ← ana menü, hesap, ayarlar, sıralama, posta, haberler, destek, profil
+├── js/account.js    ← giriş (Firebase), bulut kaydı ve sıralama istemcisi
+├── js/art.js        ← tüm karakter, düşman ve boss çizimleri
+├── js/services.js   ← IAP, reklam, müzik ve ses sentezi, bildirim, titreşim, paylaşım
 ├── js/save.js       ← kayıt (localStorage + bütünlük özeti, dışa/içe aktarma)
+├── server/cloud.mjs     ← bulut kaydı + küresel sıralama (Firebase token doğrulamalı)
 ├── server/validate.mjs  ← makbuz doğrulama
-└── capacitor.config.json, scripts/build.mjs
+└── capacitor.config.json, scripts/build.mjs, scripts/native-setup.mjs
 ```
 
-Zorluk eğrisi: düşman canı bölüm başına ×1,36, dalga başına +%9 artar (`game.js` → `diffHp`). Önerilen güç bölüm başına ×1,33 artar (`main.js` → `recommendedPower`).
+Zorluk eğrisi: düşman canı bölüm başına ×1,42, dalga başına +%11 artar; hasar bölüm başına ×1,3 artar (`game.js` → `diffHp` / `diffDmg`). Zorluk seviyeleri `DIFFS` içinde: Zor = 4× can, 2,7× hasar, 2,5× ganimet; Kabus = 9× can, 4,2× hasar, 5× ganimet. Simülasyonda kaçma yapmayan sıradan bir oyuncu 1. bölümü yaklaşık 3 denemenin 2'sinde geçti; 2. bölümü yükseltme yapmadan geçemedi.
 
-## 7. Sonraki adımlar (sunucu gerektirir)
-- Bulut kaydı ve hesap bağlama (Google Play Games / Game Center)
-- Küresel ve arkadaş liderlik tablosu, günün mücadelesi sıralaması
-- Davet kodunun sunucuda doğrulanması (şu an yalnızca istemci tarafında)
+## 8. Sonraki adımlar
+- Hediye ve davet kodlarının sunucuda doğrulanması (şu an istemci tarafında)
+- İngilizce dil desteği (ayarlarda "yakında" olarak duruyor)
+- Arkadaş sıralaması, günün mücadelesi sıralaması
 - Uzaktan yapılandırma ile fiyat ve teklif A/B testleri, analitik (Firebase)

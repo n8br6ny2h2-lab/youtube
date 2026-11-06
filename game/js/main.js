@@ -2,7 +2,9 @@
 import * as D from './data.js';
 import * as E from './economy.js';
 import { load, persist, wipe, today, exportSave, importSave } from './save.js';
-import { Store, Ads, Sfx, haptic, share } from './services.js';
+import { Store, Ads, Sfx, haptic, share, scheduleEnergyNotification } from './services.js';
+import { Account } from './account.js';
+import { createMenus } from './menus.js';
 import { Game, RUN_SKILLS } from './game.js';
 import { animatePortraits } from './art.js';
 const HERO_W = { kaya: 'sword', lina: 'bow', zerk: 'sword', nyx: 'staff' };
@@ -14,11 +16,12 @@ let S = loaded.save;
 const sfx = new Sfx();
 const store = new Store();
 const ads = new Ads();
+const account = new Account();
 let tab = 'battle', questTab = 'daily', invFilter = 'all';
 let selCh = S.maxChapter;
 let game = null, run = null;
 
-const save = now => persist(S, now);
+const save = now => { S.account.updated = Date.now(); persist(S, now); };
 const play = n => { if (S.settings.sound) sfx.play(n); };
 const vib = ms => haptic(S.settings.haptic, ms);
 const fmt = E.fmt;
@@ -33,24 +36,35 @@ async function boot() {
   store.onConfirm = testStoreConfirm;
   store.onError = msg => { toast(msg, 'bad'); play('error'); };
   ads.onSimulate = simulateAd;
+  account.onTestConfirm = testAccountConfirm;
+  applySettings();
+  menus.deliverMail();
   await Promise.all([store.init(), ads.init()]);
   render();
+  bindNative();
   setInterval(tick, 1000);
   const portraitLoop = time => { if (!game) animatePortraits(time); requestAnimationFrame(portraitLoop); };
   requestAnimationFrame(portraitLoop);
   document.addEventListener('click', onClick);
-  document.addEventListener('visibilitychange', () => { if (document.hidden && game && !game.paused) pauseMenu(); save(true); });
-  $('#splash').addEventListener('click', () => {
-    sfx.unlock(); play('click');
-    $('#splash').classList.add('hide');
-    setTimeout(() => $('#splash').remove(), 400);
-    if (S.stats.runs === 0) setTimeout(() => toast('İlk savaşın için ⚔️ SAVAŞ\'a dokun!'), 500);
-    else if (E.loginState(S).canClaim) setTimeout(loginModal, 400);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { if (game && !game.paused) pauseMenu(); save(true); notifyEnergy(); sfx.ctx?.suspend?.(); }
+    else sfx.ctx?.resume?.();
   });
+  // başlık ekranı: ilk dokunuş sesi açar
+  document.addEventListener('pointerdown', () => sfx.unlock(), { once: true });
+  $('#title').addEventListener('click', e => {
+    const b = e.target.closest('[data-m]'); if (!b) return;
+    sfx.unlock(); play('click');
+    if (b.dataset.m === 'play') return enterLobby();
+    menus.open(b.dataset.m);
+  });
+  menus.showTitle();
+  setInterval(cloudAutoSync, 180000);
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
 function tick() {
+  if (game && !game.paused) S.stats.playSec = (S.stats.playSec || 0) + 1;
   const left = E.tickEnergy(S);
   if (E.dailyReset(S)) render();
   const en = $('#en-val'); if (en) en.textContent = `${S.energy}/${E.energyMax(S)}`;
@@ -58,6 +72,68 @@ function tick() {
   for (const el of $$('[data-until]')) el.textContent = countdown(+el.dataset.until - Date.now());
   const idle = $('#idle-amt'); if (idle) idle.textContent = fmt(E.idleReward(S).gold);
 }
+
+function enterLobby() {
+  menus.hideTitle();
+  $('#menu').hidden = false;
+  sfx.music('menu');
+  render();
+  if (S.stats.runs === 0) setTimeout(() => toast('İlk savaşın için ⚔️ SAVAŞ\'a dokun!'), 400);
+  else if (E.loginState(S).canClaim) setTimeout(loginModal, 400);
+  else if (menus.mailCount()) setTimeout(() => toast('✉️ Postanda hediye var!', 'good'), 400);
+}
+
+function applySettings() {
+  const st = S.settings;
+  sfx.on = st.sound;
+  sfx.setVolumes(st.sfxVol ?? 0.8, st.music ?? 0.5);
+  if (game) Object.assign(game.cfg, { dmgNumbers: st.dmgNumbers, shake: st.shake, fps: st.fps, quality: st.quality });
+}
+
+function notifyEnergy() {
+  const max = E.energyMax(S);
+  const secs = S.energy >= max ? 0 : (max - S.energy - 1) * D.GAME.energyRegenSec + E.tickEnergy(S);
+  scheduleEnergyNotification(S.settings.notify, secs);
+}
+
+async function cloudAutoSync() {
+  if (!account.cloudReady(S.account.links) || game) return;
+  try { await account.push(S.account.links, S); S.account.lastSync = Date.now(); persist(S); } catch (e) { /* sessizce yeniden dene */ }
+}
+
+function testAccountConfirm(provider) {
+  const names = { gamecenter: 'Game Center', apple: 'Apple ile Giriş', playgames: 'Google Play Oyunlar', google: 'Google ile Giriş' };
+  return confirmBox('🧪 Test Girişi', `<b>${names[provider]}</b><br><span class="small muted">Tarayıcı sürümünde gerçek giriş yapılamaz. iPhone ve Android uygulamasında burada resmi ${names[provider]} ekranı açılır.</span>`, 'Test bağlantısı oluştur');
+}
+
+// Android geri tuşu ve uygulama yaşam döngüsü
+function bindNative() {
+  const App = window.Capacitor?.Plugins?.App;
+  if (!App) return;
+  App.addListener('backButton', () => {
+    const open = $$('#modals .modal-wrap');
+    if (open.length) { const top = open[open.length - 1]; top.querySelector('[data-close]')?.click(); return; }
+    if (game) { if (!game.paused) pauseMenu(); return; }
+    if (!$('#title').hidden) { confirmBox('Çıkış', 'Oyundan çıkmak istiyor musun?', 'Çık').then(ok => ok && App.exitApp()); return; }
+    if (tab !== 'battle') { tab = 'battle'; render(); return; }
+    menus.showTitle();
+  });
+}
+
+const menus = createMenus({
+  get S() { return S; },
+  sfx, account, fmt: n => E.fmt(n),
+  save: now => save(now), render: () => render(), play: n => play(n), stats: () => stats(),
+  grant: (rew, title) => { rewardPopup(E.grant(S, rew), title); save(true); render(); },
+  rewText: r => rewText(r),
+  applySettings: () => applySettings(), notifyEnergy: () => notifyEnergy(),
+  restore: () => ACT.restore(),
+  exportCode: async () => { const code = exportSave(S); try { await navigator.clipboard.writeText(code); toast('Yedek kodu panoya kopyalandı', 'good'); } catch (_) { prompt('Yedek kodun:', code); } },
+  importCode: () => { const code = prompt('Yedek kodunu yapıştır:'); if (code) { try { importSave(code); location.reload(); } catch (err) { toast('Kod geçersiz', 'bad'); } } },
+  replaceSave: remote => { S = remote; persist(S, true); location.reload(); },
+  wipeAll: () => { wipe(); location.reload(); },
+  gotoAchievements: () => { menus.hideTitle(); $('#menu').hidden = false; tab = 'quest'; questTab = 'ach'; render(); },
+});
 
 const mmss = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 function countdown(ms) {
@@ -92,9 +168,9 @@ function navBadges() {
 
 function topHtml() {
   const st = stats(), h = D.HEROES[S.hero];
-  return `<div class="tb-left" data-act="settings">
+  return `<button class="menubtn" data-act="menu" aria-label="Menü">☰${menus.mailCount() ? '<i></i>' : ''}</button><div class="tb-left" data-act="profile">
       <div class="avatar" style="--hc:${h.color}"><canvas class="hero-cv" data-small="1" data-face="1" data-hero="${S.hero}" data-w="${st.wtype}"></canvas></div>
-      <div><div class="pname">${esc(S.playerName)}${S.vip ? ' <span class="vip">VIP</span>' : ''}</div><div class="power">⚡ ${fmt(st.power)} Güç</div></div>
+      <div><div class="pname">${S.vip ? '<span class="vip">VIP</span> ' : ''}Güç</div><div class="power">⚡ ${fmt(st.power)}</div></div>
     </div>
     <div class="tb-res">
       <div class="res" data-act="energy"><span>🔋</span><b id="en-val">${S.energy}/${E.energyMax(S)}</b><small id="en-time"></small></div>
@@ -106,7 +182,8 @@ function topHtml() {
 // ------------------------------------------------------------ SAVAŞ EKRANI
 function battleHtml() {
   const ch = D.chapterInfo(selCh), st = stats(), h = D.HEROES[S.hero];
-  const best = S.best[selCh] || 0;
+  const dsel = diffOf(selCh), dinfo = D.DIFFS[dsel];
+  const best = (dsel ? S.best[`${selCh}:${dsel}`] : S.best[selCh]) || 0;
   const login = E.loginState(S), idle = E.idleReward(S), mc = E.monthlyState(S);
   const dc = D.DAILY_CHALLENGES[S.daily.challengeIdx || 0];
   const starterLive = !S.purchases.kit_starter && S.offers.starterUntil > Date.now();
@@ -134,14 +211,17 @@ function battleHtml() {
       </div>
       <div class="hero-label">${h.name} • ${h.title}</div>
       ${bar(best, 10, 'ch-bar')}
+      <div class="diffs">${D.DIFFS.map(df => { const un = diffUnlocked(selCh, df.id); return `<button class="${dsel === df.id ? 'on' : ''}" style="--dc:${df.color}" data-act="${un ? 'diff' : 'difflock'}" data-d="${df.id}">${un ? df.icon : '🔒'} ${df.name}${df.loot > 1 ? `<small>${df.loot}× ganimet</small>` : '<small>&nbsp;</small>'}</button>`; }).join('')}</div>
     </div>
-    <div class="power-big">⚡ ${fmt(st.power)} <small>Önerilen: ${fmt(recommendedPower(selCh))}</small></div>
-    <button class="btn play" data-act="play"><span>SAVAŞ</span><small>🔋 ${D.GAME.energyPerRun}</small></button>
+    <div class="power-big ${st.power < recommendedPower(selCh, dsel) ? 'low' : ''}">⚡ ${fmt(st.power)} <small>Önerilen: ${fmt(recommendedPower(selCh, dsel))}</small></div>
+    <button class="btn play" data-act="play" style="--c:${dsel === 2 ? '#e11d48' : dsel === 1 ? '#f97316' : '#f59e0b'}"><span>SAVAŞ</span><small>${dinfo.icon} ${dinfo.name} • 🔋 ${D.GAME.energyPerRun}</small></button>
     <div class="tip">${tipText()}</div>
   </div>`;
 }
 
-const recommendedPower = ch => Math.round(900 * Math.pow(1.33, ch - 1));
+const recommendedPower = (ch, d = 0) => Math.round(1000 * Math.pow(1.38, ch - 1) * [1, 3.6, 8][d]);
+const diffUnlocked = (ch, d) => d === 0 || !!S.cleared[`${ch}:${d - 1}`] || (d === 1 && ch < S.maxChapter && !Object.keys(S.cleared).length);
+const diffOf = ch => (diffUnlocked(ch, S.diffSel[ch] || 0) ? S.diffSel[ch] || 0 : 0);
 function tipText() {
   const tips = ['💡 Eşyaları 3\'leyip birleştir: nadirlik yükselir!', '💡 Efsun kilitle, iyi özellikleri koru.', '💡 4 parça set özel güç açar.', '💡 Boss saldırılarından önce kırmızı alan uyarısı çıkar.', '💡 Devriye ödülün sen yokken birikir.', '💡 Arkadaşını davet et, ikiniz de 💎 kazanın.'];
   return tips[Math.floor(Date.now() / 15000) % tips.length];
@@ -331,7 +411,8 @@ const ACT = {
   tab: d => { tab = d.tab; if (d.qt) questTab = d.qt; play('click'); render(); $('#screen').scrollTop = 0; },
   qtab: d => { questTab = d.q; render(); },
   ch: d => { selCh = Math.max(1, Math.min(S.maxChapter, selCh + +d.d)); play('click'); render(); },
-  play: () => startBattle(selCh),
+  play: () => { const d = diffOf(selCh); startBattle(selCh, { ...D.DIFFS[d].mods, diff: d, lootMul: D.DIFFS[d].loot }); },
+  difflock: d => { play('error'); toast(`Önce bu bölümü ${D.DIFFS[+d.d - 1].name} seviyesinde temizle`, 'bad'); },
   filter: d => { invFilter = d.f; render(); },
   item: d => openItem(d.uid),
   heroes: () => heroesModal(),
@@ -369,7 +450,10 @@ const ACT = {
   },
   autoMerge: () => autoMerge(),
   bulkSalvage: () => bulkSalvage(),
-  settings: () => settingsModal(),
+  settings: () => menus.settings(),
+  menu: () => menus.openMenu(),
+  profile: () => menus.open('profile'),
+  diff: d => { S.diffSel[selCh] = +d.d; play('click'); render(); },
   restore: async () => { if (await store.restore()) toast('Satın alımlar kontrol ediliyor…'); else toast('Geri yükleme yalnızca mobil uygulamada çalışır'); },
 };
 
@@ -731,37 +815,6 @@ function shareCard(res) {
   return new Promise(r => c.toBlob(r, 'image/png'));
 }
 
-// ---------------- Ayarlar ----------------
-function settingsModal() {
-  const m = modal('', { onClose: render });
-  const draw = () => {
-    m.el.innerHTML = `<button class="x" data-close>✕</button><h2>⚙️ Ayarlar</h2>
-      <div class="setrow"><span>Oyuncu adı</span><input id="pname" value="${esc(S.playerName)}" maxlength="16"></div>
-      <div class="setrow"><span>🔊 Ses</span><button class="tgl ${S.settings.sound ? 'on' : ''}" data-s="sound"></button></div>
-      <div class="setrow"><span>📳 Titreşim</span><button class="tgl ${S.settings.haptic ? 'on' : ''}" data-s="haptic"></button></div>
-      <div class="setrow"><span>🎨 Grafik</span><button class="btn small grey" data-s="quality">${S.settings.quality === 'high' ? 'Yüksek' : 'Pil Tasarrufu'}</button></div>
-      <div class="col gap"><button class="btn blue" data-s="export">💾 Kaydı dışa aktar</button><button class="btn blue" data-s="import">📥 Kayıt kodu yükle</button>
-      <button class="btn grey" data-s="restore">Satın alımları geri yükle</button>
-      ${D.GAME.privacyUrl ? `<a class="btn grey" href="${D.GAME.privacyUrl}" target="_blank" rel="noopener">Gizlilik Politikası</a>` : ''}
-      <button class="btn red" data-s="reset">Oyunu sıfırla</button></div>
-      <p class="muted center small">${D.GAME.name} v${D.GAME.version} • Kayıt kimliği ${S.created.toString(36)}</p>`;
-  };
-  draw();
-  m.el.addEventListener('change', e => { if (e.target.id === 'pname') { S.playerName = e.target.value.trim().slice(0, 16) || S.playerName; save(); } });
-  m.el.addEventListener('click', async e => {
-    const b = e.target.closest('[data-s]'); if (!b) return;
-    const k = b.dataset.s;
-    if (k === 'sound') { S.settings.sound = !S.settings.sound; sfx.on = S.settings.sound; }
-    if (k === 'haptic') S.settings.haptic = !S.settings.haptic;
-    if (k === 'quality') S.settings.quality = S.settings.quality === 'high' ? 'low' : 'high';
-    if (k === 'export') { const code = exportSave(S); try { await navigator.clipboard.writeText(code); toast('Kayıt kodu panoya kopyalandı', 'good'); } catch (_) { prompt('Kayıt kodun:', code); } }
-    if (k === 'import') { const code = prompt('Kayıt kodunu yapıştır:'); if (code) { try { importSave(code); location.reload(); } catch (err) { toast('Kod geçersiz', 'bad'); } } }
-    if (k === 'restore') ACT.restore();
-    if (k === 'reset') { if (await confirmBox('Emin misin?', 'Tüm ilerleme silinecek. Satın alımlar mağazadan geri yüklenebilir.', 'Sil')) { wipe(); location.reload(); } }
-    save(); draw();
-  });
-}
-
 function upgradeTalent(id) {
   const t = D.TALENTS.find(x => x.id === id), l = S.talents[id] || 0;
   if (l >= t.max) return;
@@ -784,9 +837,12 @@ function startBattle(chapter, mods = null) {
   game = new Game($('#cv'), {
     stats: st, chapter, mods: mods || {}, quality: S.settings.quality, heroColor: D.HEROES[S.hero].color,
     sfx: play, haptic: vib, onHud: hud, onLevelUp: levelUpModal, onDeath: deathModal, onEnd: endModal,
+    dmgNumbers: S.settings.dmgNumbers, shake: S.settings.shake, fps: S.settings.fps,
+    onBoss: on => sfx.music(on ? 'boss' : 'battle'),
     onInput: () => { const t = $('#tut'); if (t) t.remove(); },
   });
   initHud();
+  sfx.music('battle');
   if (S.tutorial === 0) {
     $('#battle').insertAdjacentHTML('beforeend', `<div id="tut"><div class="hand">👆</div><b>Ekranda sürükleyerek hareket et</b><span>Saldırı otomatik! Mermilerden kaç, ganimetleri topla.</span></div>`);
     S.tutorial = 1;
@@ -802,11 +858,12 @@ function initHud() {
     </div>
     <div class="hud-row"><div class="lvl">1</div><div class="xp"><div></div></div></div>
     <div class="hud-row small"><span class="wave"></span><div class="wbar"><div></div></div><span class="kills"></span><span class="hgold"></span></div>
-    <div class="bossbar" hidden><b></b><div><div></div></div></div>`;
+    <div class="bossbar" hidden><b></b><div><div></div></div></div>
+    <div class="combo" hidden></div>`;
   H = {
     hpfill: $('#hud .hpfill'), hptxt: $('#hud .hptxt'), shield: $('#hud .shield'), lvl: $('#hud .lvl'), xp: $('#hud .xp div'),
     wave: $('#hud .wave'), wbar: $('#hud .wbar div'), kills: $('#hud .kills'), gold: $('#hud .hgold'),
-    boss: $('#hud .bossbar'), bossName: $('#hud .bossbar b'), bossFill: $('#hud .bossbar > div > div'),
+    combo: $('#hud .combo'), boss: $('#hud .bossbar'), bossName: $('#hud .bossbar b'), bossFill: $('#hud .bossbar > div > div'),
   };
   $('#hud .pause').onclick = pauseMenu;
 }
@@ -822,6 +879,8 @@ function hud(d) {
   H.wbar.style.width = Math.min(100, d.waveP * 100) + '%';
   H.kills.textContent = `💀 ${d.kills}`;
   H.gold.textContent = `🪙 ${fmt(d.gold)}`;
+  if (d.combo >= 5) { H.combo.hidden = false; const t = `${d.combo} KOMBO`; if (H.combo.textContent !== t) { H.combo.textContent = t; H.combo.classList.remove('bump'); void H.combo.offsetWidth; H.combo.classList.add('bump'); } }
+  else H.combo.hidden = true;
   if (d.boss) { H.boss.hidden = false; H.bossName.textContent = d.boss.name; H.bossFill.style.width = Math.max(0, d.boss.hp / d.boss.maxHp * 100) + '%'; }
   else H.boss.hidden = true;
 }
@@ -881,16 +940,24 @@ function endModal(res) {
   // ilerleme
   S.stats.kills += res.kills; S.stats.bossKills += res.bossKills;
   E.progress(S, 'kills', res.kills); E.progress(S, 'boss', res.bossKills);
-  S.best[res.chapter] = Math.max(S.best[res.chapter] || 0, res.wave);
-  let unlocked = false;
-  if (res.victory) { S.stats.wins++; if (res.chapter >= S.maxChapter) { S.maxChapter = res.chapter + 1; selCh = S.maxChapter; unlocked = true; } }
+  const dl = mods.daily ? 0 : (mods.diff || 0), bkey = dl ? `${res.chapter}:${dl}` : res.chapter;
+  if (!mods.daily) S.best[bkey] = Math.max(S.best[bkey] || 0, res.wave);
+  S.stats.maxCombo = Math.max(S.stats.maxCombo || 0, res.maxCombo || 0);
+  let unlocked = false, diffUnlock = '';
+  if (res.victory && !mods.daily) {
+    S.stats.wins++;
+    if (!S.cleared[`${res.chapter}:${dl}`] && dl < 2) diffUnlock = D.DIFFS[dl + 1].name;
+    S.cleared[`${res.chapter}:${dl}`] = true;
+    if (dl === 0 && res.chapter >= S.maxChapter) { S.maxChapter = res.chapter + 1; selCh = S.maxChapter; unlocked = true; }
+  }
+  menus.syncScores();
   if (mods.daily && !S.daily.challenge && res.waveReached >= 5) { S.daily.challenge = true; loot.gems = (loot.gems || 0) + 150; loot.chest = 'diamond'; }
   const list = E.grant(S, loot);
   save(true);
   play(res.victory ? 'win' : 'lose');
   const m = modal(`<div class="res-head ${res.victory ? 'win' : 'lose'}"><h2>${res.victory ? '🏆 ZAFER!' : '⚔️ Savaş Bitti'}</h2>
-      <p>${D.chapterInfo(res.chapter).title}</p>${unlocked ? `<div class="unlock">🔓 ${D.chapterInfo(S.maxChapter).title} açıldı!</div>` : ''}</div>
-    <div class="res-stats"><div><b>${Math.floor(res.wave)}</b><small>Dalga</small></div><div><b>${fmt(res.kills)}</b><small>Düşman</small></div><div><b>${res.level}</b><small>Seviye</small></div><div><b>${mmss(Math.floor(res.time))}</b><small>Süre</small></div></div>
+      <p>${D.chapterInfo(res.chapter).title} • ${D.DIFFS[dl].icon} ${D.DIFFS[dl].name}</p>${unlocked ? `<div class="unlock">🔓 ${D.chapterInfo(S.maxChapter).title} açıldı!</div>` : ''}${diffUnlock ? `<div class="unlock red">🔓 ${diffUnlock} seviyesi açıldı!</div>` : ''}</div>
+    <div class="res-stats"><div><b>${Math.floor(res.wave)}</b><small>Dalga</small></div><div><b>${fmt(res.kills)}</b><small>Düşman</small></div><div><b>${res.maxCombo || 0}</b><small>Kombo</small></div><div><b>${mmss(Math.floor(res.time))}</b><small>Süre</small></div></div>
     <div class="reward-grid">${list.map((r, i) => `<div class="reward-cell ${r.rarity !== undefined ? 'rar' + r.rarity : ''}" style="animation-delay:${i * 80}ms"><div class="ri">${r.icon}</div><div class="rt">${esc(r.text)}</div></div>`).join('')}</div>
     <div class="col gap">
       <button class="btn blue" data-e="double">📺 2× Altın (+${fmt(loot.gold)} 🪙)</button>
@@ -909,6 +976,7 @@ function exitBattle(res) {
   $('#battle').hidden = true; $('#menu').hidden = false;
   $('#tut')?.remove();
   tab = 'battle'; render();
+  sfx.music('menu');
   // akıllı teklif: ilk yenilgiden sonra başlangıç kiti 48 saatlik indirimle
   if (!res.victory && !S.purchases.kit_starter && !S.offers.starterUntil && S.stats.runs >= 2) {
     S.offers.starterUntil = Date.now() + 48 * 3600000; save();

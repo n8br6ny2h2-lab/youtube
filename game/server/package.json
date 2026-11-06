@@ -1,0 +1,16 @@
+{
+  "name": "efsun-avcisi-server",
+  "version": "1.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Efsun Avcısı bulut kaydı, sıralama ve makbuz doğrulama sunucuları",
+  "scripts": {
+    "cloud": "node cloud.mjs",
+    "validator": "node validate.mjs"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "googleapis": "^144.0.0",
+    "jose": "^5.9.6"
+  }
+}

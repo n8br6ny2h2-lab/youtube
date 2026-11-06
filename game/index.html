@@ -20,14 +20,29 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div id="splash">
+  <div id="title">
+    <canvas id="title-bg"></canvas>
+    <div class="title-top">
+      <button class="acc-chip" data-m="account" id="title-acc"></button>
+      <button class="ticon" data-m="settings" aria-label="Ayarlar">⚙️</button>
+    </div>
     <div class="logo"><span>EFSUN</span><span>AVCISI</span></div>
-    <canvas class="hero-cv splash-hero" data-hero="lina" data-w="bow" data-pet="owl" data-color="#fde68a"></canvas>
-    <div class="tap">Başlamak için dokun</div>
-    <small>v1.1 • Tek parmakla oyna</small>
+    <div class="title-bottom">
+      <button class="btn play" data-m="play"><span>OYNA</span></button>
+      <div class="title-grid">
+        <button data-m="account"><span>👤</span>Hesap</button>
+        <button data-m="leader"><span>🏆</span>Sıralama</button>
+        <button data-m="mail"><span>✉️</span>Posta<i class="mbadge" hidden></i></button>
+        <button data-m="news"><span>📰</span>Haberler</button>
+      </div>
+      <div class="title-links">
+        <button data-m="code">🎁 Hediye Kodu</button><button data-m="help">❓ Destek</button><button data-m="about">ℹ️ Hakkında</button>
+      </div>
+      <small id="title-ver"></small>
+    </div>
   </div>
 
-  <div id="menu">
+  <div id="menu" hidden>
     <header id="top"></header>
     <main id="screen"></main>
     <nav id="nav">

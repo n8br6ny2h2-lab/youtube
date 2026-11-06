@@ -200,6 +200,8 @@ export function drawEnemy(ctx, e, t) {
   const r = e.r;
   switch (e.type) {
     case 'slime': return slime(ctx, e, r, col, lx, ly, t);
+    case 'splitter': slime(ctx, e, r, col, lx, ly, t); ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(0, -r * 1.05); ctx.lineTo(-r * 0.12, -r * 0.6); ctx.lineTo(r * 0.1, -r * 0.35); ctx.stroke(); ctx.fillStyle = '#fde047'; for (let i = -1; i <= 1; i++) { ctx.beginPath(); ctx.moveTo(i * r * 0.25 - r * 0.08, -r * 1.0); ctx.lineTo(i * r * 0.25, -r * 1.3); ctx.lineTo(i * r * 0.25 + r * 0.08, -r * 1.0); ctx.fill(); } return;
+    case 'boar': return boar(ctx, e, r, col, lx, ly, t);
     case 'bat': return bat(ctx, e, r, col, lx, ly, t);
     case 'archer': return skeleton(ctx, e, r, col, look, t);
     case 'golem': return golem(ctx, e, r, col, lx, ly, t);
@@ -290,6 +292,26 @@ function skeleton(ctx, e, r, col, look, t) {
   ctx.strokeStyle = charge ? '#fecaca' : '#d6d3d1'; ctx.lineWidth = 1;
   const ex = r * 0.6 + Math.cos(1.2) * r * 0.85, ey = Math.sin(1.2) * r * 0.85;
   ctx.beginPath(); ctx.moveTo(ex, -ey); ctx.lineTo(ex - pull, 0); ctx.lineTo(ex, ey); ctx.stroke();
+  ctx.restore();
+}
+
+function boar(ctx, e, r, col, lx, ly, t) {
+  const fur = col === '#ffffff' ? '#ffffff' : col, dk = shade(fur, -0.4);
+  const run = Math.sin(e.ph * (e.charging ? 26 : 10)) * r * 0.22;
+  if (e.aim > 0) { ctx.fillStyle = `rgba(239,68,68,${0.25 + Math.sin(t * 30) * 0.15})`; circ(ctx, 0, 0, r * 1.45); ctx.fill(); }
+  ctx.save(); if (lx < 0) ctx.scale(-1, 1);
+  ctx.fillStyle = dk;
+  for (const [x, o] of [[-0.55, 1], [-0.2, -1], [0.3, 1], [0.6, -1]]) { rr(ctx, x * r - r * 0.1, r * 0.35 + o * run * 0.3, r * 0.2, r * 0.5, 3); ctx.fill(); }
+  const g = ctx.createRadialGradient(-r * 0.2, -r * 0.4, 2, 0, 0, r * 1.1);
+  g.addColorStop(0, shade(fur, 0.25)); g.addColorStop(1, dk);
+  ctx.fillStyle = g; ell(ctx, -r * 0.1, 0, r * 0.95, r * 0.65); ctx.fill();
+  ctx.fillStyle = dk; ctx.beginPath(); for (let i = 0; i < 5; i++) { ctx.moveTo(-r * 0.7 + i * r * 0.28, -r * 0.5); ctx.lineTo(-r * 0.6 + i * r * 0.28, -r * 0.85); ctx.lineTo(-r * 0.5 + i * r * 0.28, -r * 0.5); } ctx.fill();
+  ctx.fillStyle = fur; ell(ctx, r * 0.75, -r * 0.05, r * 0.45, r * 0.4); ctx.fill();
+  ctx.fillStyle = '#f9a8d4'; ell(ctx, r * 1.12, r * 0.05, r * 0.16, r * 0.14); ctx.fill();
+  ctx.fillStyle = '#111'; circ(ctx, r * 1.08, r * 0.03, r * 0.035); ctx.fill(); circ(ctx, r * 1.16, r * 0.03, r * 0.035); ctx.fill();
+  ctx.fillStyle = '#fef3c7'; ctx.beginPath(); ctx.moveTo(r * 0.95, r * 0.2); ctx.quadraticCurveTo(r * 1.2, r * 0.25, r * 1.15, -r * 0.15); ctx.lineTo(r * 1.05, r * 0.15); ctx.fill();
+  ctx.fillStyle = '#dc2626'; ctx.shadowColor = '#ef4444'; ctx.shadowBlur = e.aim > 0 ? 10 : 0; circ(ctx, r * 0.78, -r * 0.18, r * 0.08); ctx.fill(); ctx.shadowBlur = 0;
+  ctx.fillStyle = dk; ctx.beginPath(); ctx.moveTo(r * 0.55, -r * 0.35); ctx.lineTo(r * 0.5, -r * 0.7); ctx.lineTo(r * 0.75, -r * 0.4); ctx.fill();
   ctx.restore();
 }
 

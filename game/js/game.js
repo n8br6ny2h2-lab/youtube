@@ -10,17 +10,19 @@ const d2 = (a, b) => (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
 const ENEMIES = {
   slime:  { hp: 30,  speed: 78,  dmg: 10, r: 16, ai: 'chase',    xp: 1, color: null,      w: 5 },
   bat:    { hp: 18,  speed: 150, dmg: 8,  r: 12, ai: 'zigzag',   xp: 1, color: '#a78bfa', w: 3 },
-  archer: { hp: 28,  speed: 65,  dmg: 12, r: 15, ai: 'ranged',   xp: 2, color: '#e5e7eb', w: 2, cd: 2.4 },
+  archer: { hp: 28,  speed: 65,  dmg: 12, r: 15, ai: 'ranged',   xp: 2, color: '#e5e7eb', w: 2, cd: 2.0 },
   golem:  { hp: 140, speed: 45,  dmg: 22, r: 26, ai: 'chase',    xp: 4, color: '#a8a29e', w: 1 },
   bomber: { hp: 24,  speed: 125, dmg: 40, r: 14, ai: 'kamikaze', xp: 2, color: '#4b5563', w: 2 },
-  mage:   { hp: 45,  speed: 55,  dmg: 14, r: 16, ai: 'caster',   xp: 3, color: '#f472b6', w: 1.5, cd: 3 },
+  mage:   { hp: 45,  speed: 55,  dmg: 14, r: 16, ai: 'caster',   xp: 3, color: '#f472b6', w: 1.5, cd: 2.6 },
+  boar:   { hp: 60,  speed: 72,  dmg: 24, r: 18, ai: 'charger',  xp: 2, color: '#92400e', w: 1.6 },
+  splitter: { hp: 85, speed: 55, dmg: 16, r: 25, ai: 'chase',   xp: 3, color: '#14b8a6', w: 1.2, split: true },
 };
 const CH_ENEMIES = [
-  ['slime', 'bat', 'archer', 'golem'],
-  ['slime', 'bat', 'archer', 'bomber', 'golem'],
-  ['slime', 'bat', 'mage', 'golem', 'bomber'],
-  ['bat', 'archer', 'mage', 'golem', 'bomber', 'slime'],
-  ['slime', 'bat', 'archer', 'golem', 'bomber', 'mage'],
+  ['slime', 'bat', 'archer', 'golem', 'boar'],
+  ['slime', 'bat', 'archer', 'bomber', 'golem', 'boar', 'splitter'],
+  ['slime', 'bat', 'mage', 'golem', 'bomber', 'splitter', 'boar'],
+  ['bat', 'archer', 'mage', 'golem', 'bomber', 'slime', 'boar', 'splitter'],
+  ['slime', 'bat', 'archer', 'golem', 'bomber', 'mage', 'boar', 'splitter'],
 ];
 const BOSSES = {
   treant:       { name: 'Yaşlı Kökdev',    color: '#3f9b55', patterns: ['slam', 'summon', 'radial'] },
@@ -81,6 +83,7 @@ export class Game {
     this.enemies = []; this.bullets = []; this.ebullets = []; this.pickups = []; this.parts = []; this.texts = []; this.fx = []; this.spirits = [];
     this.wave = 1; this.waveT = 0; this.bossActive = false; this.bossSpawned = false; this.boss = null;
     this.level = 1; this.xp = 0; this.xpNeed = 5; this.pendingLv = 0;
+    this.combo = 0; this.comboT = 0; this.maxCombo = 0;
     this.kills = 0; this.goldPicked = 0; this.runes = 0; this.bossKills = 0; this.time = 0;
     this.spawnAcc = 0; this.paused = false; this.over = false; this.revived = false;
     this.shake = 0; this.timeScale = 1; this.slowT = 0;
@@ -141,6 +144,7 @@ export class Game {
     let last = performance.now();
     const loop = now => {
       if (!this.running) return;
+      if (this.cfg.fps === 30 && now - last < 30) { this.raf = requestAnimationFrame(loop); return; }
       const dt = Math.min(0.05, (now - last) / 1000); last = now;
       if (!this.paused) this.update(dt * this.timeScale);
       this.draw();
@@ -154,6 +158,7 @@ export class Game {
 
   // ---------------- güncelleme ----------------
   update(dt) {
+    if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0) this.combo = 0; }
     if (this.slowT > 0) { this.slowT -= dt / Math.max(0.05, this.timeScale); if (this.slowT <= 0) this.timeScale = 1; }
     this.time += dt;
     this.updatePlayer(dt);
@@ -180,7 +185,7 @@ export class Game {
     return {
       hp: this.p.hp, maxHp: this.p.maxHp, xp: this.xp, xpNeed: this.xpNeed, level: this.level, wave: this.wave,
       waves: GAME.wavesPerChapter, waveP: isBoss ? (this.bossActive ? 1 : 0) : this.waveT / GAME.waveLen,
-      kills: this.kills, gold: this.goldPicked, shield: this.p.shield,
+      kills: this.kills, gold: this.goldPicked, shield: this.p.shield, combo: this.comboT > 0 ? this.combo : 0,
       boss: this.boss && !this.boss.dead ? { name: this.boss.name, hp: this.boss.hp, maxHp: this.boss.maxHp } : null,
       time: this.time,
     };
@@ -350,6 +355,12 @@ export class Game {
     if (e.dead) return;
     e.dead = true;
     this.kills++;
+    this.combo = (this.comboT > 0 ? this.combo : 0) + 1; this.comboT = 2.2;
+    if (this.combo > this.maxCombo) this.maxCombo = this.combo;
+    if (this.combo % 25 === 0) { this.text(this.p.x, this.p.y - 60, `${this.combo} KOMBO!`, '#fde047', false, true); this.sfx('coin'); }
+    if (ENEMIES[e.type]?.split && !e.child) {
+      for (const sx of [-1, 1]) { this.spawn('slime', { x: e.x + sx * 14, y: e.y }, { elite: false, portal: false }); const c = this.enemies[this.enemies.length - 1]; c.child = true; c.age = 0.4; c.color = e.color; c.kx = sx * 220; }
+    }
     this.burst(e.x, e.y, e.color, e.boss ? 60 : e.big ? 18 : 10, e.boss ? 360 : 200);
     this.fx.push({ type: 'pop', x: e.x, y: e.y, r: e.r, t: 0, life: 0.25, color: e.color });
     if (!e.boss) this.fx.push({ type: 'soul', x: e.x, y: e.y, r: e.r * 0.6, t: 0, life: 0.8 });
@@ -372,6 +383,7 @@ export class Game {
       this.timeScale = 0.25; this.slowT = 1.1;
       this.fx.push({ type: 'ring', x: e.x, y: e.y, r: 10, maxR: 420, t: 0, life: 0.8, color: e.color });
       this.bossActive = false; this.boss = null;
+      this.cfg.onBoss?.(false);
       if (this.wave >= GAME.wavesPerChapter) { this.endT = 1.6; this.banner = { text: 'ZAFER!', sub: 'Bölüm temizlendi', t: 3 }; this.sfx('win'); }
       else { this.nextWave(); }
     } else if (e.elite) { this.shake = Math.max(this.shake, 5); }
@@ -417,7 +429,7 @@ export class Game {
     this.cfg.onEnd?.({
       victory, chapter: this.ch, wave: victory ? GAME.wavesPerChapter : this.wave - 1 + Math.min(0.99, this.waveT / GAME.waveLen),
       waveReached: this.wave, kills: this.kills, goldPicked: this.goldPicked, runes: this.runes, time: this.time,
-      level: this.level, bossKills: this.bossKills, goldBonus: this.st.gold,
+      level: this.level, bossKills: this.bossKills, maxCombo: this.maxCombo, goldBonus: this.st.gold,
     });
   }
 
@@ -432,8 +444,8 @@ export class Game {
         if (!this.bossSpawned && this.waveT > 2.5) this.spawnBoss();
       } else if (this.waveT >= GAME.waveLen) this.nextWave();
     }
-    const rate = (0.95 + this.wave * 0.24) * (this.mods.spawnMul || 1) * (this.bossActive ? 0.2 : 1) * (this.isBossWave(this.wave) && !this.bossSpawned ? 0.2 : 1);
-    const cap = Math.min(85, 40 + this.wave * 4) * (this.mods.spawnMul || 1);
+    const rate = (1.1 + this.wave * 0.3) * (this.mods.spawnMul || 1) * (this.bossActive ? 0.2 : 1) * (this.isBossWave(this.wave) && !this.bossSpawned ? 0.2 : 1);
+    const cap = Math.min(95, 45 + this.wave * 5) * (this.mods.spawnMul || 1);
     this.spawnAcc += dt * rate;
     while (this.spawnAcc >= 1) {
       this.spawnAcc -= 1;
@@ -448,8 +460,8 @@ export class Game {
     this.healP(0.08);
   }
 
-  diffHp() { return Math.pow(1.36, this.ch - 1) * (1 + 0.09 * (this.wave - 1)) * (this.mods.enemyHp || 1); }
-  diffDmg() { return Math.pow(1.25, this.ch - 1) * (1 + 0.045 * (this.wave - 1)); }
+  diffHp() { return Math.pow(1.42, this.ch - 1) * (1 + 0.11 * (this.wave - 1)) * (this.mods.enemyHp || 1); }
+  diffDmg() { return 1.25 * Math.pow(1.3, this.ch - 1) * (1 + 0.06 * (this.wave - 1)) * (this.mods.enemyDmg || 1); }
 
   spawnPos(dist) {
     const a = rand(0, TAU);
@@ -461,7 +473,7 @@ export class Game {
     const list = CH_ENEMIES[this.chIdx];
     type = type || this.weightedType(list);
     const d = ENEMIES[type];
-    const elite = opt.elite ?? Math.random() < (0.025 + this.wave * 0.005) * (this.mods.eliteMul || 1);
+    const elite = opt.elite ?? Math.random() < (0.03 + this.wave * 0.007) * (this.mods.eliteMul || 1);
     const sc = elite ? 1.45 : 1;
     const hp = d.hp * this.diffHp() * (elite ? 3.5 : 1);
     pos = pos || this.spawnPos();
@@ -486,7 +498,7 @@ export class Game {
     const mini = this.wave < GAME.wavesPerChapter;
     const key = mini ? 'guardian' : this.theme.boss;
     const b = BOSSES[key];
-    const hp = (mini ? 450 : 1100) * Math.pow(1.36, this.ch - 1) * (this.mods.enemyHp || 1);
+    const hp = (mini ? 550 : 1300) * Math.pow(1.42, this.ch - 1) * (this.mods.enemyHp || 1);
     const pos = this.spawnPos(320);
     const e = {
       type: 'boss', boss: true, mini, key, name: b.name, ai: 'boss', x: pos.x, y: pos.y, r: mini ? 38 : 52, hp, maxHp: hp,
@@ -497,6 +509,7 @@ export class Game {
     this.enemies.push(e); this.boss = e;
     this.banner = { text: b.name, sub: mini ? 'Mini Boss' : 'BÖLÜM BOSS\'U', t: 2.4 };
     this.shake = 14; this.sfx('boss'); this.vib(60);
+    this.cfg.onBoss?.(true);
   }
 
   // ---------------- düşmanlar ----------------
@@ -544,6 +557,24 @@ export class Game {
         }
         break;
       }
+      case 'charger':
+        if (e.chg > 0) {
+          e.chg -= dt; e.charging = true;
+          e.x += e.cvx * dt; e.y += e.cvy * dt;
+          if (Math.random() < 0.5) this.parts.push({ x: e.x, y: e.y + e.r * 0.7, vx: rand(-20, 20), vy: rand(-30, 0), life: 0.4, max: 0.4, color: 'rgba(214,190,160,0.6)', size: rand(4, 8), dust: true });
+          if (e.chg <= 0) { e.charging = false; e.rest = rand(1.2, 2); }
+        } else if (e.aim > 0) {
+          e.aim -= dt;
+          if (e.aim <= 0) { const a = Math.atan2(e.ty - e.y, e.tx - e.x); e.cvx = Math.cos(a) * 560; e.cvy = Math.sin(a) * 560; e.chg = 0.7; }
+        } else {
+          e.x += ux * sp * dt; e.y += uy * sp * dt;
+          e.rest = (e.rest || 0) - dt;
+          if (dist < 320 && e.rest <= 0) {
+            e.aim = 0.65; e.tx = p.x; e.ty = p.y;
+            this.fx.push({ type: 'teleLine', x: e.x, y: e.y, x2: p.x, y2: p.y, t: 0, life: 0.65, w: e.r * 1.6 });
+          }
+        }
+        break;
       case 'kamikaze':
         if (e.fuse > 0) {
           e.fuse -= dt;
@@ -585,8 +616,8 @@ export class Game {
       let done = false;
       switch (e.pat) {
         case 'radial':
-          if (e.bt <= 0) { const n = 18, off = e.burst * 0.17; for (let i = 0; i < n; i++) this.ebullet(e.x, e.y, off + i * TAU / n, 200, e.dmg * 0.7, e.color); e.burst++; e.bt = 0.4; }
-          done = e.burst >= 3; break;
+          if (e.bt <= 0) { const n = 22, off = e.burst * 0.15; for (let i = 0; i < n; i++) this.ebullet(e.x, e.y, off + i * TAU / n, 200, e.dmg * 0.7, e.color); e.burst++; e.bt = 0.4; }
+          done = e.burst >= (enr < 1 ? 4 : 3); break;
         case 'spiral':
           if (e.bt <= 0) { for (let i = 0; i < 6; i++) this.ebullet(e.x, e.y, e.burst * 0.3 + i * TAU / 6, 210, e.dmg * 0.6, e.color); e.burst++; e.bt = 0.1; }
           done = e.burst >= 16; break;
@@ -594,7 +625,7 @@ export class Game {
           if (e.bt <= 0) { for (let i = -2; i <= 2; i++) this.ebullet(e.x, e.y, aim + i * 0.2, 300, e.dmg * 0.7, e.color); e.burst++; e.bt = 0.3; }
           done = e.burst >= 3; break;
         case 'charge': {
-          if (e.actT === dt || !e.cvx) { const a = Math.atan2(e.ty - e.y, e.tx - e.x); e.cvx = Math.cos(a) * 680; e.cvy = Math.sin(a) * 680; }
+          if (e.actT === dt || !e.cvx) { const a = Math.atan2(e.ty - e.y, e.tx - e.x); e.cvx = Math.cos(a) * 760; e.cvy = Math.sin(a) * 760; }
           e.charging = true;
           e.x += e.cvx * dt; e.y += e.cvy * dt;
           if (Math.random() < 0.6) this.parts.push({ x: e.x + rand(-e.r, e.r), y: e.y + rand(-e.r, e.r), vx: 0, vy: 0, life: 0.4, max: 0.4, color: e.color, size: 6 });
@@ -614,7 +645,7 @@ export class Game {
           this.burst(e.x, e.y, e.color, 24, 220);
           done = true; break;
       }
-      if (done) { e.state = 'move'; e.pt = rand(1.3, 2.2) * enr; }
+      if (done) { e.state = 'move'; e.pt = rand(1.0, 1.8) * enr; }
     }
   }
 
@@ -849,6 +880,7 @@ export class Game {
 
   // ---------------- efektler ----------------
   text(x, y, v, color, crit = false, big = false) {
+    if (this.cfg.dmgNumbers === false && !big && typeof v === 'number') return;
     if (this.texts.length > 70) this.texts.shift();
     this.texts.push({ x, y, v, color, crit, big, t: 0, life: crit || big ? 0.9 : 0.6, vx: rand(-20, 20) });
   }
@@ -883,7 +915,8 @@ export class Game {
     const ctx = this.ctx, W = this.W, H = this.H, z = this.zoom, p = this.p;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.fillStyle = this.theme.bg; ctx.fillRect(0, 0, W, H);
-    const sx = (Math.random() - 0.5) * this.shake, sy = (Math.random() - 0.5) * this.shake;
+    const sh = this.cfg.shake === false ? 0 : this.shake;
+    const sx = (Math.random() - 0.5) * sh, sy = (Math.random() - 0.5) * sh;
     ctx.save();
     ctx.translate(W / 2 + sx, H / 2 + sy); ctx.scale(z, z); ctx.translate(-p.x, -p.y);
     this.drawGround();

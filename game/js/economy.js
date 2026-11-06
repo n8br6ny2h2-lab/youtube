@@ -274,13 +274,14 @@ export function monthlyState(save) {
 // Bölüm sonu ganimeti
 export function runLoot(save, res, mods = {}) {
   const ch = res.chapter, mul = (mods.lootMul || 1) * (1 + res.goldBonus / 100) * (save.vip ? 1.25 : 1);
-  const gold = Math.floor((res.goldPicked + res.kills * (2 + ch * 0.6) + res.wave * 25 * ch + (res.victory ? 600 * ch : 0)) * mul);
+  const gold = Math.floor((res.goldPicked + res.kills * (2 + ch * 0.6) + res.wave * 25 * ch + (res.victory ? 600 * ch : 0) + (res.maxCombo || 0) * 2 * ch) * mul);
   const rew = { gold, scrolls: Math.floor(res.wave * (1.5 + ch * 0.3) * (mods.lootMul || 1)), runes: res.runes, passXp: 40 + res.wave * 12, items: [] };
   const drops = Math.floor(res.wave / 3) + (res.victory ? 1 : 0);
-  for (let i = 0; i < drops; i++) {
-    const r = weighted([[0, 40], [1, 35 + ch * 2], [2, 15 + ch * 3], [3, 3 + ch * 1.5], [4, 0.4 + ch * 0.3]]);
+  const dl = mods.diff || 0;
+  for (let i = 0; i < drops + dl; i++) {
+    const r = weighted([[0, 40 / (1 + dl * 2)], [1, 35 + ch * 2], [2, 15 + ch * 3 + dl * 15], [3, 3 + ch * 1.5 + dl * 8], [4, 0.4 + ch * 0.3 + dl * 2]]);
     rew.items.push({ slot: 'any', rarity: Math.min(4, r) });
   }
-  if (res.victory && ch >= save.maxChapter) rew.gems = 60 + ch * 15; // ilk geçiş
+  if (res.victory && !mods.daily && !(save.cleared || {})[`${ch}:${dl}`]) rew.gems = (60 + ch * 15) * (1 + dl); // ilk geçiş
   return rew;
 }

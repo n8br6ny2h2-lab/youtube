@@ -1,7 +1,7 @@
 // Çevrimdışı oynanabilirlik için önbellek (PWA)
-const V = 'efsun-v1.1.0';
+const V = 'efsun-v1.2.0';
 const FILES = ['./', 'index.html', 'css/style.css', 'icon.svg', 'manifest.webmanifest',
-  'js/main.js', 'js/art.js', 'js/game.js', 'js/data.js', 'js/economy.js', 'js/save.js', 'js/services.js', 'js/ui.js'];
+  'js/main.js', 'js/art.js', 'js/menus.js', 'js/account.js', 'js/game.js', 'js/data.js', 'js/economy.js', 'js/save.js', 'js/services.js', 'js/ui.js'];
 
 self.addEventListener('install', e => e.waitUntil(caches.open(V).then(c => c.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(

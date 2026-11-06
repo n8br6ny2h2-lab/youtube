@@ -6,8 +6,20 @@
 import { PRODUCTS } from './data.js';
 
 export const CONFIG = {
-  // Sunucu tarafı makbuz doğrulama (server/validate.js). Boşsa istemci tarafında onaylanır.
+  // Sunucu tarafı makbuz doğrulama (server/validate.mjs). Boşsa istemci tarafında onaylanır.
   validatorUrl: '',
+  // Bulut kaydı sunucusu (server/cloud.mjs), ör. https://api.ornek.com — boşsa bulut kaydı kapalı
+  cloudUrl: '',
+  // Apple ile Giriş (Services ID) ve Google ile Giriş (Web istemci kimliği)
+  appleServiceId: 'com.efsunavcisi.game.signin',
+  googleWebClientId: '',
+  supportEmail: '',
+  // Game Center / Google Play Games sıralama kimlikleri (konsollarda oluşturulan değerler)
+  leaderboards: {
+    chapter: { ios: 'efsun.maxchapter', android: '' },
+    kills:   { ios: 'efsun.totalkills', android: '' },
+    power:   { ios: 'efsun.power',      android: '' },
+  },
   admob: {
     android: 'ca-app-pub-3940256099942544/5224354917', // Google'ın TEST kimliği — yayından önce kendi kimliğinizle değiştirin
     ios: 'ca-app-pub-3940256099942544/1712485313',
@@ -84,7 +96,14 @@ export class Ads {
   async init() {
     const AdMob = window.Capacitor?.Plugins?.AdMob;
     if (isNative() && AdMob) {
-      try { await AdMob.initialize({ initializeForTesting: true }); this.native = AdMob; } catch (e) { console.warn(e); }
+      try {
+        // iOS: Uygulama İzleme Şeffaflığı (ATT) izni — reklam kimliği için Apple zorunlu tutar
+        if (window.Capacitor.getPlatform() === 'ios') {
+          const st = await AdMob.trackingAuthorizationStatus().catch(() => null);
+          if (st?.status === 'notDetermined') await AdMob.requestTrackingAuthorization().catch(() => {});
+        }
+        await AdMob.initialize({ initializeForTesting: true }); this.native = AdMob;
+      } catch (e) { console.warn(e); }
     }
   }
   // true = ödül kazanıldı
@@ -104,10 +123,61 @@ export class Ads {
 
 // ---------------- Ses (sentezlenmiş, dosya gerektirmez) ----------------
 export class Sfx {
-  constructor() { this.ctx = null; this.on = true; this.last = {}; }
+  constructor() { this.ctx = null; this.on = true; this.last = {}; this.vol = 0.8; this.mvol = 0.5; this.mode = null; }
   unlock() {
     if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }
-    try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); this.master = this.ctx.createGain(); this.master.gain.value = 0.35; this.master.connect(this.ctx.destination); } catch (e) { this.ctx = null; }
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.master = this.ctx.createGain(); this.master.connect(this.ctx.destination);
+      this.mus = this.ctx.createGain(); this.mus.connect(this.ctx.destination);
+      this.setVolumes(this.vol, this.mvol);
+      if (this.pending) { const m = this.pending; this.pending = null; this.music(m); }
+    } catch (e) { this.ctx = null; }
+  }
+  setVolumes(sfx, music) {
+    this.vol = sfx; this.mvol = music;
+    if (this.master) this.master.gain.value = 0.45 * sfx;
+    if (this.mus) this.mus.gain.value = 0.32 * music;
+  }
+  // ---- prosedürel müzik: menü / savaş / boss ----
+  music(mode) {
+    if (!this.ctx) { this.pending = mode; return; }
+    if (this.mode === mode) return;
+    this.mode = mode; this.step = 0; this.next = this.ctx.currentTime + 0.08;
+    if (!mode) { clearInterval(this.timer); this.timer = null; return; }
+    if (!this.timer) this.timer = setInterval(() => this.sched(), 40);
+  }
+  sched() {
+    const c = this.ctx; if (!this.mode || !c || c.state !== 'running') return;
+    const M = MUSIC[this.mode], spb = 60 / M.bpm / 4;
+    while (this.next < c.currentTime + 0.2) { this.beat(this.step, this.next, M, spb); this.step++; this.next += spb; }
+  }
+  mt(midi, t, dur, type, vol) {
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(this.mus); o.start(t); o.stop(t + dur + 0.05);
+  }
+  drum(t, kind) {
+    const c = this.ctx;
+    if (kind === 'kick') { const o = c.createOscillator(), g = c.createGain(); o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.15); g.gain.setValueAtTime(0.5, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18); o.connect(g); g.connect(this.mus); o.start(t); o.stop(t + 0.2); return; }
+    const n = Math.floor(c.sampleRate * (kind === 'snare' ? 0.12 : 0.03)), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const src = c.createBufferSource(), g = c.createGain(), f = c.createBiquadFilter();
+    f.type = 'highpass'; f.frequency.value = kind === 'snare' ? 1200 : 6000;
+    src.buffer = b; g.gain.value = kind === 'snare' ? 0.22 : 0.07; src.connect(f); f.connect(g); g.connect(this.mus); src.start(t);
+  }
+  beat(step, t, M, spb) {
+    const s = step % 16, ch = M.prog[Math.floor(step / 16) % M.prog.length];
+    if (s === 0) for (const n of ch) this.mt(n, t, spb * 16, 'sine', 0.05);                 // pad
+    if (s % 4 === 0 || (M.drive && s % 2 === 0)) this.mt(ch[0] - 12, t, spb * (M.drive ? 1.8 : 3.5), 'triangle', 0.2);  // bas
+    if (s % 2 === 0) { const arp = [0, 1, 2, 1, 0, 2, 1, 2][(s / 2) % 8]; this.mt(ch[arp] + 12, t, spb * 1.6, M.lead, 0.05); }
+    if (M.melody && s % 4 === 2 && Math.random() < 0.5) this.mt(ch[Math.floor(Math.random() * 3)] + 24, t, spb * 3, 'sine', 0.04);
+    if (M.drums) {
+      if (s % 4 === 0) this.drum(t, 'kick');
+      if (s % 8 === 4) this.drum(t, 'snare');
+      if (s % 2 === 1) this.drum(t, 'hat');
+    }
   }
   tone(freq, dur, type = 'square', vol = 0.3, slide = 0, delay = 0) {
     if (!this.on || !this.ctx) return;
@@ -151,6 +221,27 @@ export class Sfx {
       case 'error': this.tone(200, 0.15, 'square', 0.12); this.tone(150, 0.2, 'square', 0.12, 0, 0.1); break;
     }
   }
+}
+
+const Am = [57, 60, 64], F = [53, 57, 60], C = [55, 60, 64], G = [55, 59, 62], Em = [52, 55, 59], Dm = [50, 53, 57], Bb = [53, 58, 62], A = [57, 61, 64];
+const MUSIC = {
+  menu:   { bpm: 84,  prog: [Am, F, C, G],  lead: 'triangle', melody: true },
+  battle: { bpm: 126, prog: [Am, F, G, Em], lead: 'square',   drums: true },
+  boss:   { bpm: 142, prog: [Dm, Bb, C, A], lead: 'sawtooth', drums: true, drive: true },
+};
+
+// Enerji dolunca yerel bildirim (Capacitor LocalNotifications varsa)
+export async function scheduleEnergyNotification(enabled, seconds) {
+  const LN = window.Capacitor?.Plugins?.LocalNotifications;
+  if (!LN) return false;
+  try {
+    await LN.cancel({ notifications: [{ id: 1 }] }).catch(() => {});
+    if (!enabled || seconds <= 0) return true;
+    const perm = await LN.checkPermissions();
+    if (perm.display !== 'granted') { const r = await LN.requestPermissions(); if (r.display !== 'granted') return false; }
+    await LN.schedule({ notifications: [{ id: 1, title: 'Enerjin doldu! ⚡', body: 'Efsun Avcısı seni bekliyor. Bossları yenmeye hazır mısın?', schedule: { at: new Date(Date.now() + seconds * 1000) } }] });
+    return true;
+  } catch (e) { return false; }
 }
 
 export function haptic(on, ms = 15) {
