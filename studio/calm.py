@@ -470,8 +470,12 @@ def KIT_assets(key: str) -> str:
     return (kit.get("assets") or {}).get(key, "")
 
 
-def make_thumbnail(script: dict, video: Path, out_dir: Path, portrait: bool = False, prefix: str = "thumb") -> dict:
+def make_thumbnail(script: dict, video: Path, out_dir: Path, portrait: bool = False, prefix: str = "thumb",
+                   clean: Path | None = None) -> dict:
+    """clean: altyazısız ara video (kapak karesinde altyazı görünmesin)."""
     w, h = (1080, 1920) if portrait else (1280, 720)
+    if clean and clean.exists():
+        video = clean
     out_dir.mkdir(parents=True, exist_ok=True)
     dur = float(qc.probe(video)["format"]["duration"])
     cands = []
@@ -539,7 +543,7 @@ def produce(script: dict) -> dict:
     out = Paths.renders / f"{slug}.mp4"
     logger.info(f"[gece] Montaj ({tlp['duration']/60:.1f} dk)")
     build_video(tlp, work, out, Path(au["mix"]), W, H, ass)
-    th = make_thumbnail(script, out, Paths.thumbnails / slug)
+    th = make_thumbnail(script, out, Paths.thumbnails / slug, clean=work / f"silent_{W}x{H}.mp4")
     md = metadata(script, "long")
     v = settings()["video"]
     report = qc.check(out, "long", min_s=v["min_long_seconds"], intelligibility=au.get("intelligibility"), black_pix_th=0.02)
@@ -575,7 +579,8 @@ def produce_short(script: dict, tlp: dict, sh: dict, work: Path, k: int, parent:
     ass = write_ass(tlp, sw / "subs.ass", 1080, 1920, None, segs=segs, offset=offset, big=True, hook=sh.get("hook"))
     out = Paths.shorts / f"{Path(script['_file']).stem}_s{k}.mp4"
     build_video(tlp, sw, out, Path(au["mix"]), 1080, 1920, ass, segs=segs, offset=offset, total=total)
-    th = make_thumbnail({**script, "thumb_text": sh["title"]}, out, Paths.thumbnails / Path(script["_file"]).stem, portrait=True, prefix=f"short{k}")
+    th = make_thumbnail({**script, "thumb_text": sh["title"]}, out, Paths.thumbnails / Path(script["_file"]).stem, portrait=True,
+                        prefix=f"short{k}", clean=sw / "silent_1080x1920.mp4")
     md = metadata(script, "short", sh)
     v = settings()["video"]
     report = qc.check(out, "short", min_s=v["shorts_min_seconds"], max_s=v["shorts_max_seconds"], intelligibility=au.get("intelligibility"),
