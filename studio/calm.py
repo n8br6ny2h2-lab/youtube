@@ -201,6 +201,41 @@ def nasa_stills(query: str, need: int, used: set) -> list[Path]:
     return out
 
 
+def nasa_by_ids(ids: list[str], used: set) -> list[Path]:
+    """Editörün seçtiği NASA kimliklerinden görüntü indirir (senaryodaki nasa_ids)."""
+    cache = Paths.images / "nasa"
+    cache.mkdir(parents=True, exist_ok=True)
+    out = []
+    for nid in ids:
+        dst = cache / f"{re.sub(r'[^A-Za-z0-9_-]', '_', nid)}.jpg"
+        if not dst.exists():
+            try:
+                files = httpx.get(f"https://images-assets.nasa.gov/image/{nid}/collection.json", timeout=30).json()
+                meta = httpx.get("https://images-api.nasa.gov/search", params={"nasa_id": nid}, timeout=30).json()["collection"]["items"]
+                center = meta[0]["data"][0].get("center", "NASA") if meta else "NASA"
+            except Exception as exc:
+                logger.warning(f"NASA {nid}: {exc}")
+                continue
+            pick = None
+            for suffix in ("~large.jpg", "~orig.jpg", "~medium.jpg"):
+                cand = next((u for u in files if u.endswith(suffix)), None)
+                if cand:
+                    cand = cand.replace("http://", "https://").replace(" ", "%20")
+                    head = httpx.head(cand, timeout=30)
+                    if head.status_code == 200 and int(head.headers.get("content-length", 0) or 0) < 30_000_000:
+                        pick = cand
+                        break
+            if not pick:
+                continue
+            dst.write_bytes(httpx.get(pick, timeout=120).content)
+            db.insert("licenses", created_at=db.now(), asset_path=str(dst.relative_to(ROOT)), kind="stock_image", source="NASA Image and Video Library",
+                      license="NASA medya kullanım yönergeleri: genellikle telifsiz (kamu malı); NASA onayı ima edilmez",
+                      author=center, url=f"https://images.nasa.gov/details/{nid}")
+        used.add(nid)
+        out.append(dst)
+    return out
+
+
 def still_clip(img: Path, seconds: float, idx: int, w: int, h: int, out: Path) -> Path:
     """Fotoğraftan yavaş yakınlaşan/kayan (Ken Burns) klip."""
     frames = max(1, int(seconds * FPS))
@@ -361,11 +396,14 @@ def build_video(tlp: dict, work: Path, out: Path, mix: Path, w: int, h: int, ass
         timeline.append((s["visual"], end - (s["start"] - offset)))
     n = 0
     nasa_q = {s["visual"]: s.get("nasa") for s in segs}
+    nasa_ids = {s["visual"]: s.get("nasa_ids") for s in segs}
     for vis, seconds in timeline:
         k = max(1, math.ceil(seconds / CLIP_SECONDS))
         per = seconds / k
         srcs, stills = [], []
-        if nasa_q.get(vis):
+        if nasa_ids.get(vis):
+            stills = nasa_by_ids(nasa_ids[vis], used)
+        if not stills and nasa_q.get(vis):
             for q in [nasa_q[vis], *NASA_GENERIC]:  # uygun görsel yoksa çizim yerine genel uzay fotoğrafları
                 try:
                     stills = nasa_stills(q, k, used)
