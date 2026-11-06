@@ -29,7 +29,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Bulutkent otomatik çocuk animasyon stüdyosu")
     ap.add_argument("--mode", default="full", choices=[
         "research", "story", "video", "shorts", "publish", "analytics", "full", "brand", "auth", "channel-setup",
-        "status", "dashboard", "daemon", "set-key", "test-upload", "enable-auto-publish", "disable-auto-publish", "schedule"])
+        "status", "dashboard", "daemon", "set-key", "set-client", "test-upload", "enable-auto-publish", "disable-auto-publish", "schedule"])
     ap.add_argument("--code", help="OAuth yönlendirme adresi veya yetki kodu")
     ap.add_argument("--story-id", type=int)
     ap.add_argument("--video-id", type=int)
@@ -89,6 +89,23 @@ def main() -> int:
                     res.setdefault("playlist_errors", []).append(str(exc))
         res["manual_steps"] = [c for c in youtube.capabilities() if not c["api"]]
         out(res)
+    elif m == "set-client":
+        import json as _j, os as _os
+        from studio.config import Paths
+        print("Google'dan indirdiğiniz client_secret JSON içeriğini yapıştırın, sonra boş satırda Enter'a basın:")
+        lines = []
+        while True:
+            ln = input()
+            if not ln.strip() and lines:
+                break
+            lines.append(ln)
+        data = _j.loads("\n".join(lines))
+        if "installed" not in data and "web" not in data:
+            print("Bu bir OAuth istemci dosyası değil."); return 1
+        Paths.secrets.mkdir(parents=True, exist_ok=True)
+        f = Paths.secrets / "client_secret.json"
+        f.write_text(_j.dumps(data)); _os.chmod(f, 0o600)
+        print("Kaydedildi. Şimdi: python main.py --mode auth")
     elif m == "set-key":
         import getpass
         from dashboard.app import _test_youtube, _write_env

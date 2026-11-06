@@ -162,18 +162,18 @@ def daemon() -> None:
                 logger.error(traceback.format_exc()[-800:])
         return wrapper
 
-    def produce_if_needed():
-        if not weekly_target_met():
-            safe("video", video)()
-            safe("shorts", shorts)()
+    def nightly():
+        # Ajan ekibiyle günlük tam döngü (Yönetmen → ... → Yayıncı) + analitik
+        try:
+            out = full()
+            logger.info(f"Gece döngüsü bitti: {json.dumps(out, ensure_ascii=False, default=str)[:600]}")
+        except Exception:
+            logger.error(traceback.format_exc()[-800:])
 
     # schedule kütüphanesi saat dilimi destekler
     zone = settings()["timezone"]
-    sch.every().day.at("09:10", zone).do(safe("research", research))
-    sch.every().day.at("02:30", zone).do(produce_if_needed)
-    sch.every().day.at("14:30", zone).do(produce_if_needed)
+    sch.every().day.at("02:37", zone).do(nightly)
     sch.every().hour.at(":05").do(safe("publish", publish))
-    sch.every().day.at("06:20", zone).do(safe("analytics", do_analytics))
     while True:
         sch.run_pending()
         time.sleep(30)
