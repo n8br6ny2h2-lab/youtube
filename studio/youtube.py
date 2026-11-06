@@ -258,6 +258,14 @@ def upload_banner(path: Path) -> dict:
     _quota("channels.update")
     cur = _svc().channels().list(part="brandingSettings", id=info["id"]).execute()["items"][0]["brandingSettings"]
     cur.setdefault("image", {})["bannerExternalUrl"] = r["url"]
+    # Okunan ayarlar henüz güncellenmemiş olabilir: açıklama/anahtar kelimeler silinmesin diye marka kitinden yeniden yaz
+    from . import brand as _brand
+    kit = _brand.load()
+    if kit:
+        ch = cur.setdefault("channel", {})
+        ch["description"] = kit["description"][:1000]
+        ch["keywords"] = " ".join(f'"{k}"' if " " in k else k for k in kit.get("keywords", []))[:500]
+        ch["defaultLanguage"], ch["country"] = "tr", "TR"
     return _svc().channels().update(part="brandingSettings", body={"id": info["id"], "brandingSettings": cur}).execute()
 
 

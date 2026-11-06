@@ -21,19 +21,49 @@ PLAYLIST_BY_CATEGORY = {
 }
 
 
-def metadata(story: dict, kind: str = "long", short_title: str | None = None) -> dict:
+EMOJI = {"space": "🚀", "dino": "🦕", "winter": "⛄", "newyear": "🎄", "cars": "🚗", "birthday": "🎂", "spring": "🌷",
+         "autumn": "🍂", "music": "🎶", "animals": "🐾", "school": "✏️", "colors": "🌈", "numbers": "🔢", "shapes": "🔺",
+         "sharing": "🤝", "friendship": "💛", "animal_adventure": "🐾", "riddles": "🧩", "songs": "🥁", "bedtime": "🌙",
+         "funny": "😄", "educational": "📚"}
+
+
+def _emoji(story: dict) -> str:
+    return EMOJI.get(story.get("theme") or "", EMOJI.get(story.get("category") or "", "☁️"))
+
+
+def _has_emoji(s: str) -> bool:
+    return any(ord(ch) > 0x2500 for ch in s)
+
+
+def short_title_from_line(line: str, limit: int = 45) -> str:
+    """Diyalog satırını kısa, başlık biçiminde bir Shorts başlığına çevirir."""
+    line = line.strip().rstrip(".")
+    if len(line) > limit:
+        cut = line[:limit].rsplit(" ", 1)[0]
+        line = cut.rstrip(",:;") + "…"
+    return line[:1].upper() + line[1:]
+
+
+def metadata(story: dict, kind: str = "long", short_title: str | None = None, hook: str | None = None) -> dict:
     kit = brand_mod.load()
     name = kit.get("name", "Bulutkent")
     chars = sorted({b["speaker"] for s in story["scenes"] for b in s["beats"] if b["speaker"] in CHARACTERS})
     char_names = ", ".join(CHARACTERS[c].name for c in chars)
+    emo = _emoji(story)
     if kind == "long":
-        title = f"{story['title']} | {name}"
+        title = f"{story['title']} {emo} | Çocuk Çizgi Filmi | {name}"
+        if len(title) > 100:
+            title = f"{story['title']} {emo} | {name}"
     else:
-        title = f"{short_title or story['title']} #shorts"
+        st = short_title or story["title"]
+        title = f"{st}{'' if _has_emoji(st) else ' ' + emo} #shorts"
     if len(title) > 100:
         title = title[:97] + "..."
+    lead = story.get("summary", "")
+    if kind != "long" and hook:
+        lead = f"{hook} {emo}"
     desc = (
-        f"{story.get('summary', '')}\n\n"
+        f"{lead}\n\n"
         f"Bu bölümde: {char_names}\n"
         f"Öğrenme hedefi: {story.get('learning_goal', '')}\n"
         f"Mesaj: {story.get('moral', '')}\n\n"
@@ -133,7 +163,7 @@ def produce_shorts(story: dict, long_result: dict, limit: int | None = None) -> 
         if s["id"] != "outro" and not any(c["scene_ids"] == [s["id"]] for c in cands):
             first = next((b["text"] for b in s["beats"]), "")
             line = next((b["text"] for b in s["beats"] if b["speaker"] != "narrator" and 12 <= len(b["text"]) <= 60), first)
-            cands.append({"title": line[:70], "scene_ids": [s["id"]], "hook_text": first if first.endswith("?") else "Bak neler oluyor!"})
+            cands.append({"title": short_title_from_line(line), "scene_ids": [s["id"]], "hook_text": first if first.endswith("?") else "Bak neler oluyor!"})
     scored = []
     for c in cands:
         sub = [s for s in tlp["scenes"] if s["id"] in c["scene_ids"]]
@@ -162,7 +192,7 @@ def produce_shorts(story: dict, long_result: dict, limit: int | None = None) -> 
         composer.mux(silent, Path(au["mix"]), out, stl["duration"])
         mini = {**story, "title": c["title"], "thumb_text": None, "scenes": [s for s in story["scenes"] if s["id"] in c["scene_ids"]] or story["scenes"]}
         cover = thumbnails.make(mini, Paths.thumbnails / fp, portrait=True, prefix=f"short{idx}")
-        md = metadata(story, "short", c["title"])
+        md = metadata(story, "short", c["title"], hook=c.get("hook_text"))
         v = settings()["video"]
         report = qc.check(out, "short", min_s=v["shorts_min_seconds"], max_s=v["shorts_max_seconds"],
                           intelligibility=au.get("intelligibility"), safety_passed=not md["title_issues"])
