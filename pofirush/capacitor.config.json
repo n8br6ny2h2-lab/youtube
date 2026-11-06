@@ -1,0 +1,12 @@
+{
+  "appId": "com.pofirush.game",
+  "appName": "Pofi Rush",
+  "webDir": "www",
+  "backgroundColor": "#1b1035",
+  "android": { "allowMixedContent": false, "webContentsDebuggingEnabled": false },
+  "ios": { "contentInset": "never", "scrollEnabled": false },
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 1500, "launchAutoHide": false, "backgroundColor": "#1b1035", "showSpinner": false },
+    "StatusBar": { "overlaysWebView": true, "style": "DARK" }
+  }
+}

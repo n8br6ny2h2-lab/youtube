@@ -1,0 +1,13 @@
+{
+  "name": "pofi-rush-validator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pofi Rush — Google Play ve App Store makbuz doğrulama sunucusu",
+  "scripts": { "start": "node validate.mjs" },
+  "dependencies": {
+    "@apple/app-store-server-library": "^3.1.0",
+    "express": "^5.1.0",
+    "googleapis": "^189.0.0"
+  }
+}

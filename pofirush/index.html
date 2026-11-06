@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1b1035">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Pofi Rush — tek dokunuşla oynanan, sonsuz ve zorlu bir uçuş oyunu.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' capacitor: https: data: blob:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https:">
+  <title>Pofi Rush</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.webp">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="game" aria-label="Pofi Rush"></canvas>
+  <div id="ui">
+    <div id="hud" class="hidden">
+      <button id="pauseBtn" class="icon-btn" aria-label="Pause">❚❚</button>
+      <div id="score">0</div>
+      <div id="hudCoins"><span class="coin-ic"></span><b>0</b></div>
+      <div id="powers"></div>
+      <div id="tapHint"></div>
+      <div id="biomeBanner"></div>
+    </div>
+    <div id="screen"></div>
+    <div id="modal" class="hidden"></div>
+    <div id="toasts"></div>
+  </div>
+  <noscript>Bu oyun JavaScript gerektirir.</noscript>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

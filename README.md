@@ -165,3 +165,7 @@ n8n/                    iş akışları
 - **MoviePy**: Montaj doğrudan FFmpeg ile yapılıyor.
 - **openai-whisper**: faster-whisper aynı modeli CPU'da daha hızlı çalıştırır. İlk kurulumda yüklenmişti; isteğe bağlı olarak durabilir.
 - **Görsel/video üretim API'leri**: Karakter tutarlılığı için tüm görseller deterministik vektör rig'lerden üretiliyor. Harici görsel API'si karakterleri her seferinde farklı çizerdi.
+
+## 🐤 Pofi Rush (mobil oyun)
+
+`pofirush/` klasöründe Android ve iOS için sonsuz, zor bir tek dokunuşlu uçuş oyunu var. Reklam ve uygulama içi satın alma içerir. Kurulum ve yayın adımları için [pofirush/README.md](pofirush/README.md) dosyasına bakın.
