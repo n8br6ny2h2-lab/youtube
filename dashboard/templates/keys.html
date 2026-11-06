@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>API Anahtarları</title>
+<style>
+:root{--bg:#F4FAFF;--card:#fff;--ink:#2B2D42;--muted:#6B7280;--line:#E3EEF7;--sky:#4FC3F7;--ok:#2E7D32;--bad:#C62828}
+@media (prefers-color-scheme:dark){:root{--bg:#10151C;--card:#18202A;--ink:#E8EEF5;--muted:#9AA6B2;--line:#26313D}}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+.wrap{max-width:640px;margin:0 auto;padding:20px 16px 60px}h1{font-size:22px;margin:0 0 4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:14px}
+label{display:block;font-weight:700;margin-bottom:6px}.st{font-size:13px;color:var(--muted);margin-left:6px;font-weight:400}
+input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:16px;background:var(--bg);color:var(--ink)}
+button{margin-top:16px;width:100%;padding:14px;border:0;border-radius:12px;background:var(--sky);color:#fff;font-size:17px;font-weight:800;cursor:pointer}
+.msg{margin-top:8px;font-size:14px}.ok{color:var(--ok)}.bad{color:var(--bad)}ol{padding-left:20px;margin:6px 0}a{color:var(--sky)}
+details summary{cursor:pointer;color:var(--muted);margin-top:14px}
+</style></head><body><div class="wrap">
+<h1>🔑 API Anahtarları</h1><div class="muted">Anahtarı kutuya yapıştırın ve kaydedin. Değer ekranda veya sohbette görünmez.</div>
+<div class="card">
+  <label for="yt">YouTube Data API anahtarı <span class="st" id="st_YOUTUBE_API_KEY"></span></label>
+  <input id="yt" type="password" autocomplete="off" placeholder="AIza... ile başlar"/>
+  <div class="msg" id="m_YOUTUBE_API_KEY"></div>
+  <ol class="muted" style="font-size:14px">
+    <li><a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank">Bu bağlantıda</a> projenizi seçip <b>Etkinleştir</b>'e basın.</li>
+    <li><a href="https://console.cloud.google.com/apis/credentials" target="_blank">Credentials</a> → <b>Create credentials</b> → <b>API key</b>.</li>
+    <li>Çıkan anahtarı kopyalayıp yukarıdaki kutuya yapıştırın.</li>
+  </ol>
+  <details><summary>Diğer anahtarlar (isteğe bağlı)</summary>
+    <div id="others"></div>
+  </details>
+  <button id="save">Kaydet ve test et</button>
+</div>
+<p class="muted" style="font-size:13px">Çalışmayan YouTube anahtarı kaydedilmez; nedenini burada görürsünüz. <a href="/">← Panele dön</a></p>
+</div>
+<script>
+const tok=new URLSearchParams(location.search).get('token')||'';const q=tok?'?token='+tok:'';
+const extra=['ANTHROPIC_API_KEY','ELEVENLABS_API_KEY','ELEVENLABS_VOICE_DEFAULT','PEXELS_API_KEY','PIXABAY_API_KEY','UNSPLASH_ACCESS_KEY'];
+async function status(){const r=await fetch('/api/keys'+q);if(!r.ok)return;const s=await r.json();
+  const o=document.getElementById('others');if(!o.childElementCount)o.innerHTML=s.filter(x=>extra.includes(x.name)).map(x=>`<div style="margin-top:12px"><label for="${x.name}">${x.label} <span class="st" id="st_${x.name}"></span></label><input id="${x.name}" type="password" autocomplete="off"/><div class="msg" id="m_${x.name}"></div></div>`).join('');
+  s.forEach(x=>{const e=document.getElementById('st_'+x.name);if(e)e.textContent=x.set?'(kayıtlı ✓)':'(boş)';});}
+document.getElementById('save').onclick=async()=>{
+  const body={YOUTUBE_API_KEY:document.getElementById('yt').value};extra.forEach(k=>{const e=document.getElementById(k);if(e&&e.value)body[k]=e.value;});
+  document.getElementById('save').textContent='Test ediliyor...';
+  const r=await fetch('/api/keys'+q,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json();document.getElementById('save').textContent='Kaydet ve test et';
+  if(!r.ok){alert(j.detail||'Hata');return;}
+  Object.entries(j.results).forEach(([k,v])=>{const m=document.getElementById('m_'+k);if(m){m.className='msg '+(v.ok?'ok':'bad');m.textContent=v.message;}});
+  document.querySelectorAll('input').forEach(i=>i.value='');status();};
+status();
+</script></body></html>

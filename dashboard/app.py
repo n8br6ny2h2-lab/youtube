@@ -117,6 +117,98 @@ def report_():
     return {"report": rep, "subscribers": subs, "views": views, "research": db.kv_get("research_insights")}
 
 
+KEY_FIELDS = {
+    "YOUTUBE_API_KEY": "YouTube Data API anahtarı (trend araştırması)",
+    "ANTHROPIC_API_KEY": "Claude API anahtarı (hikâye motoru)",
+    "ELEVENLABS_API_KEY": "ElevenLabs API anahtarı (isteğe bağlı ses)",
+    "ELEVENLABS_VOICE_DEFAULT": "ElevenLabs varsayılan ses kimliği (isteğe bağlı)",
+    "PEXELS_API_KEY": "Pexels (isteğe bağlı)",
+    "PIXABAY_API_KEY": "Pixabay (isteğe bağlı)",
+    "UNSPLASH_ACCESS_KEY": "Unsplash (isteğe bağlı)",
+}
+
+
+def _local_or_token(request: Request, token: str | None) -> None:
+    host = request.client.host if request.client else ""
+    if host in ("127.0.0.1", "::1", "localhost"):
+        return
+    _auth(token)
+
+
+def _write_env(updates: dict) -> None:
+    import re as _re
+    path = Paths.root / ".env"
+    if not path.exists():
+        path.write_text((Paths.root / ".env.example").read_text(encoding="utf-8"), encoding="utf-8")
+    text = path.read_text(encoding="utf-8")
+    for k, v in updates.items():
+        line = f"{k}={v}"
+        if _re.search(rf"^{k}=.*$", text, flags=_re.M):
+            text = _re.sub(rf"^{k}=.*$", lambda _m: line, text, flags=_re.M)
+        else:
+            text += f"\n{line}\n"
+        os.environ[k] = v
+    path.write_text(text, encoding="utf-8")
+    os.chmod(path, 0o600)
+
+
+def _test_youtube(key: str) -> dict:
+    import httpx
+    try:
+        r = httpx.get("https://youtube.googleapis.com/youtube/v3/videos",
+                      params={"part": "id", "chart": "mostPopular", "regionCode": "TR", "maxResults": 1, "key": key}, timeout=20)
+    except Exception as exc:
+        return {"ok": False, "message": f"Bağlantı kurulamadı: {type(exc).__name__}"}
+    if r.status_code == 200:
+        costs.record("youtube", "videos.list", 1, 0.0, "anahtar testi")
+        return {"ok": True, "message": "Anahtar çalışıyor ✓"}
+    try:
+        err = r.json()["error"]
+        reason = (err.get("errors") or [{}])[0].get("reason", "")
+        msg = err.get("message", "")
+    except Exception:
+        reason, msg = "", r.text[:200]
+    hints = {
+        "keyInvalid": "Anahtar geçersiz. Kopyalarken eksik/fazla karakter olabilir veya anahtar silinmiş.",
+        "badRequest": "Anahtar geçersiz. Kopyalarken eksik/fazla karakter olabilir veya anahtar silinmiş.",
+        "accessNotConfigured": "Projede 'YouTube Data API v3' etkin değil. Google Cloud > APIs & Services > Library'den etkinleştirin.",
+        "forbidden": "Anahtar kısıtlaması bu isteği engelliyor. Application restrictions = None, API restrictions = YouTube Data API v3 yapın.",
+        "quotaExceeded": "Günlük kota dolmuş; yarın tekrar deneyin.",
+    }
+    return {"ok": False, "message": hints.get(reason, "Google reddetti: " + msg.replace(key, "[anahtar]")[:200])}
+
+
+@app.get("/ayarlar", response_class=HTMLResponse)
+def settings_page():
+    return (Paths.dashboard / "templates" / "keys.html").read_text(encoding="utf-8")
+
+
+@app.get("/api/keys")
+def keys_status(request: Request, x_token: str | None = Header(default=None)):
+    _local_or_token(request, x_token or request.query_params.get("token"))
+    return [{"name": k, "label": v, "set": bool(env(k))} for k, v in KEY_FIELDS.items()]
+
+
+@app.post("/api/keys")
+async def keys_save(request: Request, x_token: str | None = Header(default=None)):
+    _local_or_token(request, x_token or request.query_params.get("token"))
+    data = await request.json()
+    updates = {k: str(v).strip() for k, v in data.items() if k in KEY_FIELDS and str(v).strip()}
+    for v in updates.values():
+        if any(c in v for c in "\n\r ="):
+            raise HTTPException(400, "Anahtarda boşluk veya satır sonu olamaz")
+    results = {}
+    if "YOUTUBE_API_KEY" in updates:
+        results["YOUTUBE_API_KEY"] = _test_youtube(updates["YOUTUBE_API_KEY"])
+        if not results["YOUTUBE_API_KEY"]["ok"]:
+            updates.pop("YOUTUBE_API_KEY")  # çalışmayan anahtar kaydedilmez
+    if updates:
+        _write_env(updates)
+    for k in updates:
+        results.setdefault(k, {"ok": True, "message": "Kaydedildi ✓"})
+    return {"saved": list(updates), "results": results}
+
+
 @app.get("/", response_class=HTMLResponse)
 def index():
     return (Paths.dashboard / "templates" / "index.html").read_text(encoding="utf-8")

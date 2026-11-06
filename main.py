@@ -29,7 +29,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Bulutkent otomatik çocuk animasyon stüdyosu")
     ap.add_argument("--mode", default="full", choices=[
         "research", "story", "video", "shorts", "publish", "analytics", "full", "brand", "auth", "channel-setup",
-        "status", "dashboard", "daemon", "test-upload", "enable-auto-publish", "disable-auto-publish", "schedule"])
+        "status", "dashboard", "daemon", "set-key", "test-upload", "enable-auto-publish", "disable-auto-publish", "schedule"])
     ap.add_argument("--code", help="OAuth yönlendirme adresi veya yetki kodu")
     ap.add_argument("--story-id", type=int)
     ap.add_argument("--video-id", type=int)
@@ -89,6 +89,14 @@ def main() -> int:
                     res.setdefault("playlist_errors", []).append(str(exc))
         res["manual_steps"] = [c for c in youtube.capabilities() if not c["api"]]
         out(res)
+    elif m == "set-key":
+        import getpass
+        from dashboard.app import _test_youtube, _write_env
+        key = getpass.getpass("YouTube Data API anahtarını yapıştırın (ekranda görünmez) ve Enter'a basın: ").strip()
+        res = _test_youtube(key)
+        if res["ok"]:
+            _write_env({"YOUTUBE_API_KEY": key})
+        print(res["message"] + (" — .env dosyasına kaydedildi." if res["ok"] else " — kaydedilmedi."))
     elif m == "status":
         out(pipeline.status())
     elif m == "schedule":
