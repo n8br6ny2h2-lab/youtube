@@ -257,6 +257,7 @@ function gearHtml() {
     <div class="inv-head">
       <div class="filters">${['all', ...D.SLOT_ORDER].map(f => `<button class="${invFilter === f ? 'on' : ''}" data-act="filter" data-f="${f}">${f === 'all' ? 'Tümü' : D.SLOTS[f].icon}</button>`).join('')}</div>
       <div class="row gap sm">
+        <button class="btn small green" data-act="autoEquip">⚡ En İyisini Giy</button>
         <button class="btn small purple" data-act="autoMerge">⇧ Otomatik Birleştir</button>
         <button class="btn small grey" data-act="bulkSalvage">♻️ Toplu Parçala</button>
       </div>
@@ -449,6 +450,7 @@ const ACT = {
     const r = await doShare(`Efsun Avcısı'nda ${S.maxChapter - 1}. bölümü geçtim, gücüm ⚡${fmt(stats().power)}! Beni geçebilir misin?`);
     if (r !== 'cancel' && S.daily.shared !== true) { S.daily.shared = true; rewardPopup(E.grant(S, { gems: 30 }), 'Paylaşım Ödülü'); render(); }
   },
+  autoEquip: () => autoEquip(),
   autoMerge: () => autoMerge(),
   bulkSalvage: () => bulkSalvage(),
   settings: () => menus.settings(),
@@ -551,6 +553,32 @@ function openItem(uid) {
       play('coin'); m.close(); rewardPopup(E.grant(S, v), 'Parçalandı');
     }
   });
+}
+
+// Her yuva için çantadaki tüm eşyaları dener, toplam Gücü en çok artıranı kuşanır.
+// Setler birbirini etkilediği için sonuç değişmeyene kadar (en fazla 3 tur) tekrarlar.
+function autoEquip() {
+  const before = { ...S.equipped }, p0 = stats().power;
+  for (let pass = 0; pass < 3; pass++) {
+    let changed = false;
+    for (const slot of D.SLOT_ORDER) {
+      let best = S.equipped[slot], bestP = E.computeStats(S).power;
+      for (const it of S.inventory) {
+        if (it.slot !== slot || it.uid === best) continue;
+        const p = E.computeStats({ ...S, equipped: { ...S.equipped, [slot]: it.uid } }).power;
+        if (p > bestP) { bestP = p; best = it.uid; }
+      }
+      if (best !== S.equipped[slot]) { S.equipped[slot] = best; changed = true; }
+    }
+    if (!changed) break;
+  }
+  const changes = D.SLOT_ORDER.filter(s => S.equipped[s] !== before[s]).map(s => S.inventory.find(i => i.uid === S.equipped[s]));
+  if (!changes.length) { play('click'); return toast('Zaten en güçlü ekipmanlar kuşanılı 👍', 'good'); }
+  changes.forEach(it => { it.isNew = false; });
+  const gain = stats().power - p0;
+  play('level'); vib(25); save(true);
+  rewardPopup(changes.map(it => ({ icon: E.itemIcon(it), text: E.itemName(it), rarity: it.rarity })), `⚡ ${changes.length} eşya kuşanıldı`, `Güç: ${fmt(p0)} → ${fmt(p0 + gain)} (+${fmt(gain)})`);
+  render();
 }
 
 function autoMerge() {

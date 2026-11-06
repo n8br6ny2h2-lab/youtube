@@ -441,3 +441,6 @@ input[type=range] { flex: none; width: 150px; padding: 0; border: 0; background:
 
 .docbox { max-width: 720px; height: 88vh; display: flex; flex-direction: column; }
 .docframe { flex: 1; width: 100%; border: 0; border-radius: 12px; background: #0b0d17; }
+
+.inv-head .row.gap.sm { flex-wrap: wrap; }
+.inv-head .row.gap.sm > [data-act=autoEquip] { flex-basis: 100%; padding: 10px; font-size: 15px; }
