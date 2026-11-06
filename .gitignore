@@ -23,3 +23,16 @@ game/node_modules/
 game/www/
 game/android/
 game/ios/
+channels/*/secrets/
+channels/*/database/
+channels/*/logs/
+channels/*/scenes/
+channels/*/renders/
+channels/*/shorts/
+channels/*/thumbnails/
+channels/*/images/
+channels/*/audio/
+channels/*/music/
+channels/*/subtitles/
+channels/*/published/
+channels/*/stories/

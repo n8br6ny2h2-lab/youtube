@@ -107,7 +107,12 @@ def speaker_color(sid: str) -> str:
     return {"narrator": "#4FC3F7", "bulut": "#4FC3F7"}.get(sid) or CHARACTERS[sid].colors["main"]
 
 
+CALM_VOICE = {"engine_pitch": -1.0, "length_scale": 1.22, "noise_scale": 0.42, "eleven_voice": "calm-narrator"}
+
+
 def voice_for(sid: str) -> dict:
+    if sid == "calm":
+        return CALM_VOICE
     return CHARACTERS["bulut" if sid == "narrator" else sid].voice
 
 

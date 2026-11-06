@@ -1,0 +1,128 @@
+{
+  "title": "Okyanusun Derinliklerinde Bir Gece",
+  "thumb_text": "Okyanusun Derinliklerinde Bir Gece",
+  "category": "ocean",
+  "description": "Yüzeyden başlayıp okyanusun en karanlık derinliklerine doğru yavaşça iniyoruz. Işığın bittiği yer, kendi ışığını üreten canlılar, balinaların şarkıları ve Dünya'nın en derin noktası. Sakin bir anlatımla, uykudan önce okyanusun sessiz dünyası.",
+  "tags": [
+    "okyanus",
+    "deniz",
+    "derin deniz",
+    "balina",
+    "Mariana Çukuru",
+    "okyanus belgeseli",
+    "uyku öncesi"
+  ],
+  "sources": [
+    "NOAA Ocean Service – How deep is the ocean? / Ocean zones (oceanservice.noaa.gov)",
+    "NOAA – Bioluminescence",
+    "NOAA Fisheries – Blue whale, Humpback whale",
+    "Seabed 2030 project (seabed2030.org)",
+    "NOAA – How much oxygen comes from the ocean?",
+    "NOAA – What causes tides?",
+    "Great Barrier Reef Marine Park Authority (gbrmpa.gov.au)",
+    "Monterey Bay Aquarium – Sea otters"
+  ],
+  "segments": [
+    {
+      "chapter": "Dalgaların kıyısında",
+      "visual": "calm ocean waves night",
+      "text": "Hoş geldin. Bu gece seni denize götüreceğim. Sessiz bir kıyıda olduğunu düşün. Dalgalar yavaşça geliyor ve yavaşça geri çekiliyor. Nefesini onların ritmine bırak. İçeri… ve dışarı. Birazdan suyun altına süzüleceğiz ve okyanusun en derin, en sessiz yerlerine doğru, acele etmeden ineceğiz."
+    },
+    {
+      "chapter": "Mavi gezegen",
+      "visual": "ocean aerial slow",
+      "text": "Dünya'nın yüzeyinin yaklaşık yüzde yetmiş birini okyanuslar kaplar. Uzaydan bakıldığında gezegenimizin mavi görünmesinin nedeni budur. Okyanusların ortalama derinliği yaklaşık üç bin yedi yüz metredir. Yani dünyanın büyük bölümü, kilometrelerce derinlikte, güneş ışığının hiç ulaşmadığı karanlık bir sudur."
+    },
+    {
+      "chapter": "Güneşli bölge",
+      "visual": "underwater sunlight rays",
+      "text": "Yüzeyden ilk iki yüz metreye güneşli bölge denir. Işık burada bolca bulunur. Fitoplankton adı verilen minicik canlılar bu ışıkla besin üretir. Bu küçük canlılar o kadar çoktur ki, soluduğumuz oksijenin yaklaşık yarısının okyanuslardan geldiği tahmin edilir. Yani bu gece aldığın her iki nefesten biri, belki de okyanusun bir hediyesidir."
+    },
+    {
+      "chapter": "Yosun ormanları",
+      "visual": "kelp forest underwater",
+      "text": "Bazı serin ve sığ sularda dev yosun ormanları bulunur. Bu yosunlar güneşe doğru uzanır ve çok hızlı büyür. Uygun koşullarda dev yosun, bir günde yarım metreden fazla uzayabilir. Dalgalar geldikçe yosunlar yavaşça sallanır. Aralarında balıklar, deniz yıldızları ve su samurları yaşar. Su altında, rüzgârda salınan bir orman gibidir."
+    },
+    {
+      "chapter": "El ele uyuyan su samurları",
+      "visual": "sea otter floating",
+      "text": "Deniz su samurları suyun üstünde, sırtüstü yatarak uyur. Uyurken akıntıyla sürüklenip birbirlerinden ayrılmamak için bazen birbirlerinin patilerini tutarlar. Bazen de vücutlarını yosunlara sararak yerlerinde kalırlar. Dalgaların üzerinde, yan yana süzülerek dinlenen küçük bir aile düşün."
+    },
+    {
+      "chapter": "Mercan resifleri",
+      "visual": "coral reef fish",
+      "text": "Sıcak ve sığ denizlerde mercan resifleri bulunur. Resifler, mercan polipi adı verilen çok küçük canlıların yüzyıllar boyunca biriktirdiği kireçten oluşur. Avustralya açıklarındaki Büyük Set Resifi, canlıların yaptığı en büyük yapıdır ve yörüngeden bile görülebilir. Resifler okyanus tabanının çok küçük bir bölümünü kaplar ama deniz canlılarının önemli bir kısmına ev sahipliği yapar."
+    },
+    {
+      "chapter": "Alacakaranlık bölgesi",
+      "visual": "deep blue underwater",
+      "text": "İki yüz metrenin altında ışık hızla azalır. Burası alacakaranlık bölgesidir ve yaklaşık bin metreye kadar uzanır. Mavi giderek koyulaşır. Buradaki pek çok canlı, gündüzleri derinlerde saklanır, geceleri ise beslenmek için yüzeye doğru yükselir. Her gece okyanusta gerçekleşen bu sessiz yolculuk, gezegendeki en büyük hayvan göçlerinden biri olarak kabul edilir."
+    },
+    {
+      "chapter": "Kendi ışığını üretenler",
+      "visual": "jellyfish glowing dark",
+      "text": "Bin metrenin altında güneş ışığı tamamen biter. Burası gece yarısı bölgesidir. Ama burası tamamen karanlık da değildir. Derin denizde yaşayan canlıların büyük bir kısmı kendi ışığını üretebilir. Buna biyolüminesans denir. Kimi canlı avını çekmek için, kimi saklanmak için, kimi de birbirini bulmak için ışık saçar. Karanlıkta yanıp sönen küçük mavi ışıklar düşün."
+    },
+    {
+      "chapter": "Ahtapotun üç kalbi",
+      "visual": "octopus underwater",
+      "text": "Ahtapotlar okyanusun en zeki canlılarından biridir. Üç kalpleri vardır. İki kalp kanı solungaçlara pompalar, üçüncüsü ise vücudun geri kalanına. Kanları kırmızı değil, mavidir. Çünkü kanlarında oksijeni bakır içeren bir molekül taşır. Ahtapotlar renklerini ve dokularını saniyeler içinde değiştirerek çevrelerine karışabilir."
+    },
+    {
+      "chapter": "Balinaların şarkıları",
+      "visual": "humpback whale underwater",
+      "text": "Kambur balinaların erkekleri uzun ve karmaşık şarkılar söyler. Bir şarkı dakikalarca sürebilir ve saatlerce tekrar edilebilir. Daha da şaşırtıcısı, bu şarkılar zamanla değişir. Bir bölgedeki balinaların şarkısı, yıllar içinde başka bölgelerdeki balinalara da yayılabilir. Sanki okyanusun bir ucundan diğerine yavaşça geçen bir melodi gibi."
+    },
+    {
+      "chapter": "Dünyanın en büyük hayvanı",
+      "visual": "blue whale ocean",
+      "text": "Mavi balina, bilinen en büyük hayvandır. Bugüne kadar yaşamış dinozorlardan bile büyüktür. Bu dev canlı, neredeyse sadece kril adı verilen minik kabuklularla beslenir. Mavi balinaların derin ve alçak sesleri suda çok uzaklara yayılır ve yüzlerce kilometre öteden algılanabilir. Okyanusun karanlığında, dev ama sakin bir yolcu."
+    },
+    {
+      "chapter": "Kaplumbağaların pusulası",
+      "visual": "sea turtle swimming",
+      "text": "Deniz kaplumbağaları binlerce kilometre yüzer ve yıllar sonra doğdukları kıyıya geri dönebilir. Bilim insanları, bunu yaparken Dünya'nın manyetik alanını bir pusula gibi kullandıklarını düşünüyor. Hiçbir harita olmadan, sadece içlerindeki bu hisle, uçsuz bucaksız okyanusta yollarını bulurlar."
+    },
+    {
+      "chapter": "En derin nokta",
+      "visual": "dark deep ocean",
+      "text": "Okyanusun bilinen en derin noktası, Pasifik Okyanusu'ndaki Mariana Çukuru'nda bulunan Challenger Derinliği'dir. Derinliği yaklaşık on bir kilometredir. Dünya'nın en yüksek dağı oraya konulsa, zirvesi suyun altında kalırdı. Orada suyun basıncı, deniz seviyesindeki hava basıncının binden fazla katıdır. Yine de orada bile canlılar yaşar."
+    },
+    {
+      "chapter": "Dibe ilk yolculuk",
+      "visual": "submarine underwater light",
+      "text": "Bin dokuz yüz altmış yılında iki kişi, Jacques Piccard ve Don Walsh, Trieste adlı bir dalış aracıyla Challenger Derinliği'nin dibine ulaştı. İniş saatler sürdü. Aradan elli yıldan fazla zaman geçtikten sonra, iki bin on iki yılında, yönetmen James Cameron oraya tek başına daldı. Ay'a ayak basan insan sayısı, bu derinliğe inenlerden daha fazladır."
+    },
+    {
+      "chapter": "Bilinmeyen haritalar",
+      "visual": "ocean horizon sunset",
+      "text": "Okyanus tabanının ancak yaklaşık dörtte biri yüksek çözünürlükle haritalanmıştır. Yani gezegenimizin büyük bir kısmı hâlâ ayrıntılı olarak bilinmiyor. Belki de henüz hiç görmediğimiz canlılar, adı konmamış dağlar ve vadiler orada, karanlıkta sessizce bekliyor."
+    },
+    {
+      "chapter": "Ay ve gelgitler",
+      "visual": "tide beach moon",
+      "text": "Dönüş yolunda kıyıya bir kez daha bakalım. Deniz gün içinde yavaşça yükselir ve alçalır. Buna gelgit denir. Gelgitlerin asıl nedeni Ay'ın çekim kuvvetidir; Güneş de bu harekete katkıda bulunur. Yani bu gece kıyıya vuran her dalganın ritminde, gökyüzündeki Ay'ın sessiz bir payı vardır."
+    },
+    {
+      "chapter": "Yüzeye dönüş",
+      "visual": "calm sea night moon",
+      "text": "Şimdi yavaşça yukarı çıkıyoruz. Gece yarısı bölgesinin küçük ışıklarından, alacakaranlığın koyu mavisinden, güneşli suların sıcaklığına. Ve sonunda yüzeye, sakin dalgaların yanına. Nefesini bir kez daha dalgalara bırak. İçeri… ve dışarı. Okyanus her zaman orada, derin ve sessiz. İyi geceler."
+    }
+  ],
+  "shorts": [
+    {
+      "segments": [
+        7
+      ],
+      "title": "Okyanusta Kendi Işığını Üreten Canlılar",
+      "hook": "Derin denizde ışık nereden geliyor?"
+    },
+    {
+      "segments": [
+        4
+      ],
+      "title": "El Ele Uyuyan Su Samurları",
+      "hook": "Uyurken neden el ele tutuşuyorlar?"
+    }
+  ]
+}

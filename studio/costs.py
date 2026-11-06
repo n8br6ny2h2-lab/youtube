@@ -70,10 +70,24 @@ def youtube_quota_used_today() -> float:
     from datetime import timezone as _tz
     from zoneinfo import ZoneInfo
     pt = ZoneInfo("America/Los_Angeles")
+    import sqlite3
+    from .config import ROOT
     start = datetime.now(pt).replace(hour=0, minute=0, second=0, microsecond=0).astimezone(_tz.utc)
-    row = db.one("SELECT COALESCE(SUM(units),0) s FROM costs WHERE service='youtube' AND created_at >= ?",
-                 (start.isoformat(timespec="seconds"),))
-    return float(row["s"]) if row else 0.0
+    # Kota Google projesi başınadır: tüm kanalların veritabanları birlikte sayılır
+    total = 0.0
+    for f in [ROOT / "database" / "studio.db", *(ROOT / "channels").glob("*/database/studio.db")]:
+        if not f.exists():
+            continue
+        con = sqlite3.connect(f)
+        try:
+            r = con.execute("SELECT COALESCE(SUM(units),0) FROM costs WHERE service='youtube' AND created_at >= ?",
+                            (start.isoformat(timespec="seconds"),)).fetchone()
+            total += float(r[0] or 0)
+        except sqlite3.OperationalError:
+            pass
+        finally:
+            con.close()
+    return total
 
 
 def summary() -> dict:

@@ -136,7 +136,7 @@ def publish_due(hours_ahead: int = 72, max_uploads: int = 4, force_private_test:
             logger.warning(f"Video {r['video_id']} 3 kez başarısız oldu; elle kontrol gerekiyor")
             continue
         meta = {"title": r["title"], "description": r["description"], "tags": json.loads(r["tags"] or "[]"),
-                "category_id": pub["category_id"], "made_for_kids": True}
+                "category_id": pub["category_id"], "made_for_kids": bool(pub.get("made_for_kids", True))}
         publish_at = None if (force_private_test or not auto) else r["slot_utc"].replace("+00:00", "Z")
         try:
             resp = youtube.upload(Paths.root / r["path"], meta, privacy="private", publish_at=publish_at)

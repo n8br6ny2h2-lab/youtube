@@ -53,10 +53,13 @@ CAPABILITIES = [
 
 
 def _secret_file() -> Path:
-    return Paths.root / env("GOOGLE_CLIENT_SECRET_FILE", "config/secrets/client_secret.json")
+    return Paths.root / env("GOOGLE_CLIENT_SECRET_FILE", "config/secrets/client_secret.json")  # tüm kanallarda ortak
 
 
 def _token_file() -> Path:
+    from .config import CHANNEL
+    if CHANNEL != "bulutkent":
+        return Paths.secrets / "token.json"  # her kanalın kendi izni
     return Paths.root / env("GOOGLE_TOKEN_FILE", "config/secrets/token.json")
 
 

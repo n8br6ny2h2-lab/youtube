@@ -1,0 +1,21 @@
+{
+  "video": {
+    "min_long_seconds": 420,
+    "shorts_per_long": 2,
+    "shorts_min_seconds": 20,
+    "shorts_max_seconds": 58
+  },
+  "audio": {
+    "target_lufs": -16.0,
+    "music_gain_db": -24.0
+  },
+  "schedule": {
+    "long": [["mon", "21:30"], ["wed", "21:30"], ["fri", "21:30"]],
+    "shorts": [["mon", "20:30"], ["tue", "20:30"], ["wed", "20:30"], ["thu", "20:30"], ["fri", "20:30"], ["sat", "20:30"], ["sun", "20:30"]]
+  },
+  "publishing": {
+    "made_for_kids": false,
+    "category_id": "27",
+    "contains_synthetic_media": false
+  }
+}

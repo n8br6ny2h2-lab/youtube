@@ -40,6 +40,18 @@ class Paths:
     models = ROOT / "models"
 
     @classmethod
+    def use_channel(cls, name: str) -> None:
+        """Kanala özel veri klasörleri: channels/<ad>/... (kod, şablon ve modeller ortak)."""
+        if not name or name == "bulutkent":
+            return
+        base = ROOT / "channels" / name
+        for attr in ("stories", "brand", "logos", "banners", "images", "audio", "music", "subtitles", "scenes",
+                     "renders", "thumbnails", "shorts", "published", "database", "logs"):
+            setattr(cls, attr, base / attr)
+        cls.secrets = base / "secrets"
+        cls.channel_dir = base
+
+    @classmethod
     def ensure(cls) -> None:
         for name, value in vars(cls).items():
             if isinstance(value, Path) and name != "root":
@@ -50,10 +62,25 @@ class Paths:
             pass
 
 
+CHANNEL = os.environ.get("BK_CHANNEL", "bulutkent").strip() or "bulutkent"
+Paths.use_channel(CHANNEL)
+
+
+def _merge(a: dict, b: dict) -> dict:
+    out = dict(a)
+    for k, v in b.items():
+        out[k] = _merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
+    return out
+
+
 @lru_cache(maxsize=1)
 def settings() -> dict:
     with open(ROOT / "config" / "settings.json", encoding="utf-8") as fh:
-        return json.load(fh)
+        base = json.load(fh)
+    ch = ROOT / "channels" / CHANNEL / "settings.json"
+    if CHANNEL != "bulutkent" and ch.exists():
+        base = _merge(base, json.loads(ch.read_text(encoding="utf-8")))
+    return base
 
 
 def tz() -> ZoneInfo:

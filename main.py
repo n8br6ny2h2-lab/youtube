@@ -34,7 +34,11 @@ def main() -> int:
     ap.add_argument("--story-id", type=int)
     ap.add_argument("--video-id", type=int)
     ap.add_argument("--port", type=int)
+    ap.add_argument("--channel", default=None, help="Kanal: bulutkent (varsayılan) veya channels/ altındaki ad, ör. gece")
     args = ap.parse_args()
+    if args.channel:
+        import os
+        os.environ["BK_CHANNEL"] = args.channel
 
     from studio import pipeline
     pipeline.setup()

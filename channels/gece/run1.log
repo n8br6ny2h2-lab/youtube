@@ -1,0 +1,62 @@
+21:46:46 | INFO    | [gece] Seslendirme: Evrenin En Sessiz Yerleri
+21:49:52 | INFO    | [gece] Montaj (8.2 dk)
+22:00:04 | INFO    | [gece] Uzun video: 001-evrenin-sessiz-yerleri.mp4 QC=['speech_intelligible']
+22:01:16 | INFO    | [gece] Shorts: 001-evrenin-sessiz-yerleri_s1.mp4 (35.39 sn) QC=GEÇTİ
+22:02:24 | INFO    | [gece] Shorts: 001-evrenin-sessiz-yerleri_s2.mp4 (35.04 sn) QC=GEÇTİ
+{
+  "gece": {
+    "produced": {
+      "video_id": 1,
+      "path": "/home/user/youtube/channels/gece/renders/001-evrenin-sessiz-yerleri.mp4",
+      "qc": {
+        "checks": {
+          "video_stream": true,
+          "audio_stream": true,
+          "resolution": true,
+          "codec_h264_yuv420p": true,
+          "duration_ok": true,
+          "loudness": true,
+          "no_clipping": true,
+          "no_long_silence": true,
+          "no_black_frames": true,
+          "no_frozen_video": true,
+          "size_ok": true,
+          "speech_intelligible": false,
+          "content_safety": true
+        },
+        "passed": false,
+        "duration": 489.16,
+        "lufs": -16.5,
+        "true_peak": -1.3,
+        "silences": 0,
+        "black_segments": 0,
+        "freeze_segments": 0,
+        "intelligibility": 0.211,
+        "failed": [
+          "speech_intelligible"
+        ]
+      },
+      "thumbnail": "/home/user/youtube/channels/gece/thumbnails/001-evrenin-sessiz-yerleri/thumb_2.png",
+      "title": "Evrenin En Sessiz Yerleri 🌙 Uykudan Önce Dinle | Gece Kütüphanesi",
+      "shorts": [
+        {
+          "video_id": 2,
+          "path": "/home/user/youtube/channels/gece/shorts/001-evrenin-sessiz-yerleri_s1.mp4",
+          "qc": true,
+          "title": "Uzayda Neden Ses Yok? 🌙 #shorts"
+        },
+        {
+          "video_id": 3,
+          "path": "/home/user/youtube/channels/gece/shorts/001-evrenin-sessiz-yerleri_s2.mp4",
+          "qc": true,
+          "title": "Dünya'dan Büyük Bir Fırtına 🌙 #shorts"
+        }
+      ],
+      "duration": 489.156
+    },
+    "upload_note": "Gece Kütüphanesi kanalı henüz bağlı değil (python main.py --channel gece --mode auth)"
+  },
+  "cleanup": {
+    "freed_mb": 0.0
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "name": "Gece Kütüphanesi",
+  "handle": "@gecekutuphanesi",
+  "slogan": "Uykudan önce, merakla dinle.",
+  "concept": "Uykudan önce dinlenen, sakin ve doğru bilgilere dayanan belgesel anlatımlar: uzay, okyanus, doğa, bilim ve tarih.",
+  "palette": {
+    "night": "#0E1A2B",
+    "midnight": "#1B2A41",
+    "amber": "#F2B866",
+    "moon": "#F7E7C6",
+    "sage": "#8FB9A8"
+  },
+  "description": "Gece Kütüphanesi'ne hoş geldiniz. 🌙\n\nUykudan önce dinlemek için sakin, yavaş anlatımlı bilgi videoları: evrenin derinlikleri, okyanusun sessiz dünyası, ormanların gizli dili, bilim ve tarihin ilginç hikâyeleri.\n\nYeni bölümler Pazartesi, Çarşamba ve Cuma 21:30'da; kısa videolar her akşam.\n\nAnlatım yapay zekâ destekli seslendirmeyle hazırlanır; bilgiler güvenilir kaynaklardan derlenir ve kaynaklar açıklamada verilir. Görüntüler telifsiz Pexels arşivinden alınır.",
+  "keywords": [
+    "uyku öncesi",
+    "rahatlatıcı belgesel",
+    "uzay belgeseli",
+    "bilim",
+    "doğa",
+    "Türkçe belgesel",
+    "uykuya dalmak için",
+    "sakin anlatım",
+    "Gece Kütüphanesi"
+  ],
+  "playlists": [
+    {
+      "key": "space",
+      "title": "Uzayın Sessizliği"
+    },
+    {
+      "key": "ocean",
+      "title": "Okyanusun Derinlikleri"
+    },
+    {
+      "key": "nature",
+      "title": "Doğanın Gizli Dili"
+    },
+    {
+      "key": "science",
+      "title": "Uykudan Önce Bilim"
+    },
+    {
+      "key": "history",
+      "title": "Tarihin Sakin Sayfaları"
+    },
+    {
+      "key": "shorts",
+      "title": "Gece Kütüphanesi Kısa"
+    }
+  ],
+  "homepage_layout": [
+    "Fragman: en çok izlenen bölüm",
+    "Yeni bölümler",
+    "Uzayın Sessizliği",
+    "Okyanusun Derinlikleri",
+    "Doğanın Gizli Dili",
+    "Kısa videolar"
+  ],
+  "assets": {
+    "profile": "channels/gece/brand/profile_800.png",
+    "banner": "channels/gece/banners/banner_2560x1440.png",
+    "watermark": "channels/gece/logos/watermark.png"
+  }
+}

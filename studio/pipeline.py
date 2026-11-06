@@ -30,8 +30,13 @@ def setup() -> None:
     Paths.ensure()
     log.setup()
     db.init()
+    from .config import CHANNEL
     if not brand.load():
-        brand.run()
+        if CHANNEL == "gece":
+            from . import calm
+            calm.build_brand()
+        else:
+            brand.run()
 
 
 def research() -> dict:
@@ -123,7 +128,19 @@ def cleanup(days: int = 7) -> dict:
 def full() -> dict:
     """Ajan ekibiyle günlük döngü: Yönetmen → Trend Avcısı → Senarist → Kontrolcü → Telif → Animatör → Shorts → Yayıncı."""
     from . import agents
+    from .config import CHANNEL
     out = {}
+    if CHANNEL == "gece":
+        from . import calm
+        try:
+            out["gece"] = _run("gece", calm.run_day)
+        except Exception as exc:
+            out["gece"] = {"error": str(exc)}
+        try:
+            out["cleanup"] = cleanup()
+        except Exception as exc:
+            out["cleanup"] = {"error": str(exc)}
+        return out
     try:
         out["team"] = _run("director", agents.Director().run_day)
     except Exception as exc:

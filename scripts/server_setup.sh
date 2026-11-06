@@ -9,7 +9,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 echo "==> Sistem paketleri"
 apt-get update -qq
-apt-get install -y -qq git curl ffmpeg sqlite3 espeak-ng sox imagemagick fonts-noto-color-emoji fonts-dejavu \
+apt-get install -y -qq git curl ffmpeg sqlite3 espeak-ng sox imagemagick fonts-noto-color-emoji fonts-noto-core fonts-dejavu \
   python3 python3-venv python3-pip ca-certificates gnupg tzdata
 timedatectl set-timezone Europe/Istanbul 2>/dev/null || true
 

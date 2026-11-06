@@ -78,9 +78,12 @@ def align_line(text: str, line_start: float, line_dur: float, whisper_words: lis
 
 
 def similarity(script: str, words: list[dict]) -> float:
-    heard = " ".join(_norm(w["word"]) for w in words)
-    said = " ".join(_norm(t) for t in script.split())
-    return difflib.SequenceMatcher(a=said, b=heard).ratio()
+    """Karakter düzeyinde benzerlik. autojunk kapalı: uzun metinlerde difflib'in 'sık karakteri yok say' kısayolu skoru bozuyordu."""
+    heard = " ".join(x for x in (_norm(w["word"]) for w in words) if x)
+    said = " ".join(x for x in (_norm(t) for t in script.split()) if x)
+    if not said:
+        return 0.0
+    return difflib.SequenceMatcher(a=said, b=heard, autojunk=False).ratio()
 
 
 def _ts(t: float) -> str:
