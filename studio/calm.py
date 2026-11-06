@@ -240,7 +240,8 @@ def still_clip(img: Path, seconds: float, idx: int, w: int, h: int, out: Path) -
     """Fotoğraftan yavaş yakınlaşan/kayan (Ken Burns) klip."""
     frames = max(1, int(seconds * FPS))
     zin = idx % 2 == 0
-    z = "min(zoom+0.0005,1.12)" if zin else "if(eq(on,0),1.12,max(zoom-0.0005,1.0))"
+    # %6 içeriden başlar: taranmış fotoğraflardaki çerçeve/kenar şeritleri kadraja girmez
+    z = "if(eq(on,0),1.06,min(zoom+0.0005,1.18))" if zin else "if(eq(on,0),1.18,max(zoom-0.0005,1.06))"
     vf = (f"scale={w*2}:{h*2}:force_original_aspect_ratio=increase,crop={w*2}:{h*2},"
           f"zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}:s={w}x{h}:fps={FPS},"
           f"eq=brightness=-0.03:saturation=0.92,fade=t=in:st=0:d=0.8,fade=t=out:st={max(0.1, seconds-0.8):.2f}:d=0.8,format=yuv420p")
@@ -281,10 +282,17 @@ def scripts() -> list[dict]:
     return out
 
 
+def producible(s: dict) -> bool:
+    """Görsel kaynağı olmayan senaryo (uzay dışı + Pexels anahtarı yok) çizimlerle yayınlanmaz, sırası bekletilir."""
+    if has_key("PEXELS_API_KEY"):
+        return True
+    return all(seg.get("nasa_ids") or seg.get("nasa") for seg in s.get("segments", []))
+
+
 def next_script() -> dict | None:
     done = {r["path"] for r in db.query("SELECT path FROM stories")}
     for s in scripts():
-        if s["_file"] not in done:
+        if s["_file"] not in done and producible(s):
             return s
     return None
 
@@ -354,7 +362,7 @@ def write_ass(tlp: dict, path: Path, w: int, h: int, title: str | None, segs: li
     head = (f"[Script Info]\nScriptType: v4.00+\nPlayResX: {w}\nPlayResY: {h}\nWrapStyle: 0\n\n[V4+ Styles]\n"
             "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, "
             "ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n"
-            f"Style: Sub,Noto Serif,{fs},&H00F2F2F2,&H000000FF,&H00101820,&H80000000,0,0,0,0,100,100,0.5,0,1,2.2,1.5,2,{int(w*0.08)},{int(w*0.08)},{mv},1\n"
+            f"Style: Sub,Noto Serif,{fs},&H00F2F2F2,&H000000FF,&H00101820,&H80000000,0,0,0,0,100,100,0.5,0,1,3.2,2.2,2,{int(w*0.08)},{int(w*0.08)},{mv},1\n"
             f"Style: Title,Noto Serif,{int(fs*1.7)},&H00C6E7F7,&H000000FF,&H00101820,&H80000000,1,0,0,0,100,100,1,0,1,3,2,5,80,80,0,1\n"
             f"Style: Hook,Noto Serif,{int(fs*1.25)},&H0066B8F2,&H000000FF,&H00101820,&H80000000,1,0,0,0,100,100,0.5,0,1,3,2,8,60,60,220,1\n\n"
             "[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n")
@@ -429,17 +437,28 @@ def build_video(tlp: dict, work: Path, out: Path, mix: Path, w: int, h: int, ass
     silent = work / f"silent_{w}x{h}.mp4"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy", str(silent)],
                    check=True, cwd=clips_dir)
+    grad = work / f"grad_{w}x{h}.png"
+    if not grad.exists():
+        from PIL import Image
+        g = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        band = int(h * (0.34 if w > h else 0.5))
+        top = h - band if w > h else int(h * 0.25)
+        for y in range(band):
+            a = int(175 * (y / band) ** 1.6) if w > h else int(120 * (1 - abs(y / band - 0.5) * 2) ** 0.8)
+            g.paste((10, 14, 28, a), (0, top + y, w, top + y + 1))
+        g.save(grad)
     wm_rel = KIT_assets("watermark")
     wm = ROOT / wm_rel if wm_rel else Path("/nonexistent")
     fontsdir = "/usr/share/fonts/truetype/noto"
     vf = f"subtitles={ass.as_posix()}:fontsdir={fontsdir}"
-    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", str(silent), "-i", str(mix)]
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", str(silent), "-i", str(mix), "-i", str(grad)]
     if wm.is_file():
         cmd += ["-i", str(wm), "-filter_complex",
-                f"[0:v]{vf}[v];[2:v]scale={int(w*0.055)}:-1,format=rgba,colorchannelmixer=aa=0.7[l];[v][l]overlay=W-w-{int(w*0.025)}:{int(w*0.025)}[out]",
+                f"[0:v][2:v]overlay=0:0[g];[g]{vf}[v];[3:v]scale={int(w*0.055)}:-1,format=rgba,colorchannelmixer=aa=0.7[l];"
+                f"[v][l]overlay=W-w-{int(w*0.025)}:{int(w*0.025)}[out]",
                 "-map", "[out]", "-map", "1:a"]
     else:
-        cmd += ["-vf", vf, "-map", "0:v", "-map", "1:a"]
+        cmd += ["-filter_complex", f"[0:v][2:v]overlay=0:0[g];[g]{vf}[out]", "-map", "[out]", "-map", "1:a"]
     cmd += ["-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-r", str(FPS), "-c:a", "aac", "-b:a", "192k",
             "-ar", "48000", "-t", f"{total:.3f}", "-movflags", "+faststart", str(out)]
     subprocess.run(cmd, check=True)
@@ -580,7 +599,8 @@ def run_day() -> dict:
         out["produced"] = produce(s)
     else:
         out["produced"] = None
-        out["note"] = "Senaryo havuzu boş: channels/gece/scripts/ klasörüne yeni senaryo eklenmeli."
+        out["note"] = ("Üretilebilir senaryo yok: havuz boş ya da kalan senaryolar Pexels görüntüsü gerektiriyor "
+                       "(.env PEXELS_API_KEY).")
     from . import youtube
     if youtube.connected():
         out["scheduled"] = scheduler.fill(14)
