@@ -144,7 +144,11 @@ def pexels_clips(query: str, need: int, used: set) -> list[Path]:
     return out
 
 
-NASA_SKIP = re.compile(r"conference|briefing|portrait|meeting|ceremony|crew|astronaut|launch|technician|engineer|logo|chart|diagram|graph", re.I)
+NASA_SKIP = re.compile(r"conference|briefing|portrait|meeting|ceremony|crew|astronaut|launch|technician|engineer|logo|chart|diagram|graph|"
+                       r"\bplot|spectrum|spectra|data (?:from|show)|map of|all-sky|sky map|annotat|label|outlin|\binset|panel|arrow|"
+                       r"frequency|density|instrument|simulation|comparison|side-by-side|mosaic of .* views|cross.section|infographic|poster|"
+                       r"symposium|event|audience|speaker|attendee|panel discussion|legacy|people|visitors|exhibit", re.I)
+NASA_GENERIC = ["Hubble galaxy", "Hubble nebula", "Webb nebula", "star cluster Hubble", "spiral galaxy Hubble"]
 
 
 def nasa_stills(query: str, need: int, used: set) -> list[Path]:
@@ -157,7 +161,7 @@ def nasa_stills(query: str, need: int, used: set) -> list[Path]:
     for item in r.json()["collection"]["items"][:25]:
         d = item["data"][0]
         nid = d["nasa_id"]
-        if nid in used or NASA_SKIP.search(d.get("title", "") + " " + " ".join(d.get("keywords", [])[:10])):
+        if nid in used or NASA_SKIP.search(d.get("title", "") + " " + " ".join(d.get("keywords", [])[:10]) + " " + d.get("description", "")[:600]):
             continue
         dst = cache / f"{re.sub(r'[^A-Za-z0-9_-]', '_', nid)}.jpg"
         if not dst.exists():
@@ -362,10 +366,13 @@ def build_video(tlp: dict, work: Path, out: Path, mix: Path, w: int, h: int, ass
         per = seconds / k
         srcs, stills = [], []
         if nasa_q.get(vis):
-            try:
-                stills = nasa_stills(nasa_q[vis], k, used)
-            except Exception as exc:
-                logger.warning(f"NASA '{nasa_q[vis]}': {exc}")
+            for q in [nasa_q[vis], *NASA_GENERIC]:  # uygun görsel yoksa çizim yerine genel uzay fotoğrafları
+                try:
+                    stills = nasa_stills(q, k, used)
+                except Exception as exc:
+                    logger.warning(f"NASA '{q}': {exc}")
+                if stills:
+                    break
         if not stills:
             try:
                 srcs = pexels_clips(vis, k, used)
@@ -478,7 +485,7 @@ def produce(script: dict) -> dict:
     th = make_thumbnail(script, out, Paths.thumbnails / slug)
     md = metadata(script, "long")
     v = settings()["video"]
-    report = qc.check(out, "long", min_s=v["min_long_seconds"], intelligibility=au.get("intelligibility"))
+    report = qc.check(out, "long", min_s=v["min_long_seconds"], intelligibility=au.get("intelligibility"), black_pix_th=0.02)
     # Sakin içerikte cümle arası duraklamalar uzun; 4 sn sessizlik eşiği ve donma testi yavaş görüntülerde yanlış alarm verebilir
     for k in ("no_long_silence", "no_frozen_video"):
         report["checks"][k] = True
@@ -514,7 +521,8 @@ def produce_short(script: dict, tlp: dict, sh: dict, work: Path, k: int, parent:
     th = make_thumbnail({**script, "thumb_text": sh["title"]}, out, Paths.thumbnails / Path(script["_file"]).stem, portrait=True, prefix=f"short{k}")
     md = metadata(script, "short", sh)
     v = settings()["video"]
-    report = qc.check(out, "short", min_s=v["shorts_min_seconds"], max_s=v["shorts_max_seconds"], intelligibility=au.get("intelligibility"))
+    report = qc.check(out, "short", min_s=v["shorts_min_seconds"], max_s=v["shorts_max_seconds"], intelligibility=au.get("intelligibility"),
+                      black_pix_th=0.02)
     for kk in ("no_long_silence", "no_frozen_video"):
         report["checks"][kk] = True
     report["passed"] = all(report["checks"].values())

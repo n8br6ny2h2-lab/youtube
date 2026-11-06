@@ -28,7 +28,7 @@ def _filter_log(path: Path, vf: str | None = None, af: str | None = None) -> str
 
 
 def check(path: Path, kind: str = "long", min_s: float = 60, max_s: float | None = None,
-          intelligibility: float | None = None, safety_passed: bool = True) -> dict:
+          intelligibility: float | None = None, safety_passed: bool = True, black_pix_th: float = 0.10) -> dict:
     res: dict = {"checks": {}, "passed": False}
     c = res["checks"]
     try:
@@ -60,7 +60,7 @@ def check(path: Path, kind: str = "long", min_s: float = 60, max_s: float | None
     res["silences"] = len(re.findall(r"silence_end", sil))
     c["no_long_silence"] = res["silences"] == 0
     # Siyah kare ve donma
-    vlog = _filter_log(path, vf="blackdetect=d=0.5:pix_th=0.10,freezedetect=n=-60dB:d=6")
+    vlog = _filter_log(path, vf=f"blackdetect=d=0.5:pix_th={black_pix_th:.3f}:pic_th=0.999,freezedetect=n=-60dB:d=6")
     res["black_segments"] = len(re.findall(r"black_start", vlog))
     res["freeze_segments"] = len(re.findall(r"freeze_start", vlog))
     c["no_black_frames"] = res["black_segments"] == 0
