@@ -522,3 +522,8 @@ input[type=range] { flex: none; width: 150px; padding: 0; border: 0; background:
 .sv-opt em { font-style: normal; font-size: 11px; padding: 0 6px; border-radius: 8px; background: #0009; margin-left: 2px; }
 .sv-kept { margin: 8px 0 2px; padding: 8px 10px; border-radius: 12px; background: #78350f55; border: 1.5px solid #f59e0b88; font-size: 13px; color: #fde68a; }
 .sv-kept small { display: block; color: #e2e8f0; font-size: 11px; margin-top: 3px; }
+.sv-count { margin: 4px 0 8px; padding: 8px 10px; border-radius: 12px; background: #0008; font-size: 13px; text-align: center; }
+.sv-count b.red { color: #fca5a5; } .sv-count small { display: block; color: var(--mut); font-size: 11px; margin-top: 2px; }
+.sv-cell { position: relative; } .sv-cell.off .item { opacity: .35; filter: grayscale(1); }
+.sv-x { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-12deg); background: #ef4444; color: #fff; font-size: 9px; font-weight: 900; padding: 1px 4px; border-radius: 5px; pointer-events: none; }
+.salvage [data-s=everything] { margin-bottom: 4px; }
