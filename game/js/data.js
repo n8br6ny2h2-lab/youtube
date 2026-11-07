@@ -130,6 +130,15 @@ export const SETS = {
   },
 };
 
+// Sezon setleri: yalnızca sezon ödülü olarak verilir (sandık/ganimetten düşmez)
+export const SEASON_SETS = {
+  eclipse: { name: 'Tutulma', color: '#a855f7', icon: '🌑', season: true, b2: { crit: 5, critDmg: 30 }, d2: '+%5 Kritik, +%30 Kritik Hasarı', p4: 'voidPull', d4: 'Her 7 sn düşmanları içine çeken ve patlayan kara delik' },
+  solar:   { name: 'Güneş',   color: '#f59e0b', icon: '☀️', season: true, b2: { atkP: 15 },          d2: '+%15 Saldırı',                    p4: 'sunRays',  d4: 'Her 4 sn 8 yöne delip geçen güneş ışınları' },
+  tide:    { name: 'Gelgit',  color: '#06b6d4', icon: '🌊', season: true, b2: { hpP: 15, dr: 5 },     d2: '+%15 Can, +%5 Hasar Azaltma',     p4: 'tideWave', d4: 'Her 5 sn düşmanları iten ve yavaşlatan dalga' },
+  blood:   { name: 'Kan Ayı', color: '#dc2626', icon: '🩸', season: true, b2: { lifesteal: 3, atkP: 8 }, d2: '+%3 Can Çalma, +%8 Saldırı',   p4: 'bloodMoon', d4: 'Her 6 sn kan patlaması: canın azaldıkça güçlenir, %4 iyileştirir' },
+};
+Object.assign(SETS, SEASON_SETS);
+
 export const HEROES = {
   kaya: {
     name: 'Kaya', title: 'Kale Muhafızı', icon: '🦸‍♂️', color: '#60a5fa', base: { atk: 20, hp: 260 },
@@ -287,6 +296,46 @@ export function passReward(tier, premium) {
   return [{ gems: 80 }, { runes: 15, seals: 3 }, { gold: 3000 * tier }, { scrolls: 25, energy: 10 }][tier % 4];
 }
 
+// ============================== SEZONLAR
+// Her takvim ayı yeni bir sezon. Sezon 1 = Kasım 2026. Temalar sırayla döner.
+// Not: tarih cihaz saatinden okunur; bulut sunucusu açılınca sunucu saati kullanılmalı.
+export const SEASON_START = { y: 2026, m: 11 };
+export const SEASON_THEMES = [
+  { key: 'awaken', name: 'Efsunun Uyanışı', color: '#a855f7', set: 'eclipse', skin: { main: '#6d28d9', dark: '#2e1065', trim: '#fde68a', cape: '#4c1d95', boot: '#1e1b4b' } },
+  { key: 'sun',    name: 'Güneş Tanrısı',   color: '#f59e0b', set: 'solar',   skin: { main: '#f59e0b', dark: '#78350f', trim: '#fff7ed', cape: '#b45309', boot: '#451a03' } },
+  { key: 'tide',   name: 'Derinlerin Çağrısı', color: '#06b6d4', set: 'tide', skin: { main: '#0891b2', dark: '#164e63', trim: '#a5f3fc', cape: '#0e7490', boot: '#083344' } },
+  { key: 'blood',  name: 'Kan Ayı',         color: '#dc2626', set: 'blood',   skin: { main: '#991b1b', dark: '#450a0a', trim: '#fca5a5', cape: '#7f1d1d', boot: '#1c1917' } },
+];
+export const SEASON_THEME = Object.fromEntries(SEASON_THEMES.map(t => [t.key, t]));
+export function seasonInfo(d = new Date()) {
+  const idx = Math.max(0, (d.getFullYear() - SEASON_START.y) * 12 + (d.getMonth() + 1 - SEASON_START.m));
+  const theme = SEASON_THEMES[idx % SEASON_THEMES.length];
+  return { n: idx + 1, id: `${d.getFullYear()}-${d.getMonth() + 1}`, theme, endsAt: new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime() };
+}
+// Zor sezon görevleri (sezonda bir kez). kind: 'arena' dalga, 'flag' tek seferlik olay, 'cnt' sezon sayacı
+export const SEASON_TASKS = [
+  { id: 'arena20',  name: 'Arenada 20. dalgaya ulaş',               pts: 60,  kind: 'arena', goal: 20 },
+  { id: 'arena30',  name: 'Arenada 30. dalgaya ulaş',               pts: 120, kind: 'arena', goal: 30 },
+  { id: 'hard3',    name: 'Zor seviyede 3 bölüm temizle',           pts: 80,  kind: 'cnt', key: 'hard', goal: 3 },
+  { id: 'night1',   name: 'Kabus seviyesinde bir bölüm temizle',    pts: 150, kind: 'cnt', key: 'night', goal: 1 },
+  { id: 'nohit',    name: 'Bir boss\'u hiç hasar almadan yen',      pts: 80,  kind: 'cnt', key: 'nohit', goal: 1 },
+  { id: 'combo300', name: 'Tek savaşta 300 kombo yap',              pts: 70,  kind: 'cnt', key: 'combo300', goal: 1 },
+  { id: 'boss30',   name: 'Bu sezon 30 boss avla',                  pts: 60,  kind: 'cnt', key: 'boss', goal: 30 },
+  { id: 'daily5',   name: 'Bu sezon 5 Günün Mücadelesi tamamla',    pts: 60,  kind: 'cnt', key: 'daily', goal: 5 },
+  { id: 'norevive', name: 'Dirilmeden yeni bir bölümü temizle',     pts: 80,  kind: 'cnt', key: 'norevive', goal: 1 },
+];
+// Tekrarlanabilir puanlar (görevler dışında)
+export const SEASON_PTS = { hardClear: 15, nightClear: 35, arenaWaveFrom: 15, arenaPerWave: 3 };
+// Puan eşikleri. item: sezon setinin parçası; aura/skin/title kalıcıdır (sezon bitse de kalır).
+export const SEASON_REWARDS = [
+  { pts: 100,  item: 'weapon' },
+  { pts: 250,  item: 'helmet' },
+  { pts: 400,  item: 'armor' },
+  { pts: 550,  item: 'boots' },
+  { pts: 750,  aura: true },
+  { pts: 1000, skin: true, title: true },
+];
+
 export const DAILY_CHALLENGES = [
   { name: 'Kudurmuş Sürü',    desc: 'Düşmanlar %35 daha hızlı',              mods: { enemySpeed: 1.35 } },
   { name: 'Seçkinler Gecesi', desc: 'Seçkin düşman şansı ×4, 2× ganimet',     mods: { eliteMul: 4, lootMul: 2 } },
@@ -305,6 +354,7 @@ export const DIFFS = [
 export const NEWS = [
   { tag: 'ÇIKIŞ', date: 'Kasım 2026', title: 'Efsun Avcısı yayında!', body: 'Efsun Diyarı\'na hoş geldin! 5 bölüm, 6 boss, 4 kahraman ve yüzlerce eşya seni bekliyor. Her bölümü Normal, Zor ve Kabus seviyelerinde oyna; zorlaştıkça ganimet de büyür.' },
   { tag: 'SEZON', date: 'Kasım 2026', title: 'Sezon 1: Efsunun Uyanışı', body: 'Efsun Bileti\'nin 30 kademesinde Mitik Ayaz Silahı seni bekliyor. Günlük görevleri tamamlayarak bilet XP\'si kazan.' },
+  { tag: 'SEZON', date: 'Kasım 2026', title: '🏆 Aylık Sezonlar Başladı', body: 'Her ay yeni bir sezon ve yeni bir özel set! Görevler > Sezon\'daki zor görevleri bitirerek Sezon Puanı topla. 550 puana kadar 4 parça Efsanevi sezon seti, 750 puanda kalıcı aura animasyonu, 1000 puanda kalıcı kostüm ve "Sezon Şampiyonu" unvanı. Bunları sadece zorlu görevleri bitirenler kazanır!' },
   { tag: 'YENİ', date: 'Kasım 2026', title: '🏟️ Arena ve Sonsuz Başarımlar', body: 'Savaş ekranındaki Arena sekmesinde sonsuz dalgalara karşı ne kadar dayanabileceğini gör! Her 5 dalgada boss, her 5 dalgada yeni bölge. Rekor kırdıkça elmas kazan. Başarımlar artık bitmiyor: aldıkça hedef yükseliyor.' },
   { tag: 'YENİ', date: 'Kasım 2026', title: 'Evrimler ve Hazine Sandıkları', body: 'Bir beceriyi en yüksek seviyeye çıkar, eşleşen destek gücünü de al: 6 süper evrim seni bekliyor (ör. Ateş Küresi + Güç Patlaması = Güneş Çemberi). Mini boss ve seçkin düşmanlar 🎁 hazine sandığı düşürür. Temizlediğin bölümleri günde 3 kez Hızlı Tarama ile geçebilirsin.' },
   { tag: 'İPUCU', date: '', title: 'Bosslar uyarı verir', body: 'Kırmızı daire = yere vuruş, kırmızı şerit = hücum. Kırmızı alanın dışına çık! Yaban domuzları da hücumdan önce kırmızı şerit gösterir.' },

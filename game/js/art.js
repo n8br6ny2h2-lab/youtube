@@ -1,4 +1,5 @@
 // Efsun Avcısı — prosedürel karakter ve düşman çizimleri (dosya/görsel gerektirmez)
+import { SEASON_THEME } from './data.js';
 const TAU = Math.PI * 2;
 // Savaşta pahalı gölge-bulanıklığı kapatılır (mobil performans); menülerde açık kalır.
 export const ART = { glow: true, lite: false };
@@ -35,8 +36,10 @@ export const HERO_LOOK = {
 };
 
 // st: { t, walk, moving, aim, atk(0..1), hurt(0..1), wtype }
+// st.skin: sezon kostümü anahtarı (renkleri değiştirir, taç ekler)
 export function drawHero(ctx, id, x, y, s, st) {
-  const L = HERO_LOOK[id] || HERO_LOOK.kaya;
+  const sk = st.skin && SEASON_THEME[st.skin];
+  const L = sk ? { ...(HERO_LOOK[id] || HERO_LOOK.kaya), ...sk.skin } : HERO_LOOK[id] || HERO_LOOK.kaya;
   const flip = Math.cos(st.aim) < 0;
   const la = flip ? Math.PI - st.aim : st.aim;
   const t = st.t, mv = st.moving ? 1 : 0;
@@ -148,6 +151,17 @@ export function drawHero(ctx, id, x, y, s, st) {
     ctx.beginPath(); ctx.moveTo(-9, hy - 7); ctx.quadraticCurveTo(-2, hy - 22, -10 - wave * 0.8, hy - 30 + Math.sin(t * 4) * 1.5); ctx.quadraticCurveTo(4, hy - 20, 9, hy - 7); ctx.closePath(); ctx.fill();
     ctx.fillStyle = L.trim; ctx.fillRect(-8.5, hy - 10, 17, 2.4);
     ctx.fillStyle = '#fde047'; circ(ctx, 3, hy - 9, 1.6); ctx.fill();
+  }
+  // sezon kostümü tacı (süzülerek döner, parlar)
+  if (sk) {
+    const cy = hy - (L.head === 'witch' ? 34 : L.head === 'horns' ? 26 : 17) + Math.sin(t * 2.5) * 1.2;
+    ctx.save(); ctx.translate(0, cy);
+    if (ART.glow) { ctx.shadowColor = sk.color; ctx.shadowBlur = 8; }
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath(); ctx.moveTo(-7, 3); ctx.lineTo(-7, -3); ctx.lineTo(-3.5, 0); ctx.lineTo(0, -5); ctx.lineTo(3.5, 0); ctx.lineTo(7, -3); ctx.lineTo(7, 3); ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = sk.color; circ(ctx, 0, 0.5, 1.5); ctx.fill(); circ(ctx, -4.5, 1, 1); ctx.fill(); circ(ctx, 4.5, 1, 1); ctx.fill();
+    ctx.restore();
   }
 
   // ön kol + silah
@@ -636,6 +650,32 @@ export function drawPet(ctx, id, x, y, s, t, flip) {
 
 // ====================================================================== MENÜ PORTRESİ
 // Menüdeki <canvas class="hero-cv" data-hero=".." data-w=".." data-pet=".."> öğelerini canlandırır
+// Sezon aurası: ayak altında dönen rünlü halka + yükselen ışık parçacıkları. (x, y) ayak hizası.
+export function drawAura(ctx, key, x, y, s, t, lite = false) {
+  const th = SEASON_THEME[key]; if (!th) return;
+  const c = th.color;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const R = 22 * s;
+  const g = ctx.createRadialGradient(x, y, 2, x, y, R * 1.3);
+  g.addColorStop(0, c + '88'); g.addColorStop(1, c + '00');
+  ctx.fillStyle = g; ell(ctx, x, y, R * 1.3, R * 0.5); ctx.fill();
+  ctx.strokeStyle = c; ctx.lineWidth = 1.6 * s; ctx.globalAlpha = 0.85;
+  ell(ctx, x, y, R, R * 0.38); ctx.stroke();
+  for (let i = 0; i < 6; i++) { // dönen rün noktaları
+    const a = t * 1.6 + i * TAU / 6;
+    ctx.fillStyle = '#fff'; ctx.globalAlpha = 0.6 + 0.4 * Math.sin(t * 4 + i);
+    circ(ctx, x + Math.cos(a) * R, y + Math.sin(a) * R * 0.38, 1.4 * s); ctx.fill();
+  }
+  const n = lite ? 5 : 12;
+  for (let i = 0; i < n; i++) { // yükselen parçacıklar
+    const k = (t * 0.45 + i / n) % 1, a = i * 2.4 + t * 0.3;
+    ctx.globalAlpha = Math.sin(k * Math.PI) * 0.9; ctx.fillStyle = i % 3 ? c : '#fff';
+    circ(ctx, x + Math.cos(a) * R * 0.8, y - k * 52 * s, (1.8 - k) * s); ctx.fill();
+  }
+  ctx.restore();
+}
+
 export function animatePortraits(time, weapons) {
   const t = time / 1000;
   for (const cv of document.querySelectorAll('canvas.hero-cv')) {
@@ -657,7 +697,8 @@ export function animatePortraits(time, weapons) {
     // ara sıra gösteriş saldırısı
     const cyc = (t + id.length) % 4;
     const atk = cyc < 0.35 ? 1 - cyc / 0.35 : 0;
-    drawHero(ctx, id, cx, cy, s, { t, walk: 0, moving: false, aim: -0.25, atk, hurt: 0, wtype: cv.dataset.w || weapons?.[id] || 'bow' });
+    if (cv.dataset.aura) drawAura(ctx, cv.dataset.aura, cx, cy + 15 * s, s, t);
+    drawHero(ctx, id, cx, cy, s, { t, walk: 0, moving: false, aim: -0.25, atk, hurt: 0, wtype: cv.dataset.w || weapons?.[id] || 'bow', skin: cv.dataset.skin || null });
     if (cv.dataset.pet) drawPet(ctx, cv.dataset.pet, cx + 27 * s, cy - 26 * s, s * 0.8, t, false);
     // büyülü parçacıklar
     if (!cv.dataset.small) {

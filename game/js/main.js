@@ -18,7 +18,7 @@ const sfx = new Sfx();
 const store = new Store();
 const ads = new Ads();
 const account = new Account();
-let tab = 'battle', questTab = 'daily', invFilter = 'all', mode = 'chapter';
+let tab = 'battle', questTab = 'season', invFilter = 'all', mode = 'chapter';
 let selCh = S.maxChapter;
 let game = null, run = null;
 
@@ -31,6 +31,7 @@ const stats = () => E.computeStats(S);
 // ============================================================ BAŞLANGIÇ
 async function boot() {
   E.migrateAchievements(S);
+  seasonRoll();
   E.dailyReset(S);
   E.tickEnergy(S);
   sfx.on = S.settings.sound;
@@ -69,7 +70,7 @@ async function boot() {
 function tick() {
   if (game && !game.paused) S.stats.playSec = (S.stats.playSec || 0) + 1;
   const left = E.tickEnergy(S);
-  if (E.dailyReset(S)) render();
+  if (E.dailyReset(S)) { seasonRoll(); render(); }
   const en = $('#en-val'); if (en) en.textContent = `${S.energy}/${E.energyMax(S)}`;
   const et = $('#en-time'); if (et) et.textContent = S.energy >= E.energyMax(S) ? '' : mmss(left);
   for (const el of $$('[data-until]')) el.textContent = countdown(+el.dataset.until - Date.now());
@@ -143,6 +144,7 @@ const mmss = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 function countdown(ms) {
   if (ms <= 0) return 'Bitti';
   const s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+  if (h >= 24) return `${Math.floor(h / 24)}g ${h % 24}s`;
   return h > 0 ? `${h}s ${m}dk` : `${m}:${String(s % 60).padStart(2, '0')}`;
 }
 
@@ -167,13 +169,14 @@ function navBadges() {
   const login = E.loginState(S).canClaim ? 1 : 0;
   const newItems = S.inventory.filter(i => i.isNew).length;
   const freeChest = !S.daily.freeChest;
-  return { quest: ms + ach + pass + login + (E.monthlyState(S).canClaim ? 1 : 0), gear: newItems || 0, shop: freeChest ? true : 0 };
+  const sea = D.SEASON_REWARDS.filter((r, i) => S.season.pts >= r.pts && !S.season.claimed.includes(i)).length;
+  return { quest: ms + ach + pass + login + sea + (E.monthlyState(S).canClaim ? 1 : 0), gear: newItems || 0, shop: freeChest ? true : 0 };
 }
 
 function topHtml() {
   const st = stats(), h = D.HEROES[S.hero];
   return `<button class="menubtn" data-act="menu" aria-label="Menü">☰${menus.mailCount() ? '<i></i>' : ''}</button><div class="tb-left" data-act="profile">
-      <div class="avatar" style="--hc:${h.color}"><canvas class="hero-cv" data-small="1" data-face="1" data-hero="${S.hero}" data-w="${st.wtype}"></canvas></div>
+      <div class="avatar" style="--hc:${h.color}"><canvas class="hero-cv" data-small="1" data-face="1" data-hero="${S.hero}" data-w="${st.wtype}" data-skin="${S.cos.skin || ''}"></canvas></div>
       <div><div class="pname">${S.vip ? '<span class="vip">VIP</span> ' : ''}Güç</div><div class="power">⚡ ${fmt(st.power)}</div></div>
     </div>
     <div class="tb-res">
@@ -199,9 +202,9 @@ function battleHtml() {
       <div class="ch-nav"><div><div class="ch-title">🏟️ Arena • Sonsuz Dalga</div><div class="ch-sub">Her 5 dalgada boss • Bölge her 5 dalgada değişir</div></div></div>
       <div class="hero-pedestal">
         <div class="hero-glow" style="--hc:${h.color}"></div>
-        <canvas class="hero-cv home-cv" data-hero="${S.hero}" data-w="${st.wtype}" data-pet="${S.pet || ''}" data-color="${h.color}"></canvas>
+        <canvas class="hero-cv home-cv" data-hero="${S.hero}" data-w="${st.wtype}" data-pet="${S.pet || ''}" data-color="${h.color}"${cosAttr()}></canvas>
       </div>
-      <div class="hero-label">${h.name} • ${h.title}</div>
+      <div class="hero-label">${h.name} • ${h.title}${S.cos.title ? `<small class="ptitle">🏅 Sezon ${S.cos.title.slice(1)} Şampiyonu</small>` : ''}</div>
       <div class="arena-info"><div><b>${ab || '—'}</b><small>Rekor dalga</small></div><div><b>${nextMs}</b><small>Sonraki rekor +20💎</small></div><div><b>${S.arena.runs}</b><small>Arena savaşı</small></div></div>
     </div>` : null;
   return `<div class="home">
@@ -224,9 +227,9 @@ function battleHtml() {
       </div>
       <div class="hero-pedestal">
         <div class="hero-glow" style="--hc:${h.color}"></div>
-        <canvas class="hero-cv home-cv" data-hero="${S.hero}" data-w="${st.wtype}" data-pet="${S.pet || ''}" data-color="${h.color}"></canvas>
+        <canvas class="hero-cv home-cv" data-hero="${S.hero}" data-w="${st.wtype}" data-pet="${S.pet || ''}" data-color="${h.color}"${cosAttr()}></canvas>
       </div>
-      <div class="hero-label">${h.name} • ${h.title}</div>
+      <div class="hero-label">${h.name} • ${h.title}${S.cos.title ? `<small class="ptitle">🏅 Sezon ${S.cos.title.slice(1)} Şampiyonu</small>` : ''}</div>
       ${bar(best, 10, 'ch-bar')}
       <div class="diffs">${D.DIFFS.map(df => { const un = diffUnlocked(selCh, df.id); return `<button class="${dsel === df.id ? 'on' : ''}" style="--dc:${df.color}" data-act="${un ? 'diff' : 'difflock'}" data-d="${df.id}">${un ? df.icon : '🔒'} ${df.name}${df.loot > 1 ? `<small>${df.loot}× ganimet</small>` : '<small>&nbsp;</small>'}</button>`; }).join('')}</div>
     </div>`}
@@ -262,7 +265,7 @@ function gearHtml() {
     <div class="hero-stage" style="--hc:${h.color}">
       <div class="slots">${['weapon', 'helmet', 'armor'].map(slotHtml).join('')}</div>
       <div class="hero-mid" data-act="heroes">
-        <canvas class="hero-cv gear-cv" data-hero="${S.hero}" data-w="${st.wtype}" data-color="${h.color}"></canvas>
+        <canvas class="hero-cv gear-cv" data-hero="${S.hero}" data-w="${st.wtype}" data-color="${h.color}"${cosAttr()}></canvas>
         <div class="hname">${h.name} <small>Sv${S.heroes[S.hero].lvl}</small></div>
         <div class="hpow">⚡ ${fmt(st.power)}</div>
         <div class="hchange">Kahraman ›</div>
@@ -315,9 +318,10 @@ function talentHtml() {
 
 // ------------------------------------------------------------ GÖREVLER EKRANI
 function questHtml() {
-  const tabs = [['daily', 'Günlük'], ['pass', 'Bilet'], ['ach', 'Başarım'], ['invite', 'Davet']];
+  const tabs = [['season', 'Sezon'], ['daily', 'Günlük'], ['pass', 'Bilet'], ['ach', 'Başarım'], ['invite', 'Davet']];
   let body = '';
-  if (questTab === 'daily') {
+  if (questTab === 'season') body = seasonHtml();
+  else if (questTab === 'daily') {
     const ls = E.loginState(S), mc = E.monthlyState(S);
     body = `<h3>📅 7 Günlük Giriş</h3>
       <div class="login-strip">${D.LOGIN_REWARDS.map((r, i) => `<div class="lday ${i < ls.day || (i === ls.day && !ls.canClaim) ? 'got' : ''} ${i === ls.day && ls.canClaim ? 'today' : ''}" ${i === ls.day && ls.canClaim ? 'data-act="loginClaim"' : ''}><small>Gün ${i + 1}</small><b>${rewText(r)}</b></div>`).join('')}</div>
@@ -439,6 +443,8 @@ const ACT = {
   mode: d => { if (d.m === 'arena' && S.maxChapter < 2) { play('error'); return toast('Arena, 1. bölümü temizleyince açılır', 'bad'); } mode = d.m; play('click'); render(); },
   play: () => { if (mode === 'arena' && S.maxChapter >= 2) return startBattle(1, { arena: true }); const d = diffOf(selCh); startBattle(selCh, { ...D.DIFFS[d].mods, diff: d, lootMul: D.DIFFS[d].loot }); },
   sweep: () => sweep(),
+  seasonClaim: d => { const list = E.claimSeasonReward(S, +d.i); if (!list.length) return; play('legend'); vib(60); rewardPopup(list, '🏆 Sezon Ödülü', list.some(x => /Aura|Kostüm|Unvan/.test(x.text)) ? 'Kalıcı! Gardıroptan değiştirebilirsin.' : ''); save(true); render(); },
+  cos: d => { S.cos[d.t] = d.v || null; play('click'); save(); render(); },
   difflock: d => { play('error'); toast(`Önce bu bölümü ${D.DIFFS[+d.d - 1].name} seviyesinde temizle`, 'bad'); },
   filter: d => { invFilter = d.f; render(); },
   item: d => openItem(d.uid),
@@ -668,7 +674,7 @@ function heroesModal() {
         btn = `<div class="col gap sm">${S.hero === id ? '<span class="tag green">Seçili</span>' : `<button class="btn small green" data-h="sel" data-id="${id}">Seç</button>`}
           <button class="btn small gold" data-h="up" data-id="${id}">⇧ ${own.shards}/${c.shards}🧩 🪙${fmt(c.gold)}</button></div>`;
       }
-      return `<div class="hrow ${own ? '' : 'locked'}" style="--hc:${h.color}"><div class="hicon"><canvas class="hero-cv" data-small="1" data-face="1" data-hero="${id}" data-w="${heroW(id)}"></canvas></div>
+      return `<div class="hrow ${own ? '' : 'locked'}" style="--hc:${h.color}"><div class="hicon"><canvas class="hero-cv" data-small="1" data-face="1" data-hero="${id}" data-w="${heroW(id)}" data-skin="${S.cos.skin || ''}"></canvas></div>
         <div class="hinfo"><b>${h.name} <small>${h.title}${own ? ` • Sv${own.lvl}` : ''}</small></b><span>${h.passive}</span><small>⚔️${fmt(st.atk)} ❤️${fmt(st.hp)} ⚡${fmt(st.power)}</small></div>${btn}</div>`;
     }).join('')}<p class="muted small center">Kahraman parçaları 🧩 bölüm zaferlerinden (seçili kahramana), Elmas ve Efsane sandıklardan gelir. Her seviye +%6 saldırı ve can.</p>`;
   };
@@ -907,6 +913,45 @@ function sweep() {
   save(true); render();
 }
 
+// ============================================================ SEZON
+const cosAttr = () => ` data-skin="${S.cos.skin || ''}" data-aura="${S.cos.aura || ''}"`;
+function seasonRoll() {
+  const r = E.seasonCheck(S);
+  if (!r) return;
+  const th = r.info.theme;
+  S.mail.unshift({ id: 'season' + r.info.n, from: 'Efsun Konseyi', title: `🏆 Sezon ${r.info.n} başladı: ${th.name}`, ts: Date.now(), claimed: false, read: false,
+    body: `Yeni sezonun özel seti: ${D.SETS[th.set].name}. Zor görevleri bitir, puan topla; 750 puanda kalıcı aura, 1000 puanda kalıcı kostüm ve şampiyonluk unvanı seni bekliyor. Efsun Bileti de yenilendi.${r.auto.length ? ` Geçen sezondan alınmamış ${r.auto.length} ödülün hesabına eklendi.` : ''}` });
+  save(true);
+}
+function spHtml(sp) {
+  if (!sp || (!sp.pts && !sp.done.length)) return '';
+  return `<div class="sp-gain">🏆 +${sp.pts} Sezon Puanı${sp.done.length ? `<small>✅ ${sp.done.map(t => esc(t.name)).join(' • ')}</small>` : ''}</div>`;
+}
+function seasonHtml() {
+  const info = D.seasonInfo(), se = S.season, th = D.SEASON_THEME[se.theme], set = D.SETS[th.set];
+  const max = D.SEASON_REWARDS[D.SEASON_REWARDS.length - 1].pts;
+  const rows = D.SEASON_REWARDS.map((r, i) => {
+    const ri = E.seasonRewardInfo(S, i), got = se.claimed.includes(i), ok = se.pts >= r.pts;
+    const prev = r.aura || r.skin ? `<canvas class="hero-cv sprev" data-small="1" data-hero="${S.hero}" data-w="${stats().wtype}"${r.skin ? ` data-skin="${th.key}"` : ''} data-aura="${th.key}"></canvas>` : `<div class="si">${ri.icon}</div>`;
+    return `<div class="srew ${got ? 'got' : ok ? 'ready' : ''} ${r.aura || r.skin ? 'cosm' : ''}">${prev}<div class="sinfo"><b>${ri.text}</b><small>${r.pts} puan${r.aura || r.skin ? ' • KALICI' : ''}</small></div>
+      <button class="btn small ${got ? 'grey' : ok ? 'green pulse' : 'grey'}" data-act="seasonClaim" data-i="${i}" ${ok && !got ? '' : 'disabled'}>${got ? '✓' : ok ? 'Al' : `🔒 ${r.pts}`}</button></div>`;
+  }).join('');
+  const tasks = D.SEASON_TASKS.map(t => { const done = se.tasks.includes(t.id), pr = E.seasonTaskProg(S, t);
+    return `<div class="qrow ${done ? 'done' : ''}"><div class="qinfo"><b>${t.name}</b>${bar(done ? t.goal : pr, t.goal)}<small>${done ? 'Tamamlandı' : `${pr}/${t.goal}`} • 🏆 ${t.pts} puan</small></div><span class="tpts">${done ? '✅' : '🔥'}</span></div>`; }).join('');
+  const C = S.cos, own = C.auras.length + C.skins.length + C.titles.length;
+  const pick = (t, list, label) => list.length ? `<div class="wrow"><span>${label}</span><div class="seg"><button class="${!C[t] ? 'on' : ''}" data-act="cos" data-t="${t}" data-v="">Kapalı</button>${list.map(k => `<button class="${C[t] === k ? 'on' : ''}" data-act="cos" data-t="${t}" data-v="${k}">${t === 'title' ? `Sezon ${k.slice(1)}` : D.SEASON_THEME[k].name}</button>`).join('')}</div></div>` : '';
+  return `<div class="season-head" style="--sc:${th.color}">
+      <div class="sh-top"><b>🏆 Sezon ${se.n}: ${th.name}</b><small>⏳ <span data-until="${info.endsAt}">${countdown(info.endsAt - Date.now())}</span></small></div>
+      <div class="sh-pts"><b>${fmt(se.pts)}</b> / ${max} Sezon Puanı</div>
+      <div class="sp-track"><div style="width:${Math.min(100, se.pts / max * 100)}%"></div>${D.SEASON_REWARDS.map(r => `<i style="left:${r.pts / max * 100}%" class="${se.pts >= r.pts ? 'on' : ''}"></i>`).join('')}</div>
+      <small>Özel set: ${set.icon} <b>${set.name}</b> — 4 parça: ${set.d4}</small>
+    </div>
+    <h3>🎁 Sezon Ödülleri <small>Sadece zor görevleri bitirenler</small></h3>${rows}
+    <h3>🔥 Zor Görevler <small>Her ay yenilenir</small></h3>${tasks}
+    <p class="muted small center">Ek puan: Zor zaferi +${D.SEASON_PTS.hardClear}, Kabus zaferi +${D.SEASON_PTS.nightClear}, Arenada ${D.SEASON_PTS.arenaWaveFrom}. dalgadan sonraki her dalga +${D.SEASON_PTS.arenaPerWave}.</p>
+    ${own ? `<h3>👗 Gardırop <small>Kalıcı kozmetikler</small></h3><div class="wardrobe">${pick('aura', C.auras, '✨ Aura')}${pick('skin', C.skins, '👑 Kostüm')}${pick('title', C.titles, '🏅 Unvan')}</div>` : ''}`;
+}
+
 // ============================================================ SAVAŞ AKIŞI
 function startBattle(chapter, mods = null) {
   if (DEMO) S.energy = Math.max(S.energy, D.GAME.energyPerRun);
@@ -925,7 +970,7 @@ function startBattle(chapter, mods = null) {
     stats: st, chapter, mods: mods || {}, arenaBest: S.arena.best || 0, quality: S.settings.quality, heroColor: D.HEROES[S.hero].color,
     sfx: play, haptic: vib, onHud: hud, onLevelUp: levelUpModal, onDeath: deathModal, onEnd: endModal,
     dmgNumbers: S.settings.dmgNumbers, shake: S.settings.shake, fps: S.settings.fps,
-    onBoss: on => sfx.music(on ? 'boss' : 'battle'),
+    onBoss: on => sfx.music(on ? 'boss' : 'battle'), aura: S.cos.aura, skin: S.cos.skin,
     onLowPerf: () => { if (S.settings.quality !== 'low') { S.settings.quality = 'low'; save(); toast('⚡ Akıcı oyun için performans modu açıldı (Ayarlar > Grafik)'); } },
     onInput: () => { const t = $('#tut'); if (t) t.remove(); },
   });
@@ -1040,12 +1085,13 @@ function endModal(res) {
     if (dl === 0 && res.chapter >= S.maxChapter) { S.maxChapter = res.chapter + 1; selCh = S.maxChapter; unlocked = true; }
   }
   menus.syncScores();
-  if (mods.daily && !S.daily.challenge && res.waveReached >= 5) { S.daily.challenge = true; loot.gems = (loot.gems || 0) + 150; loot.chest = 'diamond'; }
+  if (mods.daily && !S.daily.challenge && res.waveReached >= 5) { S.daily.challenge = true; loot.gems = (loot.gems || 0) + 150; loot.chest = 'diamond'; S.season.cnt.daily = (S.season.cnt.daily || 0) + 1; }
+  const sp = E.seasonOnRun(S, { ...res, newChapter: unlocked }, mods);
   const list = E.grant(S, loot);
   save(true);
   play(res.victory ? 'win' : 'lose');
   const m = modal(`<div class="res-head ${res.victory ? 'win' : 'lose'}"><h2>${res.victory ? '🏆 ZAFER!' : '⚔️ Savaş Bitti'}</h2>
-      <p>${D.chapterInfo(res.chapter).title} • ${D.DIFFS[dl].icon} ${D.DIFFS[dl].name}</p>${unlocked ? `<div class="unlock">🔓 ${D.chapterInfo(S.maxChapter).title} açıldı!</div>` : ''}${diffUnlock ? `<div class="unlock red">🔓 ${diffUnlock} seviyesi açıldı!</div>` : ''}</div>
+      <p>${D.chapterInfo(res.chapter).title} • ${D.DIFFS[dl].icon} ${D.DIFFS[dl].name}</p>${unlocked ? `<div class="unlock">🔓 ${D.chapterInfo(S.maxChapter).title} açıldı!</div>` : ''}${diffUnlock ? `<div class="unlock red">🔓 ${diffUnlock} seviyesi açıldı!</div>` : ''}${spHtml(sp)}</div>
     <div class="res-stats"><div><b>${Math.floor(res.wave)}</b><small>Dalga</small></div><div><b>${fmt(res.kills)}</b><small>Düşman</small></div><div><b>${res.maxCombo || 0}</b><small>Kombo</small></div><div><b>${mmss(Math.floor(res.time))}</b><small>Süre</small></div></div>
     ${dmgHtml(res)}
     <div class="reward-grid">${list.map((r, i) => `<div class="reward-cell ${r.rarity !== undefined ? 'rar' + r.rarity : ''}" style="animation-delay:${i * 80}ms"><div class="ri">${r.icon}</div><div class="rt">${esc(r.text)}</div></div>`).join('')}</div>
@@ -1068,12 +1114,13 @@ function arenaEnd(res) {
   E.progress(S, 'kills', res.kills); E.progress(S, 'boss', res.bossKills);
   S.stats.maxCombo = Math.max(S.stats.maxCombo || 0, res.maxCombo || 0);
   if (record) { S.arena.best = w; S.stats.arenaBest = w; }
+  const sp = E.seasonOnRun(S, res, { arena: true });
   menus.syncScores();
   const list = E.grant(S, loot);
   save(true);
   play(record ? 'win' : 'lose');
   const m = modal(`<div class="res-head ${record ? 'win' : 'lose'}"><h2>${record ? '🔥 YENİ REKOR!' : '🏟️ Arena Bitti'}</h2>
-      <p>${record ? `Önceki rekor: Dalga ${prev}` : `Rekorun: Dalga ${prev}`}</p></div>
+      <p>${record ? `Önceki rekor: Dalga ${prev}` : `Rekorun: Dalga ${prev}`}</p>${spHtml(sp)}</div>
     <div class="res-stats"><div><b>${w}</b><small>Dalga</small></div><div><b>${fmt(res.kills)}</b><small>Düşman</small></div><div><b>${res.maxCombo || 0}</b><small>Kombo</small></div><div><b>${mmss(Math.floor(res.time))}</b><small>Süre</small></div></div>
     ${dmgHtml(res)}
     <div class="reward-grid">${list.map((r, i) => `<div class="reward-cell ${r.rarity !== undefined ? 'rar' + r.rarity : ''}" style="animation-delay:${i * 80}ms"><div class="ri">${r.icon}</div><div class="rt">${esc(r.text)}</div></div>`).join('')}</div>

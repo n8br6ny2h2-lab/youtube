@@ -1,7 +1,8 @@
 // Ekonomi: eşya üretimi, statlar, yükseltme, efsun, birleştirme, sandık, ödüller.
 import {
   GAME, RARITIES, SLOTS, SLOT_ORDER, BASES, PREFIXES, MAIN, AFFIXES, AFFIX, SETS, HEROES, PETS,
-  TALENTS, WEAPON_TYPES, CHESTS, MISSIONS, ACH_LINES, ACH_LEGACY, PASS_XP, PASS_TIERS, DAILY_CHALLENGES,
+  TALENTS, WEAPON_TYPES, CHESTS, MISSIONS, ACH_LINES, ACH_LEGACY, PASS_XP,
+  seasonInfo, SEASON_TASKS, SEASON_PTS, SEASON_REWARDS, SEASON_THEME, PASS_TIERS, DAILY_CHALLENGES,
 } from './data.js';
 import { today } from './save.js';
 import { FEATURES } from './features.js';
@@ -39,7 +40,7 @@ export function genItem(slot, rarity, opt = {}) {
   if (slot === 'any') slot = pick(SLOT_ORDER);
   rarity = Math.max(0, Math.min(5, rarity));
   const base = (opt.base && BASES[slot].find(b => b.id === opt.base)) || pick(BASES[slot]);
-  const set = opt.set !== undefined ? opt.set : (rarity >= 3 && Math.random() < 0.3 ? pick(Object.keys(SETS)) : null);
+  const set = opt.set !== undefined ? opt.set : (rarity >= 3 && Math.random() < 0.3 ? pick(Object.keys(SETS).filter(k => !SETS[k].season)) : null);
   const affixes = [];
   for (let i = 0; i < RARITIES[rarity].affixes; i++) affixes.push(rollAffix(rarity, affixes.map(a => a.id)));
   return { uid: uid(), slot, base: base.id, rarity, lvl: 1, affixes, set, prefix: pick(PREFIXES), isNew: true };
@@ -94,7 +95,7 @@ export function doMerge(save, it) {
   while (it.affixes.length < RARITIES[it.rarity].affixes) it.affixes.push(rollAffix(it.rarity, it.affixes.map(a => a.id)));
   // eski efsunlar yeni nadirliğe ölçeklenir
   it.affixes = it.affixes.map(a => { const d = AFFIX[a.id]; return { ...a, v: d.int ? d.base[it.rarity] : Math.round(d.base[it.rarity] * a.q * 10) / 10 }; });
-  if (it.rarity >= 3 && !it.set && Math.random() < 0.25) it.set = pick(Object.keys(SETS));
+  if (it.rarity >= 3 && !it.set && Math.random() < 0.25) it.set = pick(Object.keys(SETS).filter(k => !SETS[k].season));
   if (it.rarity === 5) save.stats.mythics++;
   return it;
 }
@@ -336,4 +337,70 @@ export function arenaLoot(save, res) {
   const ms = Math.floor(w / 5) - Math.floor((save.arena.best || 0) / 5);
   if (ms > 0) rew.gems = ms * 20;
   return rew;
+}
+
+// ============================== SEZON
+export function newSeasonState(info) { return { id: info.id, n: info.n, theme: info.theme.key, pts: 0, tasks: [], cnt: {}, claimed: [] }; }
+
+// Sezon değiştiyse: önceki sezonda ulaşılmış ama alınmamış ödülleri otomatik verir, sezonu ve bileti sıfırlar.
+export function seasonCheck(save) {
+  const info = seasonInfo();
+  if (!save.season) { save.season = newSeasonState(info); save.pass.season = info.n; return null; }
+  if (save.season.id === info.id) return null;
+  const old = save.season, auto = [];
+  for (let i = 0; i < SEASON_REWARDS.length; i++) if (old.pts >= SEASON_REWARDS[i].pts && !old.claimed.includes(i)) auto.push(...claimSeasonReward(save, i, old));
+  save.season = newSeasonState(info);
+  save.pass = { season: info.n, xp: 0, premium: false, free: [], prem: [] };
+  return { old, auto, info };
+}
+
+export function seasonTaskProg(save, t) {
+  const s = save.season;
+  if (t.kind === 'arena') return Math.min(t.goal, s.cnt.arenaBest || 0);
+  return Math.min(t.goal, s.cnt[t.key] || 0);
+}
+
+// Savaş sonunda sezon puanı: görevler + tekrarlanabilir puanlar. Dönüş: { pts, done: [görev adları] }
+export function seasonOnRun(save, res, mods = {}) {
+  const s = save.season, c = s.cnt, add = (k, n = 1) => { c[k] = (c[k] || 0) + n; };
+  let pts = 0;
+  const dl = mods.daily ? -1 : mods.diff || 0;
+  if (mods.arena) {
+    const w = Math.floor(res.wave);
+    c.arenaBest = Math.max(c.arenaBest || 0, w);
+    if (w > SEASON_PTS.arenaWaveFrom) pts += (w - SEASON_PTS.arenaWaveFrom) * SEASON_PTS.arenaPerWave;
+  }
+  if (res.victory && dl === 1) { add('hard'); pts += SEASON_PTS.hardClear; }
+  if (res.victory && dl === 2) { add('night'); pts += SEASON_PTS.nightClear; }
+  if (res.noHitBoss) add('nohit', res.noHitBoss);
+  if ((res.maxCombo || 0) >= 300) add('combo300');
+  add('boss', res.bossKills || 0);
+  if (res.newChapter && !res.revived) add('norevive');
+  const done = [];
+  for (const t of SEASON_TASKS) if (!s.tasks.includes(t.id) && seasonTaskProg(save, t) >= t.goal) { s.tasks.push(t.id); pts += t.pts; done.push(t); }
+  s.pts += pts;
+  return { pts, done };
+}
+
+export function seasonRewardInfo(save, i, st = save.season) {
+  const r = SEASON_REWARDS[i], th = SEASON_THEME[st.theme];
+  if (r.item) return { icon: SETS[th.set].icon, text: `Efsanevi ${SETS[th.set].name} ${SLOTS[r.item].name}`, kind: 'item' };
+  if (r.aura) return { icon: '✨', text: `${th.name} Aurası (kalıcı animasyon)`, kind: 'aura' };
+  return { icon: '👑', text: `${th.name} Kostümü + "Sezon ${st.n} Şampiyonu" unvanı`, kind: 'skin' };
+}
+
+export function claimSeasonReward(save, i, st = save.season) {
+  const r = SEASON_REWARDS[i], th = SEASON_THEME[st.theme], cos = save.cos, out = [];
+  if (st.pts < r.pts || st.claimed.includes(i)) return out;
+  st.claimed.push(i);
+  if (r.item) {
+    const it = genItem(r.item, 4, { set: th.set });
+    it.prefix = ''; it.season = st.n;
+    save.inventory.push(it);
+    out.push({ icon: itemIcon(it), text: `${itemName(it)} (Sezon ${st.n})`, rarity: 4, item: it });
+  }
+  if (r.aura && !cos.auras.includes(th.key)) { cos.auras.push(th.key); if (!cos.aura) cos.aura = th.key; out.push({ icon: '✨', text: `${th.name} Aurası`, rarity: 5 }); }
+  if (r.skin && !cos.skins.includes(th.key)) { cos.skins.push(th.key); if (!cos.skin) cos.skin = th.key; out.push({ icon: '👑', text: `${th.name} Kostümü`, rarity: 5 }); }
+  if (r.title) { const id = 's' + st.n; if (!cos.titles.includes(id)) { cos.titles.push(id); cos.title = id; out.push({ icon: '🏅', text: `Unvan: Sezon ${st.n} Şampiyonu`, rarity: 5 }); } }
+  return out;
 }

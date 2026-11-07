@@ -1,6 +1,6 @@
 // Efsun Avcısı — savaş motoru (Canvas 2D, 60 FPS, mobil dokunmatik joystick)
 import { chapterInfo, GAME, CHAPTERS, TUNE } from './data.js';
-import { drawHero, drawEnemy as artEnemy, drawPet as artPet, ART } from './art.js';
+import { drawHero, drawEnemy as artEnemy, drawPet as artPet, drawAura, ART } from './art.js';
 
 const TAU = Math.PI * 2;
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -417,6 +417,7 @@ export class Game {
     if (this.st.spirits && Math.random() * 100 < this.st.spirits) this.spirits.push({ x: e.x, y: e.y, t: 4, vx: 0, vy: -100 });
     if (e.boss) {
       this.bossKills++;
+      if (!this.bossHit) { this.noHitBoss = (this.noHitBoss || 0) + 1; this.text(e.x, e.y - 60, 'KUSURSUZ!', '#fde047', false, true); }
       this.runes += e.mini ? 2 : 5 + Math.floor(this.ch / 2);
       this.shake = 18; this.vib(80);
       this.timeScale = 0.25; this.slowT = 1.1;
@@ -440,6 +441,7 @@ export class Game {
     if (p.shield > 0) { p.shield--; p.inv = 0.6; if (st.evoShield) this.aoe(p.x, p.y, 160, this.baseDmg() * 2, { src: 'evo_shield' }); this.text(p.x, p.y - 30, 'BLOK', '#93c5fd', false, true); this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 70, t: 0, life: 0.3, color: '#93c5fd' }); this.sfx('hit'); return; }
     dmg = Math.round(dmg * (1 - st.dr / 100));
     p.hp -= dmg; p.inv = 0.55; p.hurtT = 0.3; p.regenStop = TUNE.regenDelay;
+    if (this.boss) this.bossHit = true;
     this.text(p.x, p.y - 30, '-' + dmg, '#ff4d4d', false, true);
     this.shake = Math.max(this.shake, 8); this.vib(35); this.sfx('hurt');
     if (src && st.thorns > 0 && !src.dead && src.hp !== undefined) this.hitEnemy(src, st.atk * st.thorns / 100 * 2, { proc: false, src: 'thorns' });
@@ -469,7 +471,7 @@ export class Game {
       victory, chapter: this.ch, arena: this.arena, wave: victory ? GAME.wavesPerChapter : this.wave - 1 + Math.min(0.99, this.waveT / this.waveLen()),
       waveReached: this.wave, kills: this.kills, goldPicked: this.goldPicked, runes: this.runes, time: this.time,
       level: this.level, bossKills: this.bossKills, maxCombo: this.maxCombo, goldBonus: this.st.gold,
-      dmgBy: this.dmgBy, skills: { ...this.skills },
+      dmgBy: this.dmgBy, skills: { ...this.skills }, noHitBoss: this.noHitBoss || 0, revived: this.revived,
     });
   }
 
@@ -554,7 +556,7 @@ export class Game {
   }
 
   spawnBoss() {
-    this.bossSpawned = true; this.bossActive = true;
+    this.bossSpawned = true; this.bossActive = true; this.bossHit = false;
     const mini = this.arena ? this.wave % 10 !== 0 : this.wave < GAME.wavesPerChapter;
     const key = mini ? 'guardian' : this.theme.boss;
     const b = BOSSES[key];
@@ -752,7 +754,7 @@ export class Game {
         if ((e.x - b.x) ** 2 + (e.y - b.y) ** 2 < rr * rr) {
           b.hit.add(e);
           const sp = Math.hypot(b.vx, b.vy) || 1;
-          this.hitEnemy(e, b.dmg, { kx: b.vx / sp, ky: b.vy / sp, proc: b.proc, src: b.kind === 'pet' ? 'pet' : 'weapon' });
+          this.hitEnemy(e, b.dmg, { kx: b.vx / sp, ky: b.vy / sp, proc: b.proc, src: b.kind === 'pet' ? 'pet' : b.kind === 'sun' ? 'set' : 'weapon' });
           this.burst(b.x, b.y, b.color || '#fff', 3, 90);
           if (b.pierce > 0) { b.pierce--; }
           else if (b.bounce > 0) {
@@ -837,6 +839,23 @@ export class Game {
       if (pw === 'fireNova') { T[pw] = 5; this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 180, t: 0, life: 0.45, color: '#ff6b3d', fill: true }); this.aoe(p.x, p.y, 180, dmg * 1.6, { burn: true, src: 'set' }); this.sfx('boom'); }
       if (pw === 'frostNova') { T[pw] = 6; this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 200, t: 0, life: 0.5, color: '#7dd3fc', fill: true }); this.aoe(p.x, p.y, 200, dmg, { freeze: 1.6, src: 'set' }); }
       if (pw === 'stormCall') { T[pw] = 4; this.bolts(5, dmg * 1.4, 'set'); }
+      // sezon setleri
+      if (pw === 'voidPull') {
+        T[pw] = 7;
+        const t = this.nearest(p, 420) || this.enemies[0];
+        if (t) this.fx.push({ type: 'void', x: t.x, y: t.y, r: 220, t: 0, life: 1.3, dmg: dmg * 2.6 });
+      }
+      if (pw === 'sunRays') { T[pw] = 4; for (let i = 0; i < 8; i++) this.proj(i * TAU / 8 + this.time, dmg * 1.2, { pierce: 99, bounce: 0, homing: false, color: '#fbbf24', speed: 700, life: 0.9, r: 9, kind: 'sun', proc: false }); this.sfx('zap'); }
+      if (pw === 'tideWave') {
+        T[pw] = 5; this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 240, t: 0, life: 0.5, color: '#22d3ee', fill: true });
+        for (const e of this.enemies) { if (e.dead) continue; const dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy) || 1; if (d < 240 + e.r) { if (!e.boss) { e.kx += dx / d * 520; e.ky += dy / d * 520; } e.frozen = Math.max(e.frozen, e.boss ? 0.3 : 0.8); } }
+        this.aoe(p.x, p.y, 240, dmg * 1.3, { src: 'set' }); this.sfx('boom');
+      }
+      if (pw === 'bloodMoon') {
+        T[pw] = 6; const miss = 1 - p.hp / p.maxHp;
+        this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 210, t: 0, life: 0.45, color: '#dc2626', fill: true });
+        this.aoe(p.x, p.y, 210, dmg * (1.2 + miss * 2.5), { src: 'set' }); this.healP(0.04); this.sfx('boom');
+      }
     }
   }
 
@@ -982,6 +1001,10 @@ export class Game {
     this.texts = this.texts.filter(t => t.t < t.life);
     for (const f of this.fx) {
       f.t += dt;
+      if (f.type === 'void') {
+        for (const e of this.enemies) { if (e.dead || e.boss) continue; const dx = f.x - e.x, dy = f.y - e.y, d = Math.hypot(dx, dy) || 1; if (d < f.r) { e.x += dx / d * 260 * dt; e.y += dy / d * 260 * dt; } }
+        if (!f.hit && f.t >= f.life * 0.9) { f.hit = true; this.aoe(f.x, f.y, f.r * 0.6, f.dmg, { src: 'set' }); this.burst(f.x, f.y, '#a855f7', 26, 280); this.shake = Math.max(this.shake, 7); this.sfx('boom'); }
+      }
       if (f.type === 'meteor' && !f.hit && f.t >= f.life * 0.85) {
         f.hit = true; this.aoe(f.x, f.y, f.r, f.dmg, { burn: true, src: 'meteor' });
         this.burst(f.x, f.y, '#fb923c', 22, 260); this.shake = Math.max(this.shake, 6); this.sfx('boom');
@@ -1102,11 +1125,12 @@ export class Game {
       ctx.fillStyle = g; ctx.fillRect(p.x - 26 * k, p.y - 300, 52 * k, 320);
     }
     this.drawShadow(p.x, p.y, p.r);
+    if (this.cfg.aura) drawAura(ctx, this.cfg.aura, p.x, p.y + p.r * 0.85, 1.3, this.time, this.cfg.quality === 'low');
     // ayak altı büyü halkası
     ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.ellipse(p.x, p.y + p.r * 0.85, p.r * 1.25, p.r * 0.45, 0, this.time * 2, this.time * 2 + Math.PI * 1.4); ctx.stroke();
     ctx.globalAlpha = blink ? 0.45 : 1;
-    drawHero(ctx, st.hero, p.x, p.y - 4, 1.3, { t: this.time, walk: p.walk, moving: p.moving, aim: p.face, atk: p.atkAnim || 0, hurt: p.hurtT, wtype: st.wtype });
+    drawHero(ctx, st.hero, p.x, p.y - 4, 1.3, { t: this.time, walk: p.walk, moving: p.moving, aim: p.face, atk: p.atkAnim || 0, hurt: p.hurtT, wtype: st.wtype, skin: this.cfg.skin });
     if (p.hurtT > 0) { ctx.fillStyle = `rgba(239,68,68,${p.hurtT})`; ctx.beginPath(); ctx.ellipse(p.x, p.y - 10, 16, 26, 0, 0, TAU); ctx.globalCompositeOperation = 'lighter'; ctx.fill(); ctx.globalCompositeOperation = 'source-over'; }
     ctx.globalAlpha = 1;
     if (p.shield > 0) {
@@ -1198,6 +1222,16 @@ export class Game {
         ctx.strokeStyle = f.color; ctx.lineWidth = (f.w || 3) * (1 - k) + 1; ctx.globalAlpha = 1 - k * 0.5;
         ctx.beginPath(); f.pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.stroke();
         ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke(); ctx.globalAlpha = 1; break;
+      case 'void': {
+        ctx.save(); ctx.globalCompositeOperation = 'source-over';
+        const R = f.r * 0.35 * (0.4 + k * 0.6);
+        const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, R * 1.8);
+        g.addColorStop(0, 'rgba(0,0,0,0.95)'); g.addColorStop(0.55, 'rgba(46,16,101,0.85)'); g.addColorStop(1, 'rgba(168,85,247,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, R * 1.8, 0, TAU); ctx.fill();
+        ctx.strokeStyle = 'rgba(216,180,254,0.7)'; ctx.lineWidth = 2;
+        for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(f.x, f.y, R * (1.1 + i * 0.35), this.time * 6 + i * 2, this.time * 6 + i * 2 + 2.2); ctx.stroke(); }
+        ctx.restore(); break;
+      }
       case 'boom': {
         const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
         g.addColorStop(0, `rgba(255,240,180,${1 - k})`); g.addColorStop(0.5, `rgba(251,146,60,${0.7 * (1 - k)})`); g.addColorStop(1, 'rgba(239,68,68,0)');

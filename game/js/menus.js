@@ -2,7 +2,7 @@
 import * as D from './data.js';
 import { PROVIDERS } from './account.js';
 import { CONFIG, FEATURES } from './services.js';
-import { drawHero, drawEnemy, drawPet } from './art.js';
+import { drawHero, drawEnemy, drawPet, drawAura } from './art.js';
 import { $, esc, modal, toast, confirmBox, rewardPopup } from './ui.js';
 
 const APPLE_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.5 1.3 0 1.8-.8 3.3-.8s2 .8 3.4.8 2.3-1.3 3.1-2.5c1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4zM13.9 5c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg>';
@@ -93,7 +93,8 @@ export function createMenus(app) {
     halo.addColorStop(0, 'rgba(253,230,138,0.35)'); halo.addColorStop(1, 'rgba(253,230,138,0)');
     x.fillStyle = halo; x.beginPath(); x.arc(hx, gy - 20 * sc, 90 * sc, 0, 7); x.fill();
     x.fillStyle = 'rgba(0,0,0,0.45)'; x.beginPath(); x.ellipse(hx, gy + 4 * sc + 15 * sc * 1.45, 17 * sc * 1.45, 4.5 * sc * 1.45, 0, 0, 7); x.fill();
-    drawHero(x, s.hero, hx, gy + 4 * sc, sc * 1.45, { t, walk: 0, moving: false, aim: -0.2, atk, hurt: 0, wtype: app.stats().wtype });
+    if (s.cos?.aura) drawAura(x, s.cos.aura, hx, gy + 4 * sc + 15 * sc * 1.45, sc * 1.45, t);
+    drawHero(x, s.hero, hx, gy + 4 * sc, sc * 1.45, { t, walk: 0, moving: false, aim: -0.2, atk, hurt: 0, wtype: app.stats().wtype, skin: s.cos?.skin });
     if (s.pet) drawPet(x, s.pet, hx + 34 * sc, gy - 34 * sc, sc * 0.95, t, false);
     // kor parçacıkları
     x.globalCompositeOperation = 'lighter';
@@ -373,8 +374,8 @@ export function createMenus(app) {
       const s = S(), h = D.HEROES[s.hero], st = app.stats();
       const links = Object.keys(s.account.links);
       m.el.innerHTML = `<button class="x" data-close>✕</button>
-        <div class="prof-head" style="--hc:${h.color}"><canvas class="hero-cv" data-hero="${s.hero}" data-w="${st.wtype}" data-color="${h.color}"></canvas>
-          <div><input id="pname2" value="${esc(s.playerName)}" maxlength="16" aria-label="Oyuncu adı"><small>${h.name} • ⚡ ${app.fmt(st.power)}</small>
+        <div class="prof-head" style="--hc:${h.color}"><canvas class="hero-cv" data-hero="${s.hero}" data-w="${st.wtype}" data-color="${h.color}" data-skin="${s.cos.skin || ''}" data-aura="${s.cos.aura || ''}"></canvas>
+          <div><input id="pname2" value="${esc(s.playerName)}" maxlength="16" aria-label="Oyuncu adı">${s.cos.title ? `<small class="ptitle">🏅 Sezon ${s.cos.title.slice(1)} Şampiyonu</small>` : ''}<small>${h.name} • ⚡ ${app.fmt(st.power)}</small>
           <small>${!FEATURES.accounts ? '💾 İlerleme bu telefonda' : links.length ? '🔗 ' + links.map(l => PROVIDERS[l].name).join(', ') : '⚠️ Misafir hesap'}</small></div></div>
         <div class="statgrid">${[['🗺️ Bölüm', s.maxChapter], ['⚔️ Savaş', s.stats.runs], ['🏆 Zafer', s.stats.wins], ['💀 Düşman', app.fmt(s.stats.kills)], ['👑 Boss', s.stats.bossKills], ['🔥 En iyi kombo', s.stats.maxCombo || 0],
           ['🏟️ Arena rekoru', s.arena.best || 0], ['🎁 Sandık', s.stats.chests], ['✨ Efsun', s.stats.enchants], ['🌟 Mitik eşya', s.stats.mythics], ['⏱️ Oyun süresi', Math.floor((s.stats.playSec || 0) / 60) + ' dk']].map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('')}</div>

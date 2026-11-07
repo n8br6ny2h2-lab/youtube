@@ -45,6 +45,14 @@ Aktif beceri en yüksek seviyede + eşleşen destek gücü alınmışsa seviye a
 ### 🏟️ Arena (sonsuz dalga)
 1. bölüm temizlenince savaş ekranındaki **Bölümler / Arena** seçicisinden açılır (5 enerji). Dalgalar 15 sn, her 5 dalgada boss (10'un katlarında bölüm boss'u, diğerlerinde mini boss; ikisi de 🎁 sandık düşürür), görünüm ve düşman türleri her 5 dalgada değişir. Düşman gücü her 4 dalgada yaklaşık bir bölüm kadar artar. Ganimet ulaşılan dalgaya göre verilir; rekor kırınca her yeni 5 dalga eşiği için +20 💎. Sıralamada "Arena" tablosu var.
 
+### 🗓️ Aylık sezonlar
+Her takvim ayı yeni sezon (Sezon 1 = Kasım 2026), cihaz saatine göre kendiliğinden değişir. 4 tema sırayla döner; her temanın sadece sezon ödülü olarak verilen özel 4 parça seti var: 🌑 Tutulma (kara delik), ☀️ Güneş (8 yöne ışın), 🌊 Gelgit (iten dalga), 🩸 Kan Ayı (can azaldıkça güçlenen patlama). Görevler > **Sezon** sekmesi.
+
+- **Sezon Puanı** sadece zor işlerden gelir: 9 zor görev (Arenada 20/30. dalga, Zor'da 3 bölüm, Kabus'ta bölüm, hasar almadan boss, 300 kombo, 30 boss, 5 günlük mücadele, dirilmeden yeni bölüm; toplam 760 puan) + Zor zaferi 15, Kabus zaferi 35, Arenada 15. dalgadan sonra dalga başına 3.
+- **Ödüller:** 100/250/400/550 puanda sezon setinin silah, miğfer, zırh, çizme parçaları (Efsanevi); **750 puanda kalıcı aura** (ayak altında dönen ışık animasyonu); **1000 puanda kalıcı kostüm** (karakterin renkleri değişir, başında taç süzülür) ve **"Sezon N Şampiyonu" unvanı**. 1000 puan, bütün görevler bitse bile ek zor zaferler ister.
+- Kozmetikler kalıcıdır, Gardırop'tan değiştirilir. Sezon bitince ulaşılıp alınmamış ödüller otomatik verilir, puanlar ve görevler sıfırlanır, **Efsun Bileti de yeni sezonla sıfırlanır** (premium dahil).
+- Ayarlar `js/data.js` → `SEASON_THEMES`, `SEASON_TASKS`, `SEASON_PTS`, `SEASON_REWARDS`. Sunucu kurulunca sezon tarihi sunucu saatinden alınmalı (cihaz saatini ileri almak sezonu erken bitirir).
+
 ### 🏆 Sonsuz başarımlar
 12 hat (bölüm, düşman, boss, zafer, arena, kombo, savaş, efsun, yükseltme, sandık, mitik, oyun süresi). Ödül alınınca hedef yükselir, ödül tavana kadar yavaşça artar (`js/data.js` → `ACH_LINES`). Ödüller eski sabit başarımlardan düşük: kademe başına çoğunlukla 10-40 💎. Eski kayıtlarda alınmış başarımlar ilgili kademelere aktarılır.
 

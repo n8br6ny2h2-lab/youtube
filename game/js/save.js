@@ -41,6 +41,8 @@ export function defaultSave() {
     login: { day: 0, last: '' },
     achievements: [], achTier: {},
     arena: { best: 0, runs: 0 },
+    season: null,
+    cos: { auras: [], skins: [], titles: [], aura: null, skin: null, title: null },
     pity: { diamond: 0, legend: 0 },
     idleTs: now,
     freeChestTs: 0,
