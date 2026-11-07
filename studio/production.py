@@ -109,19 +109,29 @@ def produce_long(story: dict) -> dict:
     tlp = composer.plan(story, work, outro=True, brand_name=kit.get("name", "Bulutkent"))
     au = composer.build_audio(tlp, work, seed)
     (work / "timeline.json").write_text(json.dumps(tlp, ensure_ascii=False), encoding="utf-8")
-    logger.info(f"[video] HyperFrames projesi ({tlp['duration']:.1f} sn)")
-    project = work / "hf"
-    composer.build_html(tlp, project, composer.LANDSCAPE, kit, title_overlay=story["title"])
-    silent = work / "video_silent.mp4"
-    logger.info("[video] Render (HyperFrames)...")
-    composer.render(project, silent)
     out = Paths.renders / f"{fp}.mp4"
-    composer.mux(silent, Path(au["mix"]), out, tlp["duration"])
     srt = Paths.subtitles / f"{fp}.srt"
     shutil.copy(au["srt"], srt)
-    try:  # 3D sinematik açılış (Gemini Omni); bütçe/hata durumunda video açılışsız kalır
+    full3d = None
+    try:  # tam 3D bölüm (Gemini Omni); bütçe yetmezse çizim sürümü
         from . import cinematic
-        if cinematic.enabled():
+        if cinematic.enabled() and settings().get("cinematic", {}).get("full_episodes", False):
+            logger.info(f"[video] Tam 3D bölüm: {cinematic.episode_clip_count(tlp)} sahne")
+            full3d = cinematic.full_episode(story, tlp, Path(au["mix"]), Path(au["srt"]), work, out, story["title"])
+    except Exception as exc:
+        logger.warning(f"[video] Tam 3D bölüm yapılamadı, çizimle devam: {exc}")
+        full3d = None
+    if not full3d:
+        logger.info(f"[video] HyperFrames projesi ({tlp['duration']:.1f} sn)")
+        project = work / "hf"
+        composer.build_html(tlp, project, composer.LANDSCAPE, kit, title_overlay=story["title"])
+        silent = work / "video_silent.mp4"
+        logger.info("[video] Render (HyperFrames)...")
+        composer.render(project, silent)
+        composer.mux(silent, Path(au["mix"]), out, tlp["duration"])
+    try:  # 3D sinematik açılış (yalnızca çizim sürümüne) (Gemini Omni); bütçe/hata durumunda video açılışsız kalır
+        from . import cinematic
+        if cinematic.enabled() and not full3d:
             intro = cinematic.long_intro(story, work, story["title"])
             if intro:
                 tmp = out.with_name(out.stem + "_cine.mp4")
@@ -132,6 +142,13 @@ def produce_long(story: dict) -> dict:
     except Exception as exc:
         logger.warning(f"[video] 3D açılış eklenemedi: {exc}")
     th = thumbnails.make(story, Paths.thumbnails / fp)
+    if full3d:  # 3D kareden kapak öne alınır
+        try:
+            from . import cinematic
+            p3 = cinematic.thumbnail_from(out, story.get("thumb_text") or story["title"], Paths.thumbnails / fp / "thumb_3d.png")
+            th = {**th, "best": str(p3)}
+        except Exception as exc:
+            logger.warning(f"3D kapak: {exc}")
     md = metadata(story, "long")
     v = settings()["video"]
     report = qc.check(out, "long", min_s=v["min_long_seconds"], intelligibility=au.get("intelligibility"),
@@ -209,9 +226,13 @@ def produce_shorts(story: dict, long_result: dict, limit: int | None = None) -> 
         au = composer.build_audio(stl, work, long_result["seed"] + idx)
         out = Paths.shorts / f"{fp}_s{idx}.mp4"
         made3d = None
-        try:  # ilk Shorts 3D sinematik sahnelerle (bütçe varsa)
+        try:  # tam 3D bölümün kliplerinden (ücretsiz) ya da ilk Shorts için yeni 3D sahnelerle
             from . import cinematic
-            if cinematic.enabled() and idx <= int(settings().get("cinematic", {}).get("shorts_3d_per_long", 1)):
+            made3d = cinematic.short_from_episode(Path(long_result["work"]), c["scene_ids"], Path(au["mix"]), Path(au["srt"]),
+                                                  c["title"], float(stl["duration"]), out)
+            if made3d:
+                logger.info(f"[shorts] {out.name} 3D bölüm kliplerinden hazırlandı")
+            elif cinematic.enabled() and idx <= int(settings().get("cinematic", {}).get("shorts_3d_per_long", 1)):
                 made3d = cinematic.short_3d(story, stl, Path(au["mix"]), Path(au["srt"]), c["title"], out)
                 if made3d:
                     logger.info(f"[shorts] {out.name} 3D sahnelerle hazırlandı")

@@ -241,3 +241,131 @@ def relax_clip(visual: str, idx: int) -> Path | None:
     v = visual.lower()
     k = 0 if "slime" in v else 1 if "ink" in v else 2 if "sand" in v else 3 if "honey" in v else idx % len(RELAX_PROMPTS)
     return clip(RELAX_PROMPTS[k].format(c=COLORS[idx % len(COLORS)]), None, "relax")
+
+
+# --------------------------------------------------------------------------- Bulutkent: tam 3D bölüm
+
+SHOT_VARIANTS = ["Wide establishing shot.", "Medium shot, the characters talk and react expressively.",
+                 "Close-up shot on the characters' happy faces.", "Playful moving shot following the action."]
+
+
+def _scene_plan(tlp: dict) -> list[dict]:
+    total = float(tlp["duration"])
+    out = []
+    for i, s in enumerate(tlp["scenes"]):
+        st = float(s.get("start", s["beats"][0]["start"]))
+        en = float(s.get("end") or (tlp["scenes"][i + 1]["start"] if i + 1 < len(tlp["scenes"]) else total))
+        if i == len(tlp["scenes"]) - 1:
+            en = total
+        n = max(1, math.ceil((en - st) / (CLIP_SECONDS * 1.3)))  # en fazla %30 ağır çekim
+        out.append({"scene": s, "start": st, "end": en, "n": n})
+    return out
+
+
+def episode_clip_count(tlp: dict) -> int:
+    return sum(p["n"] for p in _scene_plan(tlp))
+
+
+def _segment(clips: list[Path], dur: float, out: Path) -> Path:
+    """Sahnenin kliplerini art arda koyup sahne süresine (hafif ağır çekimle) oturtur; çevre sesi de aynı oranda."""
+    lst = out.with_suffix(".txt")
+    lst.write_text("".join(f"file '{c}'\n" for c in clips))
+    raw = out.with_name(out.stem + "_raw.mp4")
+    _ff("-f", "concat", "-safe", "0", "-i", str(lst), "-c:v", "libx264", "-crf", "17", "-preset", "veryfast", "-c:a", "aac", str(raw))
+    src = len(clips) * CLIP_SECONDS
+    f = max(1.0, dur / src)
+    tempo = max(0.5, min(2.0, 1 / f))
+    _ff("-i", str(raw), "-filter_complex",
+        f"[0:v]setpts={f:.5f}*PTS,scale=1920:1080:flags=lanczos,fps=30,format=yuv420p[v];[0:a]atempo={tempo:.5f},aresample=48000[a]",
+        "-map", "[v]", "-map", "[a]", "-t", f"{dur:.3f}", "-c:v", "libx264", "-crf", "17", "-preset", "veryfast",
+        "-c:a", "aac", "-ar", "48000", "-ac", "2", str(out))
+    raw.unlink(missing_ok=True)
+    return out
+
+
+def full_episode(story: dict, tlp: dict, mix: Path, srt: Path, work: Path, out: Path, title: str) -> Path | None:
+    """Bölümün tamamını 3D sahnelerle kurar. Ses: bizim seslendirme + müzik + efektler (mix) ve klip ambiyansı.
+    Bütçe yetmezse None döner (çağıran çizim sürümüne döner)."""
+    plan = _scene_plan(tlp)
+    need = sum(p["n"] for p in plan)
+    if need > int(_cfg().get("max_clips_per_episode", 12)) or not can_afford(need):
+        logger.info(f"Tam 3D bölüm için bütçe/sınır yetersiz ({need} sahne, kalan {budget_left():.2f} $)")
+        return None
+    cw = work / "cine"
+    cw.mkdir(parents=True, exist_ok=True)
+    segs, clip_map = [], {}
+    last = len(plan) - 1
+    for i, p in enumerate(plan):
+        sc = p["scene"]
+        clips = []
+        for j in range(p["n"]):
+            if sc.get("id") == "outro" or i == last:
+                extra = "Final shot: the friends happily wave goodbye to the camera."
+            elif i == 0 and j == 0:
+                extra = "Opening establishing shot of a children's cartoon episode."
+            else:
+                extra = SHOT_VARIANTS[(i + j) % len(SHOT_VARIANTS)]
+            prompt, refs = scene_prompt(sc, extra)
+            c = clip(prompt, refs, "ep")
+            if not c:
+                return None
+            clips.append(c)
+        clip_map[sc["id"]] = [str(c) for c in clips]
+        segs.append(_segment(clips, p["end"] - p["start"], cw / f"seg_{i:02d}.mp4"))
+    (work / "cine_clips.json").write_text(json.dumps(clip_map), encoding="utf-8")
+    lst = cw / "segs.txt"
+    lst.write_text("".join(f"file '{s}'\n" for s in segs))
+    silent = cw / "episode_3d.mp4"
+    _ff("-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy", str(silent))
+    total = float(tlp["duration"])
+    font = "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf"
+    tf = cw / "title.txt"
+    tf.write_text(_wrap(title, 30), encoding="utf-8")
+    sub = cw / "outro.txt"
+    sub.write_text("Abone olmayı unutma!", encoding="utf-8")
+    wm = Paths.root / "logos" / "watermark.png"
+    style = ("FontName=Noto Sans,Bold=1,FontSize=22,PrimaryColour=&H00FFFFFF,OutlineColour=&H00402020,BorderStyle=1,Outline=2.6,"
+             "Shadow=1,Alignment=2,MarginV=26")
+    fc = (f"[0:v]drawtext=fontfile={font}:textfile={tf.as_posix()}:fontcolor=white:fontsize=86:line_spacing=12:text_align=C:"
+          f"borderw=7:bordercolor=0x2b2b55:x=(w-text_w)/2:y=h*0.70:alpha='if(lt(t,0.8),0,if(lt(t,1.6),(t-0.8)/0.8,if(lt(t,6),1,max(0,7-t))))',"
+          f"drawtext=fontfile={font}:textfile={sub.as_posix()}:fontcolor=0xFFE066:fontsize=72:borderw=6:bordercolor=0x2b2b55:"
+          f"x=(w-text_w)/2:y=h*0.12:enable='gte(t,{total - 7:.2f})',"
+          f"subtitles={srt.as_posix()}:force_style='{style}'[v0];"
+          f"[2:v]scale=110:-1,format=rgba,colorchannelmixer=aa=0.75[wm];[v0][wm]overlay=W-w-40:40,format=yuv420p[v];"
+          f"[0:a]volume=0.22[amb];[1:a][amb]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-14:TP=-1.5[a]")
+    _ff("-i", str(silent), "-i", str(mix), "-i", str(wm), "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
+        "-t", f"{total:.3f}", "-c:v", "libx264", "-crf", "19", "-preset", "medium", "-c:a", "aac", "-b:a", "192k",
+        "-ar", "48000", "-movflags", "+faststart", str(out))
+    return out
+
+
+def short_from_episode(work: Path, scene_ids: list[str], mix: Path, srt: Path, title: str, dur: float, out: Path) -> Path | None:
+    """Tam 3D bölümün sahne kliplerinden Shorts (yeni klip üretmez, ücretsiz)."""
+    f = work / "cine_clips.json"
+    if not f.exists():
+        return None
+    m = json.loads(f.read_text(encoding="utf-8"))
+    clips = [Path(c) for sid in scene_ids for c in m.get(sid, []) if Path(c).exists()]
+    if not clips:
+        return None
+    while len(clips) * CLIP_SECONDS < dur:
+        clips = clips + clips
+    cw = Paths.scenes / "cine" / out.stem
+    cw.mkdir(parents=True, exist_ok=True)
+    lst = cw / "list.txt"
+    lst.write_text("".join(f"file '{c}'\n" for c in clips))
+    joined = cw / "joined.mp4"
+    _ff("-f", "concat", "-safe", "0", "-i", str(lst), "-c:v", "libx264", "-crf", "18", "-preset", "veryfast", "-c:a", "aac", str(joined))
+    return compose_vertical(joined, mix, srt, title, dur, out)
+
+
+def thumbnail_from(video: Path, title: str, out: Path, at: float = 3.0) -> Path:
+    """3D kareden kapak: büyük başlık, kenar çizgili."""
+    font = "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf"
+    tf = out.with_suffix(".txt")
+    tf.write_text(_wrap(title, 18), encoding="utf-8")
+    _ff("-ss", f"{at:.2f}", "-i", str(video), "-frames:v", "1", "-vf",
+        f"scale=1280:720,eq=saturation=1.15:contrast=1.05,drawtext=fontfile={font}:textfile={tf.as_posix()}:fontcolor=0xFFE066:"
+        f"fontsize=92:line_spacing=10:text_align=C:borderw=9:bordercolor=0x1d1d4a:x=(w-text_w)/2:y=h-text_h-50", str(out))
+    tf.unlink(missing_ok=True)
+    return out

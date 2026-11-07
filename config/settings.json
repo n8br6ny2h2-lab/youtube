@@ -36,10 +36,6 @@
         "18:00"
       ],
       [
-        "thu",
-        "18:00"
-      ],
-      [
         "sun",
         "18:00"
       ]
@@ -103,12 +99,14 @@
   "cinematic": {
     "enabled": true,
     "model": "gemini-omni-1.2-flash",
-    "monthly_budget_usd": 45,
-    "usd_per_clip": 0.75,
+    "monthly_budget_usd": 48,
+    "usd_per_clip": 0.5,
     "bulutkent_intro": true,
     "shorts_3d_per_long": 1,
     "max_clips_per_short": 3,
-    "gece_relax_clips": 4,
-    "_not": "usd_per_clip: 7 Kasım faturası 280 TL / ~12 klip (~23 TL/klip) gözlemine göre ihtiyatlı tahmin; fatura gecikmeli olabilir, yeniden kontrol edilecek"
+    "gece_relax_clips": 2,
+    "_not": "usd_per_clip: 7 Kasım faturası ~370 TL / ~20 klip (~19 TL/klip) gözlemine göre; Bulutkent haftada 2 tam 3D bölüm",
+    "full_episodes": true,
+    "max_clips_per_episode": 12
   }
 }
