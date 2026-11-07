@@ -114,6 +114,34 @@ def build_brand() -> dict:
 
 # --------------------------------------------------------------------------- görüntü kaynakları
 
+def _looks_like(hit: dict, query: str) -> bool:
+    """Klibin küçük resmine bakıp sorguyu gerçekten gösterip göstermediğini Gemini'ye sorar (önbellekli).
+    Anahtar yoksa ya da hata olursa klibi kabul eder."""
+    if not has_key("GEMINI_API_KEY"):
+        return True
+    key = f"vis:{hit['id']}:{query}"
+    cached = db.kv_get(key)
+    if cached is not None:
+        return bool(cached)
+    try:
+        import base64
+        thumb = ((hit.get("videos") or {}).get("tiny") or {}).get("thumbnail") or ((hit.get("videos") or {}).get("small") or {}).get("thumbnail")
+        if not thumb:
+            return True
+        img = httpx.get(thumb, timeout=30).content
+        body = {"contents": [{"parts": [{"inline_data": {"mime_type": "image/jpeg", "data": base64.b64encode(img).decode()}},
+                                        {"text": f"Does this image clearly show: {query}? Answer only YES or NO."}]}]}
+        r = httpx.post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
+                       headers={"x-goog-api-key": env("GEMINI_API_KEY")}, json=body, timeout=60)
+        txt = r.json()["candidates"][0]["content"]["parts"][0]["text"].strip().upper()
+        ok = txt.startswith("YES")
+    except Exception as exc:
+        logger.debug(f"görsel doğrulama atlandı: {exc}")
+        return True
+    db.kv_set(key, ok)
+    return ok
+
+
 def pixabay_clips(query: str, need: int, used: set, target_w: int = 1920) -> list[Path]:
     """Pixabay'den yatay klip (Pixabay Lisansı: ticari kullanım serbest, atıf gerekmez); önbellekli."""
     if not has_key("PIXABAY_API_KEY"):
@@ -125,11 +153,23 @@ def pixabay_clips(query: str, need: int, used: set, target_w: int = 1920) -> lis
     r.raise_for_status()
     out = []
     hits = r.json().get("hits", [])
+    # Pixabay araması gevşek: klibin etiketlerinde sorgudaki asıl kelime (ör. "hedgehog") yoksa ele
+    generic = {"night", "macro", "slow", "close", "up", "the", "in", "of", "a", "and", "dusk", "dark", "light", "calm"}
+    keys = [w for w in query.lower().split() if w not in generic] or query.lower().split()
+    def _has(v, k):
+        tags = (v.get("tags") or "").lower()
+        return k in tags or k.rstrip("s") in tags
+    strict = [v for v in hits if all(_has(v, k) for k in keys)]
+    hits = strict if len(strict) >= need else [v for v in hits if any(_has(v, k) for k in keys)]
     if target_w > 1920:  # 4K klipler önce
         hits.sort(key=lambda v: -((v.get("videos") or {}).get("large", {}).get("width") or 0))
+    checked = 0
     for v in hits:
         vid = f"pb{v['id']}"
         if vid in used or v.get("duration", 0) < 6:
+            continue
+        if checked < 15 and not _looks_like(v, query):  # görsel doğrulama (Gemini): etiket yanıltıcı olabilir
+            checked += 1
             continue
         vs = [x for x in (v.get("videos") or {}).values() if x.get("url") and x.get("width", 0) >= 1280 and x["width"] > x.get("height", 0)]
         if not vs:
