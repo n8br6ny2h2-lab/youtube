@@ -68,7 +68,7 @@ def metadata(story: dict, kind: str = "long", short_title: str | None = None, ho
         f"Öğrenme hedefi: {story.get('learning_goal', '')}\n"
         f"Mesaj: {story.get('moral', '')}\n\n"
         f"{name}'te her bölüm özgün bir hikâyedir; 2-8 yaş için hazırlanır.\n"
-        f"Yeni bölümler Salı, Perşembe ve Pazar 18:00'de.\n\n"
+        f"Yeni 3D bölümler Salı ve Pazar 18:00'de.\n\n"
         "Hikâye, animasyon, seslendirme ve müzik yapay zekâ destekli araçlarla üretilmiş ve yayın öncesinde "
         "çocuk güvenliği kontrolünden geçirilmiştir. Tüm karakterler ve müzikler kanala özgüdür.\n\n"
         f"#{name.lower()} #çocukmasalları #{CATEGORIES.get(story.get('category'), '').split()[0].lower() if story.get('category') in CATEGORIES else 'çocuk'}"

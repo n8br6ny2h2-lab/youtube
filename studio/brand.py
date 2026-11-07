@@ -97,7 +97,7 @@ def brand_kit() -> dict:
             "bilmeceler, ritimli şarkılar ve uyku öncesi masallar.\n\n"
             "Her bölüm özgündür; 2-8 yaş için sakin tempolu, şiddet ve korku içermeyen, ebeveynlerin gönül rahatlığıyla "
             "izletebileceği şekilde hazırlanır.\n\n"
-            "Yeni bölümler: Salı, Perşembe ve Pazar 18:00 · Kısa videolar her gün.\n\n"
+            "Yeni 3D bölümler: Salı ve Pazar 18:00 · Kısa videolar her gün.\n\n"
             "Not: Hikâyeler, animasyonlar ve seslendirmeler yapay zekâ destekli araçlarla üretilir ve yayın öncesi "
             "çocuk güvenliği kontrolünden geçirilir."
         ),
