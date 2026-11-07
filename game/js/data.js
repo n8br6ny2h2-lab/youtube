@@ -15,6 +15,25 @@ export const GAME = {
   termsUrl: 'legal/terms.html',
 };
 
+// ZORLUK AYARLARI — tek yerden. 1. bölümün ilk dalgaları neredeyse aynı kalır; zorluk bölüm ve dalga ilerledikçe daha hızlı artar.
+export const TUNE = {
+  hpPerChapter: 1.55,   // düşman canı bölüm başına çarpan (eski 1.42)
+  dmgPerChapter: 1.5,   // düşman hasarı bölüm başına çarpan (eski 1.3)
+  hpPerWave: 0.13,      // dalga başına can artışı (eski 0.11)
+  dmgPerWave: 0.08,     // dalga başına hasar artışı (eski 0.06)
+  spawnPerWave: 0.34,   // dalga başına doğma hızı artışı (eski 0.3)
+  spawnPerChapter: 0.12,// bölüm başına doğma hızı ve ekrandaki düşman sınırı artışı (1. bölümde etkisiz)
+  regenMul: 0.5,        // can yenileme etkisi (efsun/yetenek); savaş içinde yarıya iner
+  regenDelay: 3,        // hasar alınca can yenileme bu kadar saniye durur
+  eliteRamp: 0.009,     // dalga başına seçkin şansı artışı (eski 0.007)
+  bossHp: 1.2,          // boss canı çarpanı
+  bossRest: [0.85, 1.6],// boss saldırıları arası bekleme (sn) (eski 1.0-1.8)
+  waveHeal: 0.05,       // dalga geçince iyileşme (eski 0.08)
+  heartDrop: 0.009,     // sıradan düşmandan kalp düşme şansı (eski 0.012)
+  heartDropElite: 0.2,  // seçkinden kalp (eski 0.25)
+  recPowerPerChapter: 1.52, // önerilen güç artışı (eski 1.38)
+};
+
 export const RARITIES = [
   { id: 0, name: 'Sıradan',  color: '#9aa4b2', mult: 1.0, maxLvl: 10, affixes: 0 },
   { id: 1, name: 'Nadir',    color: '#4ade80', mult: 1.5, maxLvl: 20, affixes: 1 },

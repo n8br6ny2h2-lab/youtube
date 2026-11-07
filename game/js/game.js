@@ -1,5 +1,5 @@
 // Efsun Avcısı — savaş motoru (Canvas 2D, 60 FPS, mobil dokunmatik joystick)
-import { chapterInfo, GAME, CHAPTERS } from './data.js';
+import { chapterInfo, GAME, CHAPTERS, TUNE } from './data.js';
 import { drawHero, drawEnemy as artEnemy, drawPet as artPet, ART } from './art.js';
 
 const TAU = Math.PI * 2;
@@ -250,7 +250,8 @@ export class Game {
     if (p.lvlFx > 0) p.lvlFx -= dt;
     if (p.inv > 0) p.inv -= dt;
     if (p.hurtT > 0) p.hurtT -= dt;
-    if (st.regen > 0) p.hp = Math.min(p.maxHp, p.hp + p.maxHp * st.regen / 100 * dt);
+    if (p.regenStop > 0) p.regenStop -= dt;
+    else if (st.regen > 0) p.hp = Math.min(p.maxHp, p.hp + p.maxHp * st.regen * TUNE.regenMul / 100 * dt);
 
     // otomatik saldırı
     p.atkT -= dt;
@@ -410,7 +411,7 @@ export class Game {
       const n = e.boss ? 15 : e.elite ? 4 : 1;
       for (let i = 0; i < n; i++) this.drop('gold', e.x + rand(-25, 25), e.y + rand(-25, 25), Math.ceil((3 + this.ch * 2) * (1 + this.st.gold / 100)));
     }
-    if (Math.random() < (e.elite ? 0.25 : 0.012)) this.drop('heart', e.x, e.y, 1);
+    if (Math.random() < (e.elite ? TUNE.heartDropElite : TUNE.heartDrop)) this.drop('heart', e.x, e.y, 1);
     if (Math.random() < 0.003) this.drop('magnet', e.x, e.y, 1);
     if ((e.boss && (e.mini || this.arena)) || (e.elite && Math.random() < 0.08)) this.drop('chest', e.x, e.y, 1);
     if (this.st.spirits && Math.random() * 100 < this.st.spirits) this.spirits.push({ x: e.x, y: e.y, t: 4, vx: 0, vy: -100 });
@@ -438,7 +439,7 @@ export class Game {
     if (Math.random() * 100 < st.dodge) { this.text(p.x, p.y - 30, 'KAÇTI', '#7dd3fc', false, true); p.inv = 0.25; return; }
     if (p.shield > 0) { p.shield--; p.inv = 0.6; if (st.evoShield) this.aoe(p.x, p.y, 160, this.baseDmg() * 2, { src: 'evo_shield' }); this.text(p.x, p.y - 30, 'BLOK', '#93c5fd', false, true); this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 70, t: 0, life: 0.3, color: '#93c5fd' }); this.sfx('hit'); return; }
     dmg = Math.round(dmg * (1 - st.dr / 100));
-    p.hp -= dmg; p.inv = 0.55; p.hurtT = 0.3;
+    p.hp -= dmg; p.inv = 0.55; p.hurtT = 0.3; p.regenStop = TUNE.regenDelay;
     this.text(p.x, p.y - 30, '-' + dmg, '#ff4d4d', false, true);
     this.shake = Math.max(this.shake, 8); this.vib(35); this.sfx('hurt');
     if (src && st.thorns > 0 && !src.dead && src.hp !== undefined) this.hitEnemy(src, st.atk * st.thorns / 100 * 2, { proc: false, src: 'thorns' });
@@ -495,8 +496,8 @@ export class Game {
         if (!this.bossSpawned && this.waveT > 2.5) this.spawnBoss();
       } else if (this.waveT >= this.waveLen()) this.nextWave();
     }
-    const rate = (1.1 + (this.arena ? Math.min(this.wave, 14) : this.wave) * 0.3) * (this.mods.spawnMul || 1) * (this.bossActive ? 0.2 : 1) * (this.isBossWave(this.wave) && !this.bossSpawned ? 0.2 : 1);
-    const cap = Math.min(95, 45 + Math.min(this.wave, 10) * 5) * (this.mods.spawnMul || 1);
+    const rate = (1.1 + (this.arena ? Math.min(this.wave, 14) : this.wave) * TUNE.spawnPerWave) * (1 + TUNE.spawnPerChapter * (this.ch - 1)) * (this.mods.spawnMul || 1) * (this.bossActive ? 0.2 : 1) * (this.isBossWave(this.wave) && !this.bossSpawned ? 0.2 : 1);
+    const cap = Math.min(130, (45 + Math.min(this.wave, 10) * 5) * (1 + TUNE.spawnPerChapter * 0.6 * (this.ch - 1))) * (this.mods.spawnMul || 1);
     this.spawnAcc += dt * rate;
     while (this.spawnAcc >= 1) {
       this.spawnAcc -= 1;
@@ -514,13 +515,13 @@ export class Game {
       if ((this.wave - 1) % 5 === 0) { this.arenaStage(); if (!boss) sub = `Yeni bölge: ${this.theme.name}`; } else this.arenaLvl();
     }
     this.banner = { text: boss ? '⚠ BOSS DALGASI ⚠' : `Dalga ${this.wave}`, sub, t: 2 };
-    this.healP(0.08);
+    this.healP(TUNE.waveHeal);
   }
 
-  diffHp() { if (this.arena) return Math.pow(1.42, this.arenaK()) * (1 + 0.04 * ((this.wave - 1) % 4)) * (this.mods.enemyHp || 1);
-    return Math.pow(1.42, this.ch - 1) * (1 + 0.11 * (this.wave - 1)) * (this.mods.enemyHp || 1); }
-  diffDmg() { if (this.arena) return 1.25 * Math.pow(1.3, this.arenaK()) * (this.mods.enemyDmg || 1);
-    return 1.25 * Math.pow(1.3, this.ch - 1) * (1 + 0.06 * (this.wave - 1)) * (this.mods.enemyDmg || 1); }
+  diffHp() { if (this.arena) return Math.pow(TUNE.hpPerChapter, this.arenaK()) * (1 + 0.04 * ((this.wave - 1) % 4)) * (this.mods.enemyHp || 1);
+    return Math.pow(TUNE.hpPerChapter, this.ch - 1) * (1 + TUNE.hpPerWave * (this.wave - 1)) * (this.mods.enemyHp || 1); }
+  diffDmg() { if (this.arena) return 1.25 * Math.pow(TUNE.dmgPerChapter, this.arenaK()) * (this.mods.enemyDmg || 1);
+    return 1.25 * Math.pow(TUNE.dmgPerChapter, this.ch - 1) * (1 + TUNE.dmgPerWave * (this.wave - 1)) * (this.mods.enemyDmg || 1); }
 
   spawnPos(dist) {
     const a = rand(0, TAU);
@@ -532,7 +533,7 @@ export class Game {
     const list = CH_ENEMIES[this.chIdx];
     type = type || this.weightedType(list);
     const d = ENEMIES[type];
-    const elite = opt.elite ?? Math.random() < Math.min(0.25, (0.03 + this.wave * 0.007) * (this.mods.eliteMul || 1));
+    const elite = opt.elite ?? Math.random() < Math.min(0.25, (0.03 + this.wave * TUNE.eliteRamp) * (this.mods.eliteMul || 1));
     const sc = elite ? 1.45 : 1;
     const hp = d.hp * this.diffHp() * (elite ? 3.5 : 1);
     pos = pos || this.spawnPos();
@@ -557,7 +558,7 @@ export class Game {
     const mini = this.arena ? this.wave % 10 !== 0 : this.wave < GAME.wavesPerChapter;
     const key = mini ? 'guardian' : this.theme.boss;
     const b = BOSSES[key];
-    const hp = (mini ? 550 : 1300) * Math.pow(1.42, this.arena ? this.arenaK() : this.ch - 1) * (this.mods.enemyHp || 1);
+    const hp = (mini ? 550 : 1300) * TUNE.bossHp * Math.pow(TUNE.hpPerChapter, this.arena ? this.arenaK() : this.ch - 1) * (this.mods.enemyHp || 1);
     const pos = this.spawnPos(320);
     const e = {
       type: 'boss', boss: true, mini, key, name: b.name, ai: 'boss', x: pos.x, y: pos.y, r: mini ? 38 : 52, hp, maxHp: hp,
@@ -704,7 +705,7 @@ export class Game {
           this.burst(e.x, e.y, e.color, 24, 220);
           done = true; break;
       }
-      if (done) { e.state = 'move'; e.pt = rand(1.0, 1.8) * enr; }
+      if (done) { e.state = 'move'; e.pt = rand(...TUNE.bossRest) * enr; }
     }
   }
 

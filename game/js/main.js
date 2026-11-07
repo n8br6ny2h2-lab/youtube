@@ -239,7 +239,7 @@ function battleHtml() {
   </div>`;
 }
 
-const recommendedPower = (ch, d = 0) => Math.round(1000 * Math.pow(1.38, ch - 1) * [1, 3.6, 8][d]);
+const recommendedPower = (ch, d = 0) => Math.round(1000 * Math.pow(D.TUNE.recPowerPerChapter, ch - 1) * [1, 3.6, 8][d]);
 const diffUnlocked = (ch, d) => d === 0 || !!S.cleared[`${ch}:${d - 1}`] || (d === 1 && ch < S.maxChapter && !Object.keys(S.cleared).length);
 const diffOf = ch => (diffUnlocked(ch, S.diffSel[ch] || 0) ? S.diffSel[ch] || 0 : 0);
 function tipText() {
@@ -647,7 +647,7 @@ async function bulkSalvage() {
 function statsModal() {
   const s = stats();
   const rows = [['⚔️ Saldırı', fmt(s.atk)], ['❤️ Can', fmt(s.hp)], ['⚡ Saldırı Hızı', s.aspd + '/sn'], ['🎯 Kritik Şansı', '%' + s.crit.toFixed(1)], ['💥 Kritik Hasarı', '%' + s.critDmg.toFixed(0)],
-    ['🧛 Can Çalma', '%' + s.lifesteal.toFixed(1)], ['💚 Can Yenileme', '%' + s.regen.toFixed(1) + '/sn'], ['🛡️ Hasar Azaltma', '%' + s.dr.toFixed(1)], ['💨 Kaçınma', '%' + s.dodge.toFixed(1)],
+    ['🧛 Can Çalma', '%' + s.lifesteal.toFixed(1)], ['💚 Can Yenileme', '%' + (s.regen * D.TUNE.regenMul).toFixed(2) + '/sn'], ['🛡️ Hasar Azaltma', '%' + s.dr.toFixed(1)], ['💨 Kaçınma', '%' + s.dodge.toFixed(1)],
     ['👟 Hareket', s.move], ['🔥 Yakma', '%' + s.burn.toFixed(0)], ['❄️ Dondurma', '%' + s.freeze.toFixed(0)], ['⚡ Şimşek', '%' + s.chain.toFixed(0)], ['🌵 Diken', '%' + s.thorns.toFixed(0)],
     ['👑 Boss Hasarı', '%' + s.bossDmg.toFixed(0)], ['🎯 Çoklu Atış', '+' + s.multishot], ['📌 Delici', '+' + s.pierce], ['🔁 Sekme', '+' + s.bounce], ['🪙 Altın', '+%' + s.gold.toFixed(0)], ['📘 Tecrübe', '+%' + s.xp.toFixed(0)]];
   modal(`<h2>Karakter İstatistikleri</h2><div class="statgrid">${rows.map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('')}</div>
@@ -1139,10 +1139,10 @@ function setupDemo(ch) {
   S.maxChapter = Math.max(S.maxChapter, ch);
   for (let c = 1; c < ch; c++) S.cleared[`${c}:0`] = true;
   if (!S.demoGear) {
-    // önerilen gücün biraz üstünde: Destansı Sv15 eşyalar, 4 parça Ejder seti
+    // önerilen gücün biraz üstünde: Destansı Sv13 eşyalar, 4 parça Ejder seti
     for (const slot of D.SLOT_ORDER) {
       const it = E.genItem(slot, 3, { set: ['weapon', 'helmet', 'armor', 'boots'].includes(slot) ? 'dragon' : null, base: slot === 'weapon' ? 'bow' : undefined });
-      it.lvl = 15; it.isNew = false; S.inventory.push(it); S.equipped[slot] = it.uid;
+      it.lvl = 13; it.isNew = false; S.inventory.push(it); S.equipped[slot] = it.uid;
     }
     S.demoGear = true;
   }
