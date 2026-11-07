@@ -9,6 +9,8 @@ const path = require('path');
 const NAME = process.argv[2], OUT = process.argv[3], URL = process.argv[4] || 'http://localhost:8765/';
 const CTA = process.env.PROMO_CTA || 'App Store\'da ücretsiz';
 const FPS = 30, DT = 1000 / FPS;
+// Ölçek: 3 → 1080x1920, 6 → 2160x3840 (4K). Oyun tuvali de bu yoğunlukta çizilir (büyütme yok).
+const SCALE = +process.env.PROMO_SCALE || 3;
 fs.mkdirSync(path.join(OUT, 'frames'), { recursive: true });
 
 // ---------------- sayfaya enjekte edilen sanal saat + yazı katmanı ----------------
@@ -79,7 +81,8 @@ function harness() {
 // ---------------- yardımcılar ----------------
 (async () => {
   const b = await chromium.launch();
-  const ctx = await b.newContext({ viewport: { width: 360, height: 640 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
+  const ctx = await b.newContext({ viewport: { width: 360, height: 640 }, deviceScaleFactor: SCALE, isMobile: true, hasTouch: true });
+  await ctx.addInitScript(s => { window.EFSUN_MAX_DPR = s; }, SCALE);
   await ctx.addInitScript(harness);
   const p = await ctx.newPage();
   const errs = []; p.on('pageerror', e => errs.push(e.message));
@@ -91,7 +94,7 @@ function harness() {
   const ev = (type, at = T) => events.push({ t: +at.toFixed(3), type });
   const shot = async () => {
     await p.evaluate(t => window.__promo.render(t), T);
-    await p.screenshot({ path: path.join(OUT, 'frames', String(F).padStart(5, '0') + '.jpg'), type: 'jpeg', quality: 92 });
+    await p.screenshot({ path: path.join(OUT, 'frames', String(F).padStart(5, '0') + '.jpg'), type: 'jpeg', quality: 97 });
     F++;
     if (F === 20) { const ms = (Date.now() - realStart) / 20; await cdp.send('Animation.setPlaybackRate', { playbackRate: Math.min(1, DT / ms) }); }
   };

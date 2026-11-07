@@ -156,7 +156,8 @@ export class Game {
   }
 
   resize() {
-    const dpr = Math.min(2, window.devicePixelRatio || 1) * (this.cfg.quality === 'low' ? 0.6 : 1);
+    // en fazla 2× (mobil performans); tanıtım videosu çekiminde window.EFSUN_MAX_DPR ile yükseltilir (4K)
+    const dpr = Math.min(window.EFSUN_MAX_DPR || 2, window.devicePixelRatio || 1) * (this.cfg.quality === 'low' ? 0.6 : 1);
     this.W = this.c.clientWidth || window.innerWidth;
     this.H = this.c.clientHeight || window.innerHeight;
     this.c.width = Math.round(this.W * dpr); this.c.height = Math.round(this.H * dpr);
