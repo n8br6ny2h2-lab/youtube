@@ -1,0 +1,146 @@
+{
+  "title": "İzlemesi Neden Rahatlatıcı? Slime, Bal ve Akışkanların Sakin Bilimi",
+  "thumb_text": "Neden Bu Kadar Rahatlatıcı?",
+  "category": "relax",
+  "description": "Esneyen slime, yavaşça akan bal, suda açılan mürekkep, yükselen lav lambası baloncukları... Bunları izlemek neden bu kadar iyi gelir? Bilge ile 4K tatmin edici görüntüler eşliğinde akışkanların sakin bilimini keşfediyoruz.",
+  "tags": [
+    "slime",
+    "rahatlatıcı video",
+    "tatmin edici",
+    "ASMR",
+    "akışkanlar",
+    "bal",
+    "lav lambası",
+    "uyku öncesi",
+    "Bilge",
+    "Gece Kütüphanesi"
+  ],
+  "sources": [
+    "Poerio, G. L. et al. (2018). More than a feeling: ASMR is characterized by reliable changes in affect and physiology. PLoS ONE",
+    "Kaplan, S. (1995). The restorative benefits of nature: Toward an integrative framework. Journal of Environmental Psychology",
+    "Britannica – Viscosity; Non-Newtonian fluid; Surface tension; Diffusion",
+    "American Chemical Society – Slime chemistry (polyvinyl alcohol and borate cross-linking)",
+    "Smithsonian – The lava lamp (Edward Craven Walker, 1963)",
+    "NASA – Soap bubble thin-film colors"
+  ],
+  "segments": [
+    {
+      "chapter": "Hoş geldin",
+      "visual": "candle flame",
+      "text": "Merhaba, ben Bilge. Gece Kütüphanesi'ne hoş geldin. Bu gece çok az konuşacak, bol bol izleyeceğiz. Ekranda yavaşça akan, esneyen ve süzülen şeyler göreceksin. Rahatça uzan. Ben de arada sana bunların neden bu kadar rahatlatıcı geldiğini anlatacağım."
+    },
+    {
+      "chapter": "Slime",
+      "visual": "slime macro",
+      "gen": true,
+      "text": "Şu esneyen, parlak slime'a bak. Klasik slime, yapıştırıcıdaki uzun polimer zincirlerinin boraks gibi bir maddeyle birbirine gevşekçe bağlanmasıyla oluşur. Bu bağlar sürekli kopup yeniden kurulur. Bu yüzden slime yavaşça akar ama hızla çekersen kopar."
+    },
+    {
+      "chapter": "Ne sıvı ne katı",
+      "visual": "slime stretch",
+      "gen": true,
+      "text": "Slime, bilim insanlarının Newton tipi olmayan akışkan dediği bir maddedir. Su gibi akışkanların davranışı, ona nasıl dokunduğumuza göre değişmez. Slime ise yavaş dokunuşta sıvı gibi, hızlı ve sert dokunuşta katı gibi davranır. Elimizde hem sıvı hem katı tutuyormuşuz gibi hissederiz. Bu ikili davranış, parmaklarımızın hem direnci hem de akışı aynı anda hissetmesini sağlar. Belki de slime'ı izlerken bile ellerimizde o yumuşak direnci hayal ederiz."
+    },
+    {
+      "chapter": "Neden iyi gelir?",
+      "visual": "fluid art",
+      "text": "Bu görüntüler neden iyi gelir? Bir açıklama şu: yavaş, öngörülebilir ve tekrar eden hareketler, zihnimizin dikkatini nazikçe tutar ama yormaz. Psikologlar buna yumuşak büyülenme diyor. Dikkat dağınıklığı azalır, zihin dinlenme fırsatı bulur."
+    },
+    {
+      "chapter": "Mısır nişastası sürprizi",
+      "visual": "cornstarch water",
+      "text": "Mutfakta yapılabilecek bir deney daha var: mısır nişastasını biraz suyla karıştırınca ortaya tuhaf bir macun çıkar. Parmağını yavaşça batırırsan sıvı gibi içine girer, hızla vurursan sert bir yüzeye çarpmış gibi olursun. Slime'ın tersine, bu karışım baskı arttıkça katılaşır."
+    },
+    {
+      "chapter": "Bal gibi yavaş",
+      "visual": "honey",
+      "text": "Şimdi kaşıktan süzülen bala bak. Bal, sudan binlerce kat daha ağır akar. Akışkanların bu direncine viskozite denir. Bal katlanarak birikir, küçük kıvrımlar oluşturur. Her damla aceleyle değil, kendi ritminde düşer. Biraz da bu sakin ritim için izlemesi keyiflidir."
+    },
+    {
+      "chapter": "Sıcaklık ve akış",
+      "visual": "honey",
+      "text": "Balı ısıtırsan daha kolay akar, soğutursan katılaşır. Çoğu sıvının viskozitesi sıcaklıkla azalır, çünkü ısınan moleküller birbirinin yanından daha kolay kayar. Kışın yavaşlayan bal, aslında moleküllerin de soğuktan biraz tembelleştiğini gösterir."
+    },
+    {
+      "chapter": "Suda açılan mürekkep",
+      "visual": "ink water",
+      "text": "Bir damla mürekkep suya düştüğünde, önce bir bulut gibi açılır, sonra ince kıvrımlarla yayılır. Bu yayılmada iki şey rol oynar. Birincisi, moleküllerin rastgele hareketiyle oluşan yavaş yayılma, yani difüzyon. İkincisi, suyun içindeki küçük akıntılar."
+    },
+    {
+      "chapter": "Hiç tekrarlanmayan desenler",
+      "visual": "ink water",
+      "text": "Mürekkebin oluşturduğu desenler hiçbir zaman tam olarak tekrarlanmaz. Aynı damla, aynı suya ikinci kez düşse bile başka bir şekil çizer. Belki de bu yüzden gözümüzü ayıramayız; her an yeni ama sakin bir şey görürüz."
+    },
+    {
+      "chapter": "Lav lambası",
+      "visual": "lava lamp",
+      "text": "Şimdi lav lambasına geçelim. İlk lav lambası 1963 yılında tasarlandı. İçinde sıvının içinde yüzen renkli bir mum karışımı vardır. Alttaki lamba mumu ısıtır; ısınan mum genleşir, hafifler ve yükselir. Yukarıda soğuyunca ağırlaşır ve yavaşça geri iner."
+    },
+    {
+      "chapter": "Sonsuz döngü",
+      "visual": "lava lamp",
+      "text": "Bu yükselme ve inme, ısı olduğu sürece durmadan sürer. Baloncuklar birleşir, ayrılır, yeniden birleşir. Lav lambası, aslında masanın üzerindeki küçük bir hava durumu gibidir: ısınan yükselir, soğuyan iner. Bu ritim, nefes alıp vermeye benzer."
+    },
+    {
+      "chapter": "Sabun köpükleri",
+      "visual": "soap bubbles",
+      "text": "Sabun köpüklerine bak. Köpükler yuvarlaktır, çünkü yüzey gerilimi zarı olabildiğince küçük bir yüzeyle sarmaya çalışır. Aynı havayı en az yüzeyle saran şekil kürendir. Bu yüzden serbestçe süzülen bir köpük hep top gibi görünür."
+    },
+    {
+      "chapter": "Köpükteki gökkuşağı",
+      "visual": "soap bubbles",
+      "text": "Köpüklerin üzerindeki renkler aslında boya değildir. Zar o kadar incedir ki, ışık zarın iç ve dış yüzeyinden yansıyıp kendi kendisiyle karışır. Zarın kalınlığı değiştikçe renkler de değişir. Köpük patlamadan hemen önce zar en ince haline gelir ve renkler kaybolur. Bir köpüğün zarı, çoğu zaman bir saç telinden yüzlerce kat incedir."
+    },
+    {
+      "chapter": "Kumun dalgaları",
+      "visual": "sand waves",
+      "text": "Şimdi rüzgârın kuma çizdiği dalgalara bak. Rüzgâr kum tanelerini zıplatarak taşır ve bu taneler düzenli aralıklarla küçük sırtlar oluşturur. Kum dalgaları, akan suyun dibinde de oluşur. Doğa, akışın izini kuma yavaş yavaş kaydeder."
+    },
+    {
+      "chapter": "Kumdan şekiller",
+      "visual": "sand texture",
+      "text": "Islak kum ise bambaşkadır. Taneler arasındaki ince su köprüleri onları birbirine tutturur. Bu yüzden kuru kumla kale yapılamaz ama ıslak kumla yapılabilir. Su fazla olursa köprüler kaybolur ve kale yeniden akmaya başlar. Doğru oran, kumun tutunma sırrıdır."
+    },
+    {
+      "chapter": "Cama vuran yağmur",
+      "visual": "rain window",
+      "text": "Camdan süzülen yağmur damlaları da kendi yollarını çizer. Damlalar büyüdükçe ağırlaşır, kayar ve yollarına çıkan küçük damlaları toplar. Yağmurun sesi pek çok kişiye huzur verir; düzenli ama hiçbir zaman tam tekrar etmeyen bir sestir."
+    },
+    {
+      "chapter": "ASMR ve beden",
+      "visual": "water drops",
+      "text": "Bazı insanlar bu tür görüntü ve seslerle başlarında hoş bir karıncalanma hisseder. Buna ASMR denir. Bir araştırmada, ASMR yaşayan kişilerin bu videoları izlerken kalp atışlarının dakikada ortalama üç vuruş kadar yavaşladığı ölçüldü. Bilim bu konuyu hâlâ inceliyor."
+    },
+    {
+      "chapter": "Herkes için farklı",
+      "visual": "fluid art",
+      "text": "Herkes aynı şeyden rahatlamaz. Kimine bal, kimine yağmur, kimine slime iyi gelir. Önemli olan, bedenin ve zihnin yavaşladığı o anı fark etmek. Şu an omuzlarının biraz daha gevşediğini hissediyorsan, bu bölüm görevini yapıyor demektir."
+    },
+    {
+      "chapter": "Son dokunuş",
+      "visual": "candle flame",
+      "text": "Mum alevi bile bir akışkandır. Isınan hava yükselir, yanında yeni hava çeker ve alev bu yüzden yukarı doğru uzanır, hafifçe titrer. Yavaşça yanan bir alevi izlemek, belki de insanların binlerce yıldır bildiği en eski rahatlama yoludur."
+    },
+    {
+      "chapter": "İyi geceler",
+      "visual": "lava lamp",
+      "text": "Bu gecelik bu kadar. Akışkanların sakin ritmi seninle kalsın. Sana bir sorum var: Seni en çok hangisi rahatlattı; slime mı, bal mı, mürekkep mi, yoksa yağmur mu? Yorumlarda bana yaz. Tatlı rüyalar, ben Bilge."
+    }
+  ],
+  "shorts": [
+    {
+      "segments": [
+        2
+      ],
+      "title": "Slime Sıvı mı Katı mı?",
+      "hook": "Slime sıvı mı, katı mı? Cevap ikisi birden."
+    },
+    {
+      "segments": [
+        12
+      ],
+      "title": "Köpükteki Renklerin Sırrı",
+      "hook": "Sabun köpüğündeki renkler aslında boya değil."
+    }
+  ]
+}

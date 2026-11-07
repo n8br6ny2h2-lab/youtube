@@ -1,0 +1,133 @@
+{
+  "title": "Gökyüzünün Işık Oyunları: Gökkuşağı, Şimşek ve Kutup Işıkları",
+  "thumb_text": "Gökyüzünün Işık Oyunları",
+  "category": "curiosity",
+  "description": "Gökyüzü neden mavi, gün batımı neden kızıl? Gökkuşağı neden hep karşımızda, şimşek neden bu kadar sıcak, kutup ışıkları nereden geliyor? Bilge ile uykudan önce gökyüzünün ışık oyunlarını sakin bir yolculukla keşfediyoruz.",
+  "tags": [
+    "gökkuşağı",
+    "şimşek",
+    "kutup ışıkları",
+    "aurora",
+    "gökyüzü neden mavi",
+    "doğa olayları",
+    "uyku öncesi",
+    "Bilge",
+    "Gece Kütüphanesi"
+  ],
+  "sources": [
+    "NOAA – SciJinks: Why is the sky blue? / How do rainbows form?",
+    "NOAA National Severe Storms Laboratory – Lightning basics",
+    "NASA – Earth Observatory: Lightning flash rate (about 44 flashes per second)",
+    "NOAA Space Weather Prediction Center – Aurora",
+    "UK Met Office – Halos, fog and rainbows",
+    "Britannica – Rainbow; Rayleigh scattering; Aurora"
+  ],
+  "segments": [
+    {
+      "chapter": "Hoş geldin",
+      "visual": "sunset clouds",
+      "text": "Merhaba, ben Bilge. Gece Kütüphanesi'ne hoş geldin. Bu gece başımızı kaldırıp gökyüzüne bakacağız. Ama yıldızlara değil; gökyüzünün ışıkla oynadığı oyunlara. Rahatça uzan, nefesini yavaşlat. Işığın havada, suda ve buzda nasıl dans ettiğini birlikte merak edelim."
+    },
+    {
+      "chapter": "Gökyüzü neden mavi?",
+      "visual": "blue sky",
+      "text": "Güneş ışığı beyaz görünür ama aslında bütün renklerin karışımıdır. Bu ışık havadaki minicik moleküllere çarptığında, kısa dalga boylu mavi ışık çok daha fazla saçılır. Böylece gökyüzünün her yerinden gözümüze mavi ışık gelir. Bu olaya Rayleigh saçılması denir."
+    },
+    {
+      "chapter": "Gün batımının kızıllığı",
+      "visual": "sunrise sea",
+      "text": "Akşam olduğunda Güneş ufka iner ve ışığı bize ulaşmak için atmosferde çok daha uzun bir yol kat eder. Bu uzun yolculukta mavi ışığın büyük kısmı saçılıp kaybolur. Geriye turuncu ve kırmızı tonlar kalır. Gün batımının sıcak renkleri, ışığın bu uzun yolculuğunun hatırasıdır."
+    },
+    {
+      "chapter": "Gökkuşağının sırrı",
+      "visual": "rainbow",
+      "text": "Şimdi bir yağmur sonrasını düşün. Güneş arkandayken önündeki yağmur damlalarına ışık girer. Işık damlanın içinde kırılır, arka yüzeyinden yansır ve çıkarken bir kez daha kırılır. Her renk biraz farklı açıyla büküldüğü için beyaz ışık renklerine ayrılır ve karşımızda bir yay belirir."
+    },
+    {
+      "chapter": "Herkesin kendi gökkuşağı",
+      "visual": "rain drops",
+      "text": "Gökkuşağı, gökyüzünde belirli bir yerde duran bir nesne değildir. Güneş'in tam karşısındaki noktanın çevresinde, yaklaşık kırk iki derecelik bir açıda görünür. Yanındaki kişi bile senden biraz farklı damlalardan gelen ışığı görür. Yani her izleyicinin gökkuşağı, aslında kendine aittir. Arkandaki Güneş, başın ve gökkuşağının merkezi her zaman aynı çizgi üzerindedir; bu yüzden ona doğru yürüsen de hiç yaklaşamazsın."
+    },
+    {
+      "chapter": "Çift gökkuşağı",
+      "visual": "rainbow",
+      "text": "Bazen ana yayın dışında, daha soluk ikinci bir gökkuşağı görünür. Bu ikinci yay, ışığın damla içinde iki kez yansımasıyla oluşur ve renkleri ters sıradadır. İki yayın arasındaki gökyüzü biraz daha karanlık görünür. Bu koyu şeride, onu ilk tarif eden düşünürün adıyla Aleksandr bandı denir."
+    },
+    {
+      "chapter": "Güneşin halkası",
+      "visual": "ice crystals",
+      "text": "Yüksek ve ince bulutların olduğu bir günde, Güneş'in ya da Ay'ın çevresinde soluk bir halka görebilirsin. Bu halka, havada asılı duran altıgen biçimli minicik buz kristallerinin ışığı yaklaşık yirmi iki derece bükmesiyle oluşur. Eskiden insanlar bu halkayı havanın değişeceğinin işareti sayardı."
+    },
+    {
+      "chapter": "Yere inen bulut",
+      "visual": "fog forest",
+      "text": "Sabahları vadileri dolduran sis aslında yere inmiş bir buluttur. Gece toprak soğur, üzerindeki nemli hava da soğuyunca su buharı minicik damlacıklara dönüşür. Bu damlacıklar ışığı her yöne saçtığı için sisin içinde her şey yumuşak ve beyaz görünür."
+    },
+    {
+      "chapter": "Fırtınanın ışığı",
+      "visual": "thunderstorm",
+      "text": "Şimdi daha güçlü bir ışığa geçelim: şimşek. Fırtına bulutlarının içinde buz parçacıkları ve su damlaları birbirine sürtünerek elektrik yükü biriktirir. Yük çok büyüdüğünde, hava bu elektriği tutamaz ve devasa bir kıvılcım bulutun içinde ya da bulutla yer arasında çakar."
+    },
+    {
+      "chapter": "Güneşten sıcak",
+      "visual": "lightning",
+      "text": "Bir şimşek kanalının içindeki hava, bir anlığına yaklaşık otuz bin dereceye kadar ısınabilir. Bu, Güneş'in yüzeyinden birkaç kat daha sıcaktır. Hava bu ani ısınmayla patlar gibi genişler. Duyduğumuz gök gürültüsü, işte bu genişlemenin sesidir. Bütün bunlar saniyenin küçük bir kesrinde olur; gördüğümüz parlak çizgi, aslında art arda çakan birkaç atımdan oluşur."
+    },
+    {
+      "chapter": "Mesafeyi saymak",
+      "visual": "clouds timelapse",
+      "text": "Işık bize neredeyse anında ulaşır, ses ise çok daha yavaştır. Şimşeği gördükten sonra gürültüyü duyana kadar geçen saniyeleri say. Her üç saniye, aşağı yukarı bir kilometreye denk gelir. Bu basit hesap, fırtınanın ne kadar uzakta olduğunu anlamanın en eski yoludur."
+    },
+    {
+      "chapter": "Saniyede kırk şimşek",
+      "visual": "thunderstorm",
+      "text": "Uydu ölçümlerine göre Dünya'nın bir yerinde her saniye ortalama kırk dörde yakın şimşek çakıyor. Bu şimşeklerin çoğu tropik bölgelerde, karaların üzerinde oluşur. Yani biz şu an sakince uzanırken, gezegenin başka bir köşesinde gökyüzü ışıkla dolup taşıyor."
+    },
+    {
+      "chapter": "Kutup ışıkları",
+      "visual": "aurora",
+      "text": "Gökyüzünün en büyüleyici ışık oyunu belki de kutup ışıklarıdır. Güneş, uzaya sürekli olarak elektrik yüklü parçacıklar savurur. Buna Güneş rüzgârı denir. Dünya'nın manyetik alanı bu parçacıkların çoğunu yönlendirir ve onları kutuplara yakın bölgelere doğru taşır."
+    },
+    {
+      "chapter": "Renklerin kaynağı",
+      "visual": "northern lights",
+      "text": "Bu parçacıklar atmosferin yüksek katmanlarındaki gazlara çarptığında, gazlar ışık saçar. En sık görülen yeşil renk, yaklaşık yüz ile üç yüz kilometre yükseklikteki oksijenden gelir. Daha yükseklerdeki oksijen kırmızı, azot ise mavi ve mor tonlar verir."
+    },
+    {
+      "chapter": "İki kutbun ışıkları",
+      "visual": "aurora",
+      "text": "Kutup ışıkları yalnızca kuzeyde görülmez. Kuzeydekilere kuzey ışıkları, güneydekilere güney ışıkları denir ve ikisi çoğu zaman aynı anda oluşur. Güneş'in daha etkin olduğu dönemlerde bu ışıklar normalden çok daha güneydeki ülkelerden bile görülebilir."
+    },
+    {
+      "chapter": "Altıgen kar taneleri",
+      "visual": "snowflake",
+      "text": "Işığın son durağı kar taneleri. Kar taneleri neredeyse her zaman altı kollu ya da altıgen biçimdedir. Bunun nedeni, donan su moleküllerinin birbirine altıgen bir düzende bağlanmasıdır. Her tanenin kollarının şekli ise düşerken geçtiği havanın sıcaklığına ve nemine göre değişir."
+    },
+    {
+      "chapter": "Gece gökyüzü",
+      "visual": "moon",
+      "text": "Bu ışık oyunlarının hepsi aynı şeyden doğar: ışığın havayla, suyla ve buzla karşılaşmasından. Gökyüzü, her gün bize ücretsiz bir gösteri sunar. Tek yapmamız gereken başımızı kaldırıp bakmak ve biraz merak etmektir."
+    },
+    {
+      "chapter": "İyi geceler",
+      "visual": "northern lights",
+      "text": "Bu gecelik bu kadar. Yarın gökyüzüne baktığında, belki bir halka, belki bir gökkuşağı, belki de sadece mavinin kendisi sana bu geceyi hatırlatır. Sana bir sorum var: Hiç çift gökkuşağı ya da kutup ışığı gördün mü? Yorumlarda bana anlat. İyi geceler, ben Bilge."
+    }
+  ],
+  "shorts": [
+    {
+      "segments": [
+        4
+      ],
+      "title": "Herkesin Gökkuşağı Farklı",
+      "hook": "Yanındaki kişiyle aynı gökkuşağını görmediğini biliyor muydun?"
+    },
+    {
+      "segments": [
+        9
+      ],
+      "title": "Şimşek Güneşten Sıcak",
+      "hook": "Bir şimşek, Güneş'in yüzeyinden bile daha sıcak olabilir."
+    }
+  ]
+}
