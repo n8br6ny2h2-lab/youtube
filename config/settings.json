@@ -95,13 +95,13 @@
   "cinematic": {
     "enabled": true,
     "model": "gemini-omni-1.2-flash",
-    "monthly_budget_usd": 48,
-    "usd_per_clip": 0.5,
+    "monthly_budget_usd": 95,
+    "usd_per_clip": 0.55,
     "bulutkent_intro": true,
     "shorts_3d_per_long": 1,
     "max_clips_per_short": 3,
-    "gece_relax_clips": 2,
-    "_not": "usd_per_clip: 7 Kasım faturası ~370 TL / ~20 klip (~19 TL/klip) gözlemine göre; Bulutkent haftada 2 tam 3D bölüm",
+    "gece_relax_clips": 4,
+    "_not": "Aylık üst sınır 100 $ (kullanıcı onayı, 7 Kasım); sistem 95 $'da durur. usd_per_clip ihtiyatlı (fatura ~19 TL/klip).",
     "full_episodes": true,
     "max_clips_per_episode": 12
   }
