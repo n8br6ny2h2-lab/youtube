@@ -87,8 +87,9 @@ def synth(text: str, speaker: str, out_dir: Path) -> Path:
     eng = engine()
     key = hashlib.sha1(f"{eng}|{speaker}|{text}|{v}".encode()).hexdigest()[:14]
     out = out_dir / f"{speaker}_{key}.wav"
-    if out.exists():
+    if out.exists() and out.stat().st_size > 2000:
         return out
+    out.unlink(missing_ok=True)  # yarım kalmış (kesilmiş) dosya yeniden üretilir
     raw = out_dir / f"raw_{key}.wav"
     clean = _clean_text(text)
     if eng == "elevenlabs":
