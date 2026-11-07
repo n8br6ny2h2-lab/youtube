@@ -25,6 +25,23 @@ cd game && python3 -m http.server 8080   →  http://localhost:8080
 ### Savaş içi (19 güç)
 Çoklu Atış, Çapraz Atış, Arka Atış, Delici, Seken Atış, Güç Patlaması, Hız Ruhu, Keskin Göz, Dev Kalbi, Şifa, Vampir Dişi, Ateş Küresi, Dönen Bıçaklar, Yıldırım, Buz Halkası, Meteor, Ruh Kalkanı, Mıknatıs, Rüzgâr Adımı.
 
+### 🧬 Evrimler (6)
+Aktif beceri en yüksek seviyede + eşleşen destek gücü alınmışsa seviye atlarken (%50) veya 🎁 hazine sandığında (kesin) evrim seçeneği çıkar. Seçim kartında hangi gücün hangi evrime gittiği yazar.
+
+| Evrim | Gerekenler | Etki |
+|---|---|---|
+| ☀️ Güneş Çemberi | Ateş Küresi (4) + Güç Patlaması | Büyük küreler, 2× hasar, her vuruşta yakma |
+| 🌪️ Kasırga | Dönen Bıçaklar (3) + Hız Ruhu | +2 bıçak, 2× dönüş, %60 daha sert |
+| ⛈️ Gök Hükmü | Yıldırım (4) + Keskin Göz | Her saniye yıldırım, 2 düşmana sıçrar |
+| 🧊 Mutlak Sıfır | Buz Halkası (3) + Dev Kalbi | Daha geniş halka, her 3 sn dondurma |
+| 🌋 Kıyamet Yağmuru | Meteor (3) + Mıknatıs | 2× meteor, 2× sıklık, geniş patlama |
+| 😇 Kutsal Aura | Ruh Kalkanı (3) + Vampir Dişi | Kalkan 3 sn'de yenilenir, kırılınca şok dalgası |
+
+- **🎁 Hazine sandığı**: mini boss her zaman, seçkin düşmanlar %8 şansla düşürür. Toplayınca ek güç seçimi (evrim hazırsa öncelikli).
+- **📊 Hasar dökümü**: savaş sonunda hangi gücün ne kadar hasar verdiği gösterilir.
+- **⚡ Hızlı Tarama**: temizlenmiş bölüm/zorluk günde 3 kez oynamadan geçilir (5 enerji, zafer ganimeti).
+- **🧩 Kahraman parçaları**: her zaferde seçili kahramana 2+ parça; Elmas sandıkta %35 şansla 1-3, Efsane sandıkta 2-5 parça.
+
 ### Düşmanlar ve bosslar
 6 düşman türü (kovalayan, zikzak yarasa, okçu, golem, intihar bombacısı, ışınlanan büyücü) ve seçkin (altın halkalı) sürümleri.
 5 bölüm boss'u + mini boss. Her boss 6 desenden 3'ünü kullanır: halka mermi, sarmal, yelpaze atış, kırmızı çizgiyle uyarılan **hücum**, kırmızı daireyle uyarılan **yere vuruş**, minyon çağırma. Canı yarının altına inince saldırıları hızlanır.

@@ -6,7 +6,7 @@ import { Store, Ads, Sfx, haptic, share, scheduleEnergyNotification, FEATURES } 
 const ADS = FEATURES.ads;
 import { Account } from './account.js';
 import { createMenus } from './menus.js';
-import { Game, RUN_SKILLS } from './game.js';
+import { Game, skillDef } from './game.js';
 import { animatePortraits } from './art.js';
 const HERO_W = { kaya: 'sword', lina: 'bow', zerk: 'sword', nyx: 'staff' };
 const heroW = id => (id === S.hero ? stats().wtype : HERO_W[id]);
@@ -216,7 +216,10 @@ function battleHtml() {
       <div class="diffs">${D.DIFFS.map(df => { const un = diffUnlocked(selCh, df.id); return `<button class="${dsel === df.id ? 'on' : ''}" style="--dc:${df.color}" data-act="${un ? 'diff' : 'difflock'}" data-d="${df.id}">${un ? df.icon : '🔒'} ${df.name}${df.loot > 1 ? `<small>${df.loot}× ganimet</small>` : '<small>&nbsp;</small>'}</button>`; }).join('')}</div>
     </div>
     <div class="power-big ${st.power < recommendedPower(selCh, dsel) ? 'low' : ''}">⚡ ${fmt(st.power)} <small>Önerilen: ${fmt(recommendedPower(selCh, dsel))}</small></div>
+    <div class="play-row">
     <button class="btn play" data-act="play" style="--c:${dsel === 2 ? '#e11d48' : dsel === 1 ? '#f97316' : '#f59e0b'}"><span>SAVAŞ</span><small>${dinfo.icon} ${dinfo.name} • 🔋 ${D.GAME.energyPerRun}</small></button>
+    ${S.cleared[`${selCh}:${dsel}`] ? `<button class="btn sweep" data-act="sweep" aria-label="Hızlı Tarama"><span>⚡</span>Tarama<small>${D.GAME.sweepsPerDay - (S.daily.sweeps || 0)}/${D.GAME.sweepsPerDay}</small></button>` : ''}
+    </div>
     <div class="tip">${tipText()}</div>
   </div>`;
 }
@@ -415,6 +418,7 @@ const ACT = {
   qtab: d => { questTab = d.q; render(); },
   ch: d => { selCh = Math.max(1, Math.min(S.maxChapter, selCh + +d.d)); play('click'); render(); },
   play: () => { const d = diffOf(selCh); startBattle(selCh, { ...D.DIFFS[d].mods, diff: d, lootMul: D.DIFFS[d].loot }); },
+  sweep: () => sweep(),
   difflock: d => { play('error'); toast(`Önce bu bölümü ${D.DIFFS[+d.d - 1].name} seviyesinde temizle`, 'bad'); },
   filter: d => { invFilter = d.f; render(); },
   item: d => openItem(d.uid),
@@ -637,7 +641,7 @@ function heroesModal() {
       }
       return `<div class="hrow ${own ? '' : 'locked'}" style="--hc:${h.color}"><div class="hicon"><canvas class="hero-cv" data-small="1" data-face="1" data-hero="${id}" data-w="${heroW(id)}"></canvas></div>
         <div class="hinfo"><b>${h.name} <small>${h.title}${own ? ` • Sv${own.lvl}` : ''}</small></b><span>${h.passive}</span><small>⚔️${fmt(st.atk)} ❤️${fmt(st.hp)} ⚡${fmt(st.power)}</small></div>${btn}</div>`;
-    }).join('')}<p class="muted small center">Kahraman parçaları 🧩 sandıklardan, kitlerden ve Elmas Sandık bonuslarından gelir. Her seviye +%6 saldırı ve can.</p>`;
+    }).join('')}<p class="muted small center">Kahraman parçaları 🧩 bölüm zaferlerinden (seçili kahramana), Elmas ve Efsane sandıklardan gelir. Her seviye +%6 saldırı ve can.</p>`;
   };
   draw();
   m.el.addEventListener('click', e => {
@@ -731,9 +735,10 @@ function buyChest(id, n) {
 
 function chestReveal(items) {
   const best = Math.max(...items.map(i => i.rarity));
+  const extra = Object.entries(items.shards || {}).map(([h, n]) => ({ icon: '🧩', text: `${n} ${D.HEROES[h].name} Parçası` }));
   play(best >= 4 ? 'legend' : 'buy'); vib(best >= 4 ? 80 : 20);
   if (best >= 4) document.body.classList.add('flash-' + best), setTimeout(() => document.body.classList.remove('flash-' + best), 700);
-  rewardPopup(items.map(it => ({ icon: E.itemIcon(it), text: E.itemName(it), rarity: it.rarity })), best >= 5 ? '🌟 MİTİK!' : best >= 4 ? '🔥 EFSANEVİ!' : 'Sandık Açıldı');
+  rewardPopup([...items.map(it => ({ icon: E.itemIcon(it), text: E.itemName(it), rarity: it.rarity })), ...extra], best >= 5 ? '🌟 MİTİK!' : best >= 4 ? '🔥 EFSANEVİ!' : 'Sandık Açıldı');
   render();
 }
 
@@ -854,6 +859,25 @@ function upgradeTalent(id) {
   S.talents[id] = l + 1; play('buy'); vib(10); render();
 }
 
+// Temizlenmiş bölümü oynamadan geçip ganimet toplama (türdeki oyunlarda "süpürme")
+function sweep() {
+  const ch = selCh, dl = diffOf(ch);
+  if (!S.cleared[`${ch}:${dl}`]) return;
+  if ((S.daily.sweeps || 0) >= D.GAME.sweepsPerDay) { play('error'); return toast('Bugünkü tarama hakkın bitti. Yarın yenilenir!', 'bad'); }
+  if (S.energy < D.GAME.energyPerRun) { play('error'); return energyModal(); }
+  if (S.energy >= E.energyMax(S)) S.energyTs = Date.now();
+  S.energy -= D.GAME.energyPerRun;
+  S.daily.sweeps = (S.daily.sweeps || 0) + 1;
+  const kills = 150 + ch * 12, st = stats();
+  const res = { victory: true, chapter: ch, wave: D.GAME.wavesPerChapter, kills, goldPicked: Math.round(kills * 0.22 * (3 + ch * 2)), runes: 2 + 5 + Math.floor(ch / 2), maxCombo: 0, goldBonus: st.gold, bossKills: 2 };
+  const loot = E.runLoot(S, res, { ...D.DIFFS[dl].mods, diff: dl, lootMul: D.DIFFS[dl].loot });
+  S.stats.runs++; S.stats.kills += kills; S.stats.bossKills += 2;
+  E.progress(S, 'runs'); E.progress(S, 'kills', kills); E.progress(S, 'boss', 2);
+  play('win'); vib(30);
+  rewardPopup(E.grant(S, loot), '⚡ Hızlı Tarama', `${D.chapterInfo(ch).title} • ${D.DIFFS[dl].icon} ${D.DIFFS[dl].name}`);
+  save(true); render();
+}
+
 // ============================================================ SAVAŞ AKIŞI
 function startBattle(chapter, mods = null) {
   if (S.energy < D.GAME.energyPerRun) { play('error'); return energyModal(); }
@@ -918,11 +942,11 @@ function hud(d) {
   else H.boss.hidden = true;
 }
 
-function levelUpModal(choices, cb) {
-  const m = modal('', { cls: 'levelup', closable: false });
+function levelUpModal(choices, cb, opt = {}) {
+  const m = modal('', { cls: 'levelup' + (opt.chest ? ' chestup' : ''), closable: false });
   const draw = list => {
-    m.el.innerHTML = `<h2 class="glow">SEVİYE ATLADIN!</h2><p class="muted center">Bir güç seç</p>
-      <div class="skills">${list.map(s => `<button class="skill" data-id="${s.id}"><div class="sk-i">${s.icon}</div><b>${s.name}</b><small>${s.desc}</small><div class="stars">${'★'.repeat(s.lvl)}${'☆'.repeat(Math.max(0, Math.min(s.max, 6) - s.lvl))}</div></button>`).join('')}</div>
+    m.el.innerHTML = `<h2 class="glow">${opt.chest ? '🎁 HAZİNE SANDIĞI!' : 'SEVİYE ATLADIN!'}</h2><p class="muted center">${list.some(s => s.evo) ? '🧬 Evrim hazır!' : 'Bir güç seç'}</p>
+      <div class="skills">${list.map(s => `<button class="skill ${s.evo ? 'evo' : ''}" data-id="${s.id}"><div class="sk-i">${s.icon}</div><b>${s.evo ? 'EVRİM: ' : ''}${s.name}</b><small>${s.desc}</small>${s.evo ? '<div class="stars">🧬 Süper güç</div>' : `<div class="stars">${'★'.repeat(s.lvl)}${'☆'.repeat(Math.max(0, Math.min(s.max, 6) - s.lvl))}</div>`}${s.hint ? `<em class="sk-hint">${s.hint}</em>` : ''}</button>`).join('')}</div>
       ${run.rerolls > 0 ? `<button class="btn blue small" data-r>${ADS ? '📺' : '🔄'} Yenile</button>` : ''}`;
   };
   draw(choices);
@@ -930,7 +954,7 @@ function levelUpModal(choices, cb) {
     const s = e.target.closest('.skill');
     if (s) { play('click'); vib(15); m.close(); cb(s.dataset.id); return; }
     if (e.target.closest('[data-r]')) {
-      if (await watchAd()) { run.rerolls--; draw(game.skillChoices()); }
+      if (await watchAd()) { run.rerolls--; draw(game.skillChoices(3, opt.chest)); }
     }
   });
 }
@@ -952,7 +976,7 @@ function pauseMenu() {
   });
 }
 
-const skillIcon = id => RUN_SKILLS.find(s => s.id === id)?.icon || '•';
+const skillIcon = id => skillDef(id)?.icon || '•';
 
 function deathModal(canRevive, cb) {
   if (!canRevive) return cb(false);
@@ -991,6 +1015,7 @@ function endModal(res) {
   const m = modal(`<div class="res-head ${res.victory ? 'win' : 'lose'}"><h2>${res.victory ? '🏆 ZAFER!' : '⚔️ Savaş Bitti'}</h2>
       <p>${D.chapterInfo(res.chapter).title} • ${D.DIFFS[dl].icon} ${D.DIFFS[dl].name}</p>${unlocked ? `<div class="unlock">🔓 ${D.chapterInfo(S.maxChapter).title} açıldı!</div>` : ''}${diffUnlock ? `<div class="unlock red">🔓 ${diffUnlock} seviyesi açıldı!</div>` : ''}</div>
     <div class="res-stats"><div><b>${Math.floor(res.wave)}</b><small>Dalga</small></div><div><b>${fmt(res.kills)}</b><small>Düşman</small></div><div><b>${res.maxCombo || 0}</b><small>Kombo</small></div><div><b>${mmss(Math.floor(res.time))}</b><small>Süre</small></div></div>
+    ${dmgHtml(res)}
     <div class="reward-grid">${list.map((r, i) => `<div class="reward-cell ${r.rarity !== undefined ? 'rar' + r.rarity : ''}" style="animation-delay:${i * 80}ms"><div class="ri">${r.icon}</div><div class="rt">${esc(r.text)}</div></div>`).join('')}</div>
     <div class="col gap">
       ${ADS ? `<button class="btn blue" data-e="double">📺 2× Altın (+${fmt(loot.gold)} 🪙)</button>` : ''}
@@ -1002,6 +1027,26 @@ function endModal(res) {
     if (b.dataset.e === 'share') { const blob = await shareCard(res); doShare(`Efsun Avcısı ${res.chapter}. bölüm: ${res.victory ? 'TEMİZLEDİM' : Math.floor(res.wave) + '. dalga'} 💀${res.kills} ⚡${fmt(stats().power)} — Beni geçebilir misin?`, blob); }
     if (b.dataset.e === 'ok') { m.close(); exitBattle(res); }
   });
+}
+
+// Savaş sonu hasar dökümü (hangi güç ne kadar vurdu)
+const DMG_SRC = { weapon: ['🏹', 'Silah'], chain: ['⚡', 'Şimşek Zinciri'], burn: ['🔥', 'Yanma'], orb: ['🔥', 'Ateş Küresi'], blade: ['🌀', 'Dönen Bıçaklar'],
+  bolt: ['🌩️', 'Yıldırım'], frost: ['❄️', 'Buz Halkası'], meteor: ['☄️', 'Meteor'], pet: ['🐾', 'Evcil'], spirit: ['👻', 'Gölge Ruh'], set: ['🛡️', 'Set Gücü'],
+  thorns: ['🌵', 'Diken'], revive: ['✨', 'Diriliş'], evo_bolt: ['⛈️', 'Gök Hükmü'], evo_shield: ['😇', 'Kutsal Aura'] };
+function dmgHtml(res) {
+  const ent = Object.entries(res.dmgBy || {}).filter(([, v]) => v >= 1).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  if (!ent.length) return '';
+  const tot = ent.reduce((s, [, v]) => s + v, 0), wIcon = { bow: '🏹', staff: '🪄', sword: '🗡️' }[stats().wtype];
+  const evo = Object.keys(res.skills || {}).filter(k => k.startsWith('evo_')).map(k => skillDef(k));
+  return `<details class="dmg-break"><summary>📊 Hasar dökümü${evo.length ? ` • 🧬 ${evo.map(v => v.icon).join('')}` : ''}</summary>${ent.map(([k, v]) => {
+    let [ic, nm] = DMG_SRC[k] || ['•', k];
+    if (k === 'weapon') ic = wIcon;
+    if (k === 'orb' && res.skills?.evo_orb) [ic, nm] = ['☀️', 'Güneş Çemberi'];
+    if (k === 'blade' && res.skills?.evo_blade) [ic, nm] = ['🌪️', 'Kasırga'];
+    if (k === 'frost' && res.skills?.evo_frost) [ic, nm] = ['🧊', 'Mutlak Sıfır'];
+    if (k === 'meteor' && res.skills?.evo_meteor) [ic, nm] = ['🌋', 'Kıyamet Yağmuru'];
+    return `<div class="dmg-row"><span>${ic} ${nm}</span><div class="dmg-bar"><i style="width:${(v / ent[0][1] * 100).toFixed(1)}%"></i></div><b>${fmt(v)} <small>%${Math.round(v / tot * 100)}</small></b></div>`;
+  }).join('')}</details>`;
 }
 
 function exitBattle(res) {

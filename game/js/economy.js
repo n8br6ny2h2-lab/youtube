@@ -182,7 +182,11 @@ export function grant(save, rew) {
     if (it.rarity === 5) save.stats.mythics++;
     out.push({ icon: itemIcon(it), text: itemName(it), rarity: it.rarity, item: it });
   }
-  if (rew.chest) for (const it of openChest(save, rew.chest, 1, true)) out.push({ icon: itemIcon(it), text: itemName(it), rarity: it.rarity, item: it });
+  if (rew.chest) {
+    const got = openChest(save, rew.chest, 1, true);
+    for (const it of got) out.push({ icon: itemIcon(it), text: itemName(it), rarity: it.rarity, item: it });
+    for (const [h, n] of Object.entries(got.shards || {})) out.push({ icon: '🧩', text: `${n} ${HEROES[h].name} Parçası` });
+  }
   if (rew.hero && !save.heroes[rew.hero]) { save.heroes[rew.hero] = { lvl: 1, shards: 0 }; out.push({ icon: HEROES[rew.hero].icon, text: `Kahraman: ${HEROES[rew.hero].name}`, rarity: 5 }); }
   for (const [h, n] of Object.entries(rew.shards || {})) {
     if (!save.heroes[h]) save.heroes[h] = { lvl: 1, shards: 0 };
@@ -209,6 +213,15 @@ export function openChest(save, type, count = 1, free = false) {
     const it = genItem('any', r);
     if (r === 5) save.stats.mythics++;
     items.push(it); save.inventory.push(it);
+  }
+  // kahraman parçaları: Elmas sandıkta %35 şansla 1-3, Efsane sandıkta her açılışta 2-5 (sahip olunan kahramanlardan rastgele)
+  const sh = { diamond: [0.35, 1, 3], legend: [1, 2, 5] }[type];
+  if (sh) {
+    const owned = Object.keys(save.heroes);
+    for (let i = 0; i < count; i++) if (Math.random() < sh[0]) {
+      const h = pick(owned), n = Math.round(rnd(sh[1], sh[2]));
+      save.heroes[h].shards += n; items.shards = items.shards || {}; items.shards[h] = (items.shards[h] || 0) + n;
+    }
   }
   save.stats.chests += count;
   progress(save, 'chest', count);
@@ -276,13 +289,14 @@ export function monthlyState(save) {
 export function runLoot(save, res, mods = {}) {
   const ch = res.chapter, mul = (mods.lootMul || 1) * (1 + res.goldBonus / 100) * (save.vip ? 1.25 : 1);
   const gold = Math.floor((res.goldPicked + res.kills * (2 + ch * 0.6) + res.wave * 25 * ch + (res.victory ? 600 * ch : 0) + (res.maxCombo || 0) * 2 * ch) * mul);
-  const rew = { gold, scrolls: Math.floor(res.wave * (1.5 + ch * 0.3) * (mods.lootMul || 1)), runes: res.runes, passXp: 40 + res.wave * 12, items: [] };
+  const rew = { gold, scrolls: Math.floor(res.wave * (1.5 + ch * 0.3) * (mods.lootMul || 1)), runes: res.runes, passXp: Math.floor(40 + res.wave * 12), items: [] };
   const drops = Math.floor(res.wave / 3) + (res.victory ? 1 : 0);
   const dl = mods.diff || 0;
   for (let i = 0; i < drops + dl; i++) {
     const r = weighted([[0, 40 / (1 + dl * 2)], [1, 35 + ch * 2], [2, 15 + ch * 3 + dl * 15], [3, 3 + ch * 1.5 + dl * 8], [4, 0.4 + ch * 0.3 + dl * 2]]);
     rew.items.push({ slot: 'any', rarity: Math.min(4, r) });
   }
+  if (res.victory) rew.shards = { [save.hero]: 2 + dl * 2 + Math.floor(ch / 3) };
   if (res.victory && !mods.daily && !(save.cleared || {})[`${ch}:${dl}`]) rew.gems = (60 + ch * 15) * (1 + dl); // ilk geçiş
   return rew;
 }

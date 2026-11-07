@@ -55,6 +55,17 @@ export const RUN_SKILLS = [
   { id: 'speed',  name: 'Rüzgâr Adımı',  icon: '👟', desc: '+%15 hareket hızı',                  max: 3, apply: g => { g.st.move *= 1.15; } },
 ];
 
+// Evrimler: aktif beceri en yüksek seviyede + eşleşen destek gücü alınmışsa seviye atlarken veya hazine sandığında çıkar.
+export const EVOLUTIONS = [
+  { id: 'evo_orb',    from: 'orb',    with: 'atk',    name: 'Güneş Çemberi',  icon: '☀️', desc: 'Ateş küreleri büyür, 2× hasar verir ve her vuruşta yakar',   apply: g => { g.st.evoOrb = 1; } },
+  { id: 'evo_blade',  from: 'blade',  with: 'aspd',   name: 'Kasırga',        icon: '🌪️', desc: '+2 bıçak, bıçaklar 2× hızlı döner ve %60 daha sert keser',  apply: g => { g.st.evoBlade = 1; g.st.blades += 2; } },
+  { id: 'evo_bolt',   from: 'bolt',   with: 'crit',   name: 'Gök Hükmü',      icon: '⛈️', desc: 'Her saniye yıldırım; her yıldırım 2 düşmana sıçrar',         apply: g => { g.st.evoBolt = 1; } },
+  { id: 'evo_frost',  from: 'frost',  with: 'hp',     name: 'Mutlak Sıfır',   icon: '🧊', desc: 'Buz halkası genişler, her 3 sn içindekileri dondurur',       apply: g => { g.st.evoFrost = 1; } },
+  { id: 'evo_meteor', from: 'meteor', with: 'magnet', name: 'Kıyamet Yağmuru', icon: '🌋', desc: '2× meteor, 2× sıklık, daha geniş patlama',                 apply: g => { g.st.evoMeteor = 1; } },
+  { id: 'evo_shield', from: 'shield', with: 'vamp',   name: 'Kutsal Aura',    icon: '😇', desc: 'Kalkan her 3 sn yenilenir, kalkan kırılınca çevreye şok dalgası', apply: g => { g.st.evoShield = 1; } },
+];
+export const skillDef = id => RUN_SKILLS.find(s => s.id === id) || EVOLUTIONS.find(s => s.id === id);
+
 export class Game {
   constructor(canvas, cfg) {
     this.c = canvas;
@@ -88,7 +99,7 @@ export class Game {
     this.spawnAcc = 0; this.paused = false; this.over = false; this.revived = false;
     this.shake = 0; this.timeScale = 1; this.slowT = 0;
     this.timers = { bolt: 2, meteor: 3, frostTick: 0, shield: 0, kaya: 0, fireNova: 5, frostNova: 6, stormCall: 4, fox: 4 };
-    this.skills = {};
+    this.skills = {}; this.dmgBy = {}; this.nextChest = 0;
     this.hudT = 0;
     this.banner = { text: this.theme.name, sub: `${this.ch}. Bölüm • Dalga 1`, t: 2.4 };
     this.endT = 0;
@@ -323,6 +334,8 @@ export class Game {
     if (e.boss) dmg *= 1 + st.bossDmg / 100;
     if (st.berserk) dmg *= 1 + (1 - this.p.hp / this.p.maxHp) * 0.8;
     dmg = Math.max(1, Math.round(dmg * rand(0.92, 1.08)));
+    const src = opt.src || 'weapon';
+    this.dmgBy[src] = (this.dmgBy[src] || 0) + Math.min(dmg, Math.max(0, e.hp));
     e.hp -= dmg; e.flash = 0.08; e.hitS = 1;
     this.text(e.x + rand(-8, 8), e.y - e.r - 4, dmg, crit ? '#ffd23f' : '#fff', crit);
     if (!e.boss && opt.kx !== undefined) { const kb = e.big ? 60 : 160; e.kx += opt.kx * kb; e.ky += opt.ky * kb; }
@@ -338,7 +351,7 @@ export class Game {
 
   burn(e, base) { e.burn = 3; e.burnDps = Math.max(e.burnDps || 0, base * 0.35); }
 
-  chain(from, base) {
+  chain(from, base, opt = {}) {
     const hit = new Set([from]);
     let cur = from;
     for (let i = 0; i < 2; i++) {
@@ -346,7 +359,7 @@ export class Game {
       if (!n) break;
       hit.add(n);
       this.fx.push({ type: 'bolt', pts: this.jag(cur.x, cur.y, n.x, n.y), t: 0, life: 0.2, color: '#fde047' });
-      this.hitEnemy(n, base * 0.6, { proc: false });
+      this.hitEnemy(n, base * 0.6, { proc: false, src: opt.src || 'chain' });
       cur = n;
     }
     this.sfx('zap');
@@ -368,7 +381,7 @@ export class Game {
       if ((e.x - x) ** 2 + (e.y - y) ** 2 < (r + e.r) ** 2) {
         if (opt.freeze) e.frozen = e.boss ? 0.5 : opt.freeze;
         if (opt.burn) this.burn(e, dmg / 2);
-        this.hitEnemy(e, dmg, { proc: false });
+        this.hitEnemy(e, dmg, { proc: false, src: opt.src });
       }
     }
   }
@@ -397,6 +410,7 @@ export class Game {
     }
     if (Math.random() < (e.elite ? 0.25 : 0.012)) this.drop('heart', e.x, e.y, 1);
     if (Math.random() < 0.003) this.drop('magnet', e.x, e.y, 1);
+    if ((e.boss && e.mini) || (e.elite && Math.random() < 0.08)) this.drop('chest', e.x, e.y, 1);
     if (this.st.spirits && Math.random() * 100 < this.st.spirits) this.spirits.push({ x: e.x, y: e.y, t: 4, vx: 0, vy: -100 });
     if (e.boss) {
       this.bossKills++;
@@ -420,12 +434,12 @@ export class Game {
     const p = this.p, st = this.st;
     if (p.inv > 0 || this.over || this.endT > 0) return;
     if (Math.random() * 100 < st.dodge) { this.text(p.x, p.y - 30, 'KAÇTI', '#7dd3fc', false, true); p.inv = 0.25; return; }
-    if (p.shield > 0) { p.shield--; p.inv = 0.6; this.text(p.x, p.y - 30, 'BLOK', '#93c5fd', false, true); this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 70, t: 0, life: 0.3, color: '#93c5fd' }); this.sfx('hit'); return; }
+    if (p.shield > 0) { p.shield--; p.inv = 0.6; if (st.evoShield) this.aoe(p.x, p.y, 160, this.baseDmg() * 2, { src: 'evo_shield' }); this.text(p.x, p.y - 30, 'BLOK', '#93c5fd', false, true); this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 70, t: 0, life: 0.3, color: '#93c5fd' }); this.sfx('hit'); return; }
     dmg = Math.round(dmg * (1 - st.dr / 100));
     p.hp -= dmg; p.inv = 0.55; p.hurtT = 0.3;
     this.text(p.x, p.y - 30, '-' + dmg, '#ff4d4d', false, true);
     this.shake = Math.max(this.shake, 8); this.vib(35); this.sfx('hurt');
-    if (src && st.thorns > 0 && !src.dead && src.hp !== undefined) this.hitEnemy(src, st.atk * st.thorns / 100 * 2, { proc: false });
+    if (src && st.thorns > 0 && !src.dead && src.hp !== undefined) this.hitEnemy(src, st.atk * st.thorns / 100 * 2, { proc: false, src: 'thorns' });
     if (p.hp <= 0) { p.hp = 0; this.die(); }
   }
 
@@ -439,7 +453,7 @@ export class Game {
         this.revived = true; this.p.hp = this.p.maxHp; this.p.inv = 2.5;
         this.ebullets = [];
         this.fx.push({ type: 'ring', x: this.p.x, y: this.p.y, r: 20, maxR: 500, t: 0, life: 0.7, color: '#fde68a' });
-        this.aoe(this.p.x, this.p.y, 350, this.baseDmg() * 6, { freeze: 2 });
+        this.aoe(this.p.x, this.p.y, 350, this.baseDmg() * 6, { freeze: 2, src: 'revive' });
         this.paused = false;
       } else this.finish(false);
     });
@@ -452,6 +466,7 @@ export class Game {
       victory, chapter: this.ch, wave: victory ? GAME.wavesPerChapter : this.wave - 1 + Math.min(0.99, this.waveT / GAME.waveLen),
       waveReached: this.wave, kills: this.kills, goldPicked: this.goldPicked, runes: this.runes, time: this.time,
       level: this.level, bossKills: this.bossKills, maxCombo: this.maxCombo, goldBonus: this.st.gold,
+      dmgBy: this.dmgBy, skills: { ...this.skills },
     });
   }
 
@@ -542,7 +557,7 @@ export class Game {
     if (e.hitS > 0) e.hitS = Math.max(0, e.hitS - dt * 6);
     if (e.age < 0.4) { e.age += dt; return; }
     if (e.burn > 0) {
-      e.burn -= dt; const dd = e.burnDps * dt; e.hp -= dd; e.burnAcc = (e.burnAcc || 0) + dd;
+      e.burn -= dt; const dd = Math.min(e.burnDps * dt, Math.max(0, e.hp)); e.hp -= e.burnDps * dt; this.dmgBy.burn = (this.dmgBy.burn || 0) + dd; e.burnAcc = (e.burnAcc || 0) + dd;
       e.burnTick = (e.burnTick || 0) - dt;
       if (e.burnTick <= 0) { e.burnTick = 0.5; if (e.burnAcc >= 1) this.text(e.x, e.y - e.r, Math.round(e.burnAcc), '#fb923c'); e.burnAcc = 0; if (Math.random() < 0.5) this.parts.push({ x: e.x + rand(-e.r, e.r) * 0.6, y: e.y, vx: 0, vy: -60, life: 0.5, max: 0.5, color: '#fb923c', size: 4 }); }
       if (e.hp <= 0) { this.kill(e); return; }
@@ -714,7 +729,7 @@ export class Game {
         if ((e.x - b.x) ** 2 + (e.y - b.y) ** 2 < rr * rr) {
           b.hit.add(e);
           const sp = Math.hypot(b.vx, b.vy) || 1;
-          this.hitEnemy(e, b.dmg, { kx: b.vx / sp, ky: b.vy / sp, proc: b.proc });
+          this.hitEnemy(e, b.dmg, { kx: b.vx / sp, ky: b.vy / sp, proc: b.proc, src: b.kind === 'pet' ? 'pet' : 'weapon' });
           this.burst(b.x, b.y, b.color || '#fff', 3, 90);
           if (b.pierce > 0) { b.pierce--; }
           else if (b.bounce > 0) {
@@ -748,7 +763,7 @@ export class Game {
         s.vx += Math.cos(a) * 900 * dt; s.vy += Math.sin(a) * 900 * dt;
         const sp = Math.hypot(s.vx, s.vy); if (sp > 380) { s.vx *= 380 / sp; s.vy *= 380 / sp; }
         if (d2(s, t) < (t.r + 10) ** 2) {
-          s.t = 0; this.aoe(s.x, s.y, 60, this.baseDmg() * 1.5);
+          s.t = 0; this.aoe(s.x, s.y, 60, this.baseDmg() * 1.5, { src: 'spirit' });
           this.fx.push({ type: 'ring', x: s.x, y: s.y, r: 10, maxR: 60, t: 0, life: 0.3, color: '#a78bfa' });
         }
       }
@@ -762,50 +777,54 @@ export class Game {
     const st = this.st, p = this.p, T = this.timers, dmg = this.baseDmg();
     // dönen küreler ve bıçaklar
     this.orbitals = [];
-    for (let i = 0; i < st.orbs; i++) { const a = this.time * 3.2 + i * TAU / st.orbs; this.orbitals.push({ x: p.x + Math.cos(a) * 75, y: p.y + Math.sin(a) * 75, r: 13, dmg: dmg * 0.6, kind: 'orb' }); }
-    for (let i = 0; i < st.blades; i++) { const a = -this.time * 2.4 + i * TAU / st.blades; this.orbitals.push({ x: p.x + Math.cos(a) * 140, y: p.y + Math.sin(a) * 140, r: 15, dmg: dmg * 0.75, kind: 'blade', a }); }
+    const eo = st.evoOrb ? 1 : 0, eb = st.evoBlade ? 1 : 0;
+    for (let i = 0; i < st.orbs; i++) { const a = this.time * 3.2 + i * TAU / st.orbs, R = 75 + eo * 15; this.orbitals.push({ x: p.x + Math.cos(a) * R, y: p.y + Math.sin(a) * R, r: 13 + eo * 9, dmg: dmg * (0.6 + eo * 0.6), kind: 'orb', evo: eo }); }
+    for (let i = 0; i < st.blades; i++) { const a = -this.time * (2.4 + eb * 2.4) + i * TAU / st.blades; this.orbitals.push({ x: p.x + Math.cos(a) * 140, y: p.y + Math.sin(a) * 140, r: 15 + eb * 4, dmg: dmg * (0.75 + eb * 0.45), kind: 'blade', a, evo: eb }); }
     if (this.orbitals.length) {
       for (const e of this.enemies) {
         if (e.dead) continue;
         e.ocd = (e.ocd || 0) - dt;
         if (e.ocd > 0) continue;
         for (const o of this.orbitals) {
-          if ((e.x - o.x) ** 2 + (e.y - o.y) ** 2 < (e.r + o.r) ** 2) { e.ocd = 0.35; this.hitEnemy(e, o.dmg, { proc: false }); if (o.kind === 'orb' && Math.random() < 0.3) this.burn(e, o.dmg); break; }
+          if ((e.x - o.x) ** 2 + (e.y - o.y) ** 2 < (e.r + o.r) ** 2) { e.ocd = o.evo ? 0.25 : 0.35; this.hitEnemy(e, o.dmg, { proc: false, src: o.kind }); if (o.kind === 'orb' && (o.evo || Math.random() < 0.3)) this.burn(e, o.dmg); break; }
         }
       }
     }
-    if (st.bolt > 0 && (T.bolt -= dt) <= 0) { T.bolt = 2.3 - st.bolt * 0.2; this.bolts(st.bolt + 1, dmg * 1.3); }
+    if (st.bolt > 0 && (T.bolt -= dt) <= 0) { T.bolt = st.evoBolt ? 1 : 2.3 - st.bolt * 0.2; this.bolts(st.bolt + 1, dmg * 1.3, st.evoBolt ? 'evo_bolt' : 'bolt'); }
     if (st.frost > 0) {
-      const R = 95 + st.frost * 18;
+      const R = 95 + st.frost * 18 + (st.evoFrost ? 60 : 0);
       T.frostTick -= dt;
       const tick = T.frostTick <= 0; if (tick) T.frostTick = 0.5;
-      for (const e of this.enemies) if (!e.dead && (e.x - p.x) ** 2 + (e.y - p.y) ** 2 < (R + e.r) ** 2) { e.slow = 0.5; if (tick) this.hitEnemy(e, dmg * 0.25 * st.frost, { proc: false }); }
+      let fz = false;
+      if (st.evoFrost && (T.frostEvo = (T.frostEvo ?? 3) - dt) <= 0) { T.frostEvo = 3; fz = true; this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: R, t: 0, life: 0.4, color: '#bae6fd', fill: true }); }
+      for (const e of this.enemies) if (!e.dead && (e.x - p.x) ** 2 + (e.y - p.y) ** 2 < (R + e.r) ** 2) { e.slow = 0.5; if (fz) e.frozen = e.boss ? 0.4 : 1.2; if (tick) this.hitEnemy(e, dmg * (st.evoFrost ? 0.4 : 0.25) * st.frost, { proc: false, src: 'frost' }); }
       this.frostR = R;
     } else this.frostR = 0;
     if (st.meteor > 0 && (T.meteor -= dt) <= 0) {
-      T.meteor = 3.6;
-      for (let i = 0; i < st.meteor; i++) {
+      T.meteor = st.evoMeteor ? 1.8 : 3.6;
+      for (let i = 0; i < st.meteor * (st.evoMeteor ? 2 : 1); i++) {
         const t = this.enemies[Math.floor(Math.random() * this.enemies.length)];
-        if (t) this.fx.push({ type: 'meteor', x: t.x + rand(-20, 20), y: t.y + rand(-20, 20), r: 85, t: 0, life: 0.65, dmg: dmg * 2.4 });
+        if (t) this.fx.push({ type: 'meteor', x: t.x + rand(-20, 20), y: t.y + rand(-20, 20), r: st.evoMeteor ? 110 : 85, t: 0, life: 0.65, dmg: dmg * 2.4 });
       }
     }
-    if (st.shieldSkill > 0 && p.shield < 1 && (T.shield -= dt) <= 0) { T.shield = 10 - st.shieldSkill * 2; p.shield = 1; }
+    if (st.shieldSkill > 0 && p.shield < 1 && (T.shield -= dt) <= 0) { T.shield = st.evoShield ? 3 : 10 - st.shieldSkill * 2; p.shield = 1; }
     if (st.shieldEvery && p.shield < 1 && (T.kaya -= dt) <= 0) { T.kaya = st.shieldEvery; p.shield = 1; }
     for (const pw of st.setPowers) {
       if ((T[pw] -= dt) > 0) continue;
-      if (pw === 'fireNova') { T[pw] = 5; this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 180, t: 0, life: 0.45, color: '#ff6b3d', fill: true }); this.aoe(p.x, p.y, 180, dmg * 1.6, { burn: true }); this.sfx('boom'); }
-      if (pw === 'frostNova') { T[pw] = 6; this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 200, t: 0, life: 0.5, color: '#7dd3fc', fill: true }); this.aoe(p.x, p.y, 200, dmg, { freeze: 1.6 }); }
-      if (pw === 'stormCall') { T[pw] = 4; this.bolts(5, dmg * 1.4); }
+      if (pw === 'fireNova') { T[pw] = 5; this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 180, t: 0, life: 0.45, color: '#ff6b3d', fill: true }); this.aoe(p.x, p.y, 180, dmg * 1.6, { burn: true, src: 'set' }); this.sfx('boom'); }
+      if (pw === 'frostNova') { T[pw] = 6; this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 200, t: 0, life: 0.5, color: '#7dd3fc', fill: true }); this.aoe(p.x, p.y, 200, dmg, { freeze: 1.6, src: 'set' }); }
+      if (pw === 'stormCall') { T[pw] = 4; this.bolts(5, dmg * 1.4, 'set'); }
     }
   }
 
-  bolts(n, dmg) {
+  bolts(n, dmg, src = 'bolt') {
     const vis = this.enemies.filter(e => !e.dead && Math.abs(e.x - this.p.x) < this.W / this.zoom / 2 + 40 && Math.abs(e.y - this.p.y) < this.H / this.zoom / 2 + 40);
     for (let i = 0; i < n && vis.length; i++) {
       const t = vis.splice(Math.floor(Math.random() * vis.length), 1)[0];
       this.fx.push({ type: 'bolt', pts: this.jag(t.x + rand(-40, 40), t.y - 420, t.x, t.y), t: 0, life: 0.25, color: '#fde047', w: 4 });
       this.fx.push({ type: 'ring', x: t.x, y: t.y, r: 6, maxR: 55, t: 0, life: 0.25, color: '#fde047' });
-      this.aoe(t.x, t.y, 50, dmg);
+      this.aoe(t.x, t.y, 50, dmg, { src });
+      if (src === 'evo_bolt') this.chain(t, dmg * 0.8, { src });
     }
     if (n) this.sfx('zap');
   }
@@ -830,7 +849,7 @@ export class Game {
           if (e.dead) continue;
           const dx = e.x - pet.x, dy = e.y - pet.y, dist = Math.hypot(dx, dy);
           let da = Math.atan2(dy, dx) - a; da = Math.atan2(Math.sin(da), Math.cos(da));
-          if (dist < 240 && Math.abs(da) < 0.5) { this.burn(e, dmg); this.hitEnemy(e, dmg * 0.9, { proc: false }); }
+          if (dist < 240 && Math.abs(da) < 0.5) { this.burn(e, dmg); this.hitEnemy(e, dmg * 0.9, { proc: false, src: 'pet' }); }
         }
       }
     }
@@ -864,6 +883,7 @@ export class Game {
     else if (k.type === 'gold') { this.goldPicked += k.v; this.sfx('coin'); }
     else if (k.type === 'heart') { this.healP(0.18 * (1 + this.st.heal / 100)); }
     else if (k.type === 'magnet') { for (const o of this.pickups) o.mag = true; this.sfx('level'); }
+    else if (k.type === 'chest') { this.nextChest++; this.pendingLv++; this.sfx('coin'); this.burst(this.p.x, this.p.y, '#fde047', 24, 240); if (!this.choosing) this.levelUp(); }
   }
 
   gainXp(v) {
@@ -880,19 +900,35 @@ export class Game {
     this.choosing = true; this.paused = true; this.p.lvlFx = 1.2;
     this.sfx('level'); this.vib(25);
     this.fx.push({ type: 'ring', x: this.p.x, y: this.p.y, r: 10, maxR: 160, t: 0, life: 0.5, color: '#fde68a' });
-    this.cfg.onLevelUp?.(this.skillChoices(), id => this.chooseSkill(id));
+    const chest = this.nextChest > 0; if (chest) this.nextChest--;
+    this.cfg.onLevelUp?.(this.skillChoices(3, chest), id => this.chooseSkill(id), { chest });
   }
 
-  skillChoices(n = 3) {
+  evoReady() {
+    return EVOLUTIONS.filter(v => !this.skills[v.id] && (this.skills[v.from] || 0) >= RUN_SKILLS.find(s => s.id === v.from).max && this.skills[v.with]);
+  }
+
+  skillChoices(n = 3, chest = false) {
     const pool = RUN_SKILLS.filter(s => (this.skills[s.id] || 0) < s.max && (!s.cond || s.cond(this)) && !(this.st.wtype === 'sword' && (s.id === 'pierce' || s.id === 'bounce')));
     const out = [];
+    // hazır evrim varsa: sandıkta kesin, seviye atlamada %50 şansla ilk seçenek
+    const evo = this.evoReady();
+    if (evo.length && (chest || Math.random() < 0.5)) out.push({ ...evo[0], evo: true, lvl: 1, max: 1 });
     while (out.length < n && pool.length) out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
-    return out.map(s => ({ ...s, lvl: (this.skills[s.id] || 0) + 1 }));
+    return out.map(s => {
+      if (s.evo) return s;
+      const v = EVOLUTIONS.find(x => (x.from === s.id || x.with === s.id) && !this.skills[x.id]);
+      const other = v && skillDef(v.from === s.id ? v.with : v.from);
+      return { ...s, lvl: (this.skills[s.id] || 0) + 1, hint: v ? `🧬 ${v.name}: ${other.icon} ${other.name} ile` : '' };
+    });
   }
 
   chooseSkill(id) {
-    const s = RUN_SKILLS.find(x => x.id === id);
-    if (s) { s.apply(this); this.skills[id] = (this.skills[id] || 0) + 1; }
+    const s = skillDef(id);
+    if (s) {
+      s.apply(this); this.skills[id] = (this.skills[id] || 0) + 1;
+      if (s.from) { this.banner = { text: `${s.icon} ${s.name}`, sub: 'EVRİM!', t: 2.2 }; this.shake = 10; this.sfx('legend'); this.fx.push({ type: 'ring', x: this.p.x, y: this.p.y, r: 10, maxR: 300, t: 0, life: 0.7, color: '#f0abfc' }); }
+    }
     this.pendingLv--;
     this.choosing = false;
     if (this.pendingLv > 0) { this.levelUp(); return; }
@@ -924,7 +960,7 @@ export class Game {
     for (const f of this.fx) {
       f.t += dt;
       if (f.type === 'meteor' && !f.hit && f.t >= f.life * 0.85) {
-        f.hit = true; this.aoe(f.x, f.y, f.r, f.dmg, { burn: true });
+        f.hit = true; this.aoe(f.x, f.y, f.r, f.dmg, { burn: true, src: 'meteor' });
         this.burst(f.x, f.y, '#fb923c', 22, 260); this.shake = Math.max(this.shake, 6); this.sfx('boom');
         this.fx.push({ type: 'boom', x: f.x, y: f.y, r: f.r, t: 0, life: 0.3 });
       }
@@ -999,6 +1035,9 @@ export class Game {
         ctx.fillStyle = '#f43f5e'; ctx.font = '20px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('❤', k.x, k.y - bob);
       } else if (k.type === 'magnet') {
         ctx.font = '22px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🧲', k.x, k.y - bob);
+      } else if (k.type === 'chest') {
+        ctx.fillStyle = `rgba(253,224,71,${0.25 + Math.sin(k.t * 5) * 0.12})`; ctx.beginPath(); ctx.arc(k.x, k.y - bob, 26, 0, TAU); ctx.fill();
+        ctx.font = '30px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🎁', k.x, k.y - bob);
       }
     }
   }
@@ -1082,11 +1121,11 @@ export class Game {
     const ctx = this.ctx;
     if (o.kind === 'orb') {
       ctx.fillStyle = 'rgba(251,146,60,0.35)'; ctx.beginPath(); ctx.arc(o.x, o.y, o.r * 1.9, 0, TAU); ctx.fill();
-      ctx.fillStyle = '#fb923c'; ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, TAU); ctx.fill();
+      ctx.fillStyle = o.evo ? '#fde047' : '#fb923c'; ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, TAU); ctx.fill();
       ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(o.x, o.y, o.r * 0.5, 0, TAU); ctx.fill();
     } else {
       ctx.save(); ctx.translate(o.x, o.y); ctx.rotate(this.time * 14);
-      ctx.fillStyle = '#e2e8f0';
+      ctx.fillStyle = o.evo ? '#a5f3fc' : '#e2e8f0';
       for (let i = 0; i < 3; i++) { ctx.rotate(TAU / 3); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(o.r * 1.3, -4); ctx.lineTo(o.r * 1.3, 4); ctx.fill(); }
       ctx.restore();
     }
