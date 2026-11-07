@@ -31,6 +31,7 @@ export function createMenus(app) {
     else $('#title-acc').innerHTML = links.length
       ? `<span class="dot on"></span>${links.map(l => esc(PROVIDERS[l].name)).join(' • ')}`
       : '<span class="dot"></span>Misafir hesap • <u>Bağla</u>';
+    const lb = $('#title [data-m=leader]'); if (lb && (!CONFIG.cloudUrl || app.account.appleOnly || !FEATURES.accounts)) lb.innerHTML = '<span>🏆</span>Rekorlar';
     const unread = mailCount();
     const b = $('#title [data-m=mail] .mbadge');
     if (b) { b.textContent = unread; b.hidden = !unread; }
@@ -108,7 +109,7 @@ export function createMenus(app) {
 
   // ================================================================ MENÜ LİSTESİ (lobide ☰)
   function openMenu() {
-    const items = [['home', '🏠', 'Ana Menü'], ['profile', '👤', 'Profil'], ['account', app.account.enabled ? '🔗' : '💾', app.account.enabled ? 'Hesap & Bulut' : 'Hesap & Yedek'], ['leader', '🏆', 'Sıralama'],
+    const items = [['home', '🏠', 'Ana Menü'], ['profile', '👤', 'Profil'], ['account', app.account.enabled ? '🔗' : '💾', app.account.enabled ? 'Hesap & Bulut' : 'Hesap & Yedek'], ['leader', '🏆', !CONFIG.cloudUrl || app.account.appleOnly || !FEATURES.accounts ? 'Rekorlar' : 'Sıralama'],
       ['mail', '✉️', `Posta${mailCount() ? ` (${mailCount()})` : ''}`], ['news', '📰', 'Haberler'], ['code', '🎁', 'Hediye Kodu'], ['settings', '⚙️', 'Ayarlar'], ['help', '❓', 'Destek & SSS'], ['about', 'ℹ️', 'Hakkında']];
     const m = modal(`<h2>Menü</h2><div class="menu-list">${items.map(([k, i, n]) => `<button data-mm="${k}"><span>${i}</span>${n}<em>›</em></button>`).join('')}</div>`, { cls: 'menusheet' });
     m.el.addEventListener('click', e => { const b = e.target.closest('[data-mm]'); if (!b) return; m.close(); app.play('click'); open(b.dataset.mm); });
@@ -140,7 +141,7 @@ export function createMenus(app) {
         <h3>☁️ Bulut Kaydı</h3>
         ${app.account.cloudAvailable() ? `<p class="muted small">${cloudOk ? `Son eşitleme: ${s.account.lastSync ? new Date(s.account.lastSync).toLocaleString('tr-TR') : 'henüz yok'} • 3 dakikada bir otomatik` : app.account.appleOnly ? 'Bulut kaydı için Apple ile giriş yap. Yeni iPhone\'da aynı Apple hesabıyla ilerlemen geri gelir.' : 'Bulut kaydı için Apple veya Google ile giriş yap.'}</p>
           <div class="row gap"><button class="btn blue" data-a="push" ${cloudOk ? '' : 'disabled'}>☁️ Kaydet</button><button class="btn purple" data-a="pull" ${cloudOk ? '' : 'disabled'}>⬇️ Yükle</button></div>`
-        : `<p class="muted small">Bulut kaydı çok yakında. O zamana kadar Ayarlar &gt; Kayıt kodu ile ilerlemeni yedekleyebilirsin.</p>`}
+        : `<p class="muted small">Ayarlar &gt; Yedek kodu ile ilerlemeni yedekleyebilirsin.</p>`}
         <div class="pid">Oyuncu kimliği: <b>${s.account.playerId}</b> <button class="btn small grey" data-a="copy">Kopyala</button></div>
         <details class="danger"><summary>Hesabı sil</summary>
           <p class="small">Hesabını silersen bu cihazdaki ve buluttaki tüm ilerlemen, eşyaların ve satın alma ödüllerin <b>kalıcı olarak</b> silinir. Bu işlem geri alınamaz.</p>
@@ -186,7 +187,7 @@ export function createMenus(app) {
   function backupOnly() {
     const s = S();
     const m = modal(`<h2>💾 Hesap & Yedek</h2>
-      <div class="acc-card warn"><b>🔜 Hesap bağlama çok yakında</b><small>Game Center ve Apple ile giriş sonraki güncellemede geliyor. Şimdilik ilerlemen bu telefonda saklanıyor. Telefon değiştirmeden ya da oyunu silmeden önce yedek kodu al ve notlarına kaydet.</small></div>
+      <div class="acc-card warn"><b>💾 İlerlemen bu telefonda</b><small>Telefon değiştirmeden ya da oyunu silmeden önce yedek kodu al ve notlarına kaydet. Yeni telefonda "Yedekten yükle" ile ilerlemen geri gelir.</small></div>
       <div class="col gap"><button class="btn blue" data-k="export">💾 Yedek kodu al</button><button class="btn grey" data-k="import">📥 Yedekten yükle</button></div>
       <div class="pid">Oyuncu kimliği: <b>${s.account.playerId}</b></div>`, { cls: 'acc' });
     m.el.addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (!b) return; if (b.dataset.k === 'export') app.exportCode(); else app.importCode(); });
@@ -225,7 +226,7 @@ export function createMenus(app) {
           <div class="setrow"><span>🎨 Grafik</span><div class="seg"><button class="${st.quality === 'high' ? 'on' : ''}" data-q="high">Yüksek</button><button class="${st.quality === 'low' ? 'on' : ''}" data-q="low">Pil tasarrufu</button></div></div>
           <div class="setrow"><span>🎞️ Kare hızı</span><div class="seg"><button class="${st.fps === 60 ? 'on' : ''}" data-f="60">60</button><button class="${st.fps === 30 ? 'on' : ''}" data-f="30">30</button></div></div></div>
         <div class="setgroup"><h4>Bildirimler</h4>${tg('notify', '⚡ Enerji dolunca haber ver')}</div>
-        <div class="setgroup"><h4>Dil</h4><div class="setrow"><span>🌐 Dil</span><div class="seg"><button class="on">Türkçe</button><button disabled>English (yakında)</button></div></div></div>
+        <div class="setgroup"><h4>Dil</h4><div class="setrow"><span>🌐 Dil</span><div class="seg"><button class="on">Türkçe</button></div></div></div>
         <div class="setgroup"><h4>Hesap & Veri</h4><div class="col gap">
           <button class="btn blue" data-b="account">${app.account.enabled ? '🔗 Hesap & Bulut' : '💾 Hesap & Yedek'}</button>
           <button class="btn grey" data-b="restore">🧾 Satın alımları geri yükle</button>
@@ -267,6 +268,7 @@ export function createMenus(app) {
 
   // ================================================================ SIRALAMA
   function leader() {
+    if (!CONFIG.cloudUrl || app.account.appleOnly || !FEATURES.accounts) return records();
     const s = S(), st = app.stats();
     const boards = [['chapter', '🗺️ Bölüm'], ['arena', '🏟️ Arena'], ['power', '⚡ Güç'], ['kills', '💀 Düşman'], ['combo', '🔥 Kombo']];
     let cur = 'chapter';
@@ -292,6 +294,17 @@ export function createMenus(app) {
       if (b) { cur = b.dataset.b; app.play('click'); draw(); }
       if (l) { m.close(); account(); }
     });
+  }
+
+  // Küresel sıralama olmayan sürümde: kişisel rekorlar
+  function records() {
+    const s = S(), st = app.stats();
+    const rows = [['🗺️ En ileri bölüm', s.maxChapter - 1 ? `${s.maxChapter - 1}. bölüm` : '—'], ['🏟️ Arena rekoru', s.arena.best ? `Dalga ${s.arena.best}` : '—'], ['⚡ Güç', app.fmt(st.power)],
+      ['🔥 En iyi kombo', s.stats.maxCombo || 0], ['💀 Toplam düşman', app.fmt(s.stats.kills)], ['👑 Boss avı', s.stats.bossKills], ['🏆 Zafer', s.stats.wins], ['🌟 Mitik eşya', s.stats.mythics]];
+    const ch = Object.entries(s.best).filter(([k]) => !k.includes(':')).sort((a, b) => +a[0] - +b[0]);
+    modal(`<h2>🏆 Rekorların</h2><div class="statgrid">${rows.map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('')}</div>
+      ${ch.length ? `<h3>Bölümler</h3><div class="statgrid">${ch.map(([k, v]) => `<div><span>${D.chapterInfo(+k).name}</span><b>${v >= 10 ? '✅ Temizlendi' : `Dalga ${Math.floor(v)}/10`}</b></div>`).join('')}</div>` : ''}
+      <p class="muted center small">Rekorlarını paylaş, arkadaşlarına meydan oku!</p>`, { cls: 'leader' });
   }
 
   // ================================================================ POSTA
@@ -346,7 +359,7 @@ export function createMenus(app) {
   function help() {
     const s = S();
     modal(`<h2>❓ Destek & SSS</h2>
-      <div class="faq">${D.FAQ.filter(([q]) => app.account.enabled || !q.startsWith('Hesabımı')).map(([q, a]) => [q, !q.startsWith('İlerlemem') ? a : !app.account.enabled ? 'Şimdilik ilerlemen bu telefonda saklanıyor. Ana Menü > Hesap > Yedek kodu al ile kodunu notlarına kaydet; yeni telefonda Yedekten yükle ile geri getirirsin. Hesap bağlama yakında geliyor.' : app.account.appleOnly ? 'Ana Menü > Hesap\'tan Apple ile giriş yaparsan ilerlemen buluta kaydedilir. Yeni iPhone\'da aynı Apple hesabıyla giriş yapınca geri gelir. Giriş yapmazsan ilerleme sadece bu telefonda kalır.' : a]).map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
+      <div class="faq">${D.FAQ.filter(([q]) => app.account.enabled || !q.startsWith('Hesabımı')).map(([q, a]) => [q, !q.startsWith('İlerlemem') ? a : !app.account.enabled ? 'Şimdilik ilerlemen bu telefonda saklanıyor. Ana Menü > Hesap > Yedek kodu al ile kodunu notlarına kaydet; yeni telefonda Yedekten yükle ile geri getirirsin. ' : app.account.appleOnly ? 'Ana Menü > Hesap\'tan Apple ile giriş yaparsan ilerlemen buluta kaydedilir. Yeni iPhone\'da aynı Apple hesabıyla giriş yapınca geri gelir. Giriş yapmazsan ilerleme sadece bu telefonda kalır.' : a]).map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
       <div class="pid">Oyuncu kimliğin: <b>${s.account.playerId}</b></div>
       ${CONFIG.supportEmail ? `<a class="btn blue wide" href="mailto:${CONFIG.supportEmail}?subject=${encodeURIComponent('Efsun Avcısı Destek - ' + s.account.playerId)}&body=${encodeURIComponent(`Oyuncu: ${s.account.playerId}\nSürüm: ${D.GAME.version}\nCihaz: ${navigator.userAgent}\n\nSorun:\n`)}">✉️ Destek ekibine yaz</a>` : ''}`, { cls: 'helpbox' });
   }
@@ -355,7 +368,7 @@ export function createMenus(app) {
     modal(`<div class="logo small"><span>EFSUN</span><span>AVCISI</span></div>
       <p class="center">Sürüm ${D.GAME.version}</p>
       <div class="about">
-        <p><b>Ebeveynler için:</b> Bu oyun isteğe bağlı uygulama içi satın almalar ve reklamlar içerir. Satın almaları cihazınızın ayarlarından (Ekran Süresi / Google Play ebeveyn denetimleri) kısıtlayabilirsiniz.</p>
+        <p><b>Ebeveynler için:</b> Bu oyun isteğe bağlı uygulama içi satın almalar${FEATURES.ads ? ' ve reklamlar' : ''} içerir. Satın almaları cihazınızın ayarlarından (Ekran Süresi / Google Play ebeveyn denetimleri) kısıtlayabilirsiniz.</p>
         <p><b>Yazı tipleri:</b> Lilita One, Nunito — SIL Open Font License 1.1</p>
         <p><b>Grafik ve sesler:</b> oyun içinde kodla üretilmiştir.</p>
         <div class="row gap"><button class="btn grey small" data-doc="privacy">🔐 Gizlilik</button><button class="btn grey small" data-doc="terms">📄 Şartlar</button></div>

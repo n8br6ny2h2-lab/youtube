@@ -24,6 +24,9 @@ Tek parmakla oynanan dikey aksiyon RPG. Tamamen `game/` klasöründe, saf HTML5/
 ## Son eklenenler (benzer oyunlar incelendi: Archero, Survivor.io)
 Beceri evrimleri (6), savaş içi hazine sandığı, savaş sonu hasar dökümü, Hızlı Tarama (günde 3), kahraman parçası kaynakları (önceden parça kazanmanın yolu yoktu, kahraman seviyesi atlanamıyordu). Ardından: Arena (sonsuz dalga modu), sonsuz/kademeli başarımlar, daha zor denge (`TUNE`) ve aylık sezonlar (özel set, kalıcı aura/kostüm/unvan; Efsun Bileti her ay sıfırlanır). Ayrıntı: `README.md` > Evrimler, Arena, Sonsuz başarımlar.
 
+## Mağaza görselleri ve metinleri (1.0 için güncel)
+`store/app-store/screenshot-1..6.png` (1320×2868): başlık, sürü savaşı, evrim, boss, Arena, sezon. Eski görsellerde 1.0'da olmayan Game Center, sıralama ve reklam simgesi vardı; değiştirildi. Yeniden üretmek: `promo/store-shots-capture.cjs` + `promo/store-shots-compose.cjs`. `store/LISTING.md` 1.0 özelliklerine göre yeniden yazıldı (reklam/sıralama/bulut yok). Oyundaki "yakında" yer tutucuları kaldırıldı (Sıralama → kişisel Rekorlar).
+
 ## Yayın durumu: yalnızca App Store, hesapsız ve reklamsız ilk sürüm
 Telefon rehberi: **`game/store/APP-STORE-YAYIN.md`** (adım adım)
 

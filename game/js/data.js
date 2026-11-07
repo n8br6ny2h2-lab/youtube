@@ -376,7 +376,7 @@ export const FAQ = [
   ['İlerlemem kaybolur mu?', 'Hesabını Game Center / Google Play Games veya Apple / Google ile bağlarsan ilerlemen buluta kaydedilir ve yeni telefonda geri yüklenir. Bağlamazsan ilerleme sadece bu cihazda kalır.'],
   ['Satın aldığım şey gelmedi', 'Ayarlar > Satın alımları geri yükle\'ye dokun. Sorun sürerse oyuncu kimliğinle destek ekibine yaz.'],
   ['Sandık olasılıkları nedir?', 'Mağazada her sandığın üzerindeki % düğmesinde tüm olasılıklar ve şans koruması yazılıdır.'],
-  ['Enerji nasıl dolar?', 'Her 5 dakikada 1 enerji dolar. Reklam izleyerek, elmasla veya Aylık Kart ile daha fazla enerji alabilirsin.'],
+  ['Enerji nasıl dolar?', 'Her 5 dakikada 1 enerji dolar. Enerji ekranındaki günlük hediyeyle, elmasla veya Aylık Kart ile daha fazla enerji alabilirsin.'],
   ['Oyun çok zor', 'Ekipmanını yükselt, 3 aynı eşyayı birleştir, Gelişim\'te yetenek al. Önerilen gücün altındaysan önceki bölümleri tekrar oynayıp ganimet topla.'],
   ['Hesabımı nasıl silerim?', 'Ana Menü > Hesap > Hesabı Sil. Buluttaki tüm verilerin kalıcı olarak silinir.'],
 ];

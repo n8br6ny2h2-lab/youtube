@@ -4,81 +4,88 @@ Karakter sınırları mağaza kurallarına göre kontrol edildi. Önce Türkçe 
 
 ## Türkçe
 
-**Uygulama adı** (App Store en fazla 30, Google Play en fazla 30 karakter)
+> **Sürüm 1.0 için yazıldı:** reklam, hesap bağlama, bulut kaydı ve küresel sıralama bu sürümde **yok**, metinde de geçmiyor (Apple, uygulamada olmayan özelliği anlatan metni reddeder). Apple ile Giriş açılınca "Apple ile giriş ve bulut kaydı" satırını ekle.
+
+**Uygulama adı** (en fazla 30)
 > Efsun Avcısı: Aksiyon RPG
 
-**Alt başlık** (App Store en fazla 30)
-> Efsunla, birleştir, bossu yen
+**Alt başlık** (en fazla 30)
+> Evrimleştir, efsunla, boss yen
 
-**Kısa açıklama** (Google Play en fazla 80)
-> Tek parmakla aksiyon RPG! Eşyalarını efsunla, setleri tamamla, dev bossları yen.
+**Tanıtım metni** (en fazla 170, istediğin zaman güncellenebilir)
+> Her ay yeni sezon! Sonsuz Arenada rekor kır, güçlerini evrimleştir, dev bossları yen. Kalıcı aura ve kostüm yalnızca şampiyonlara. Reklam yok!
 
-**Tanıtım metni** (App Store en fazla 170, istediğin zaman güncellenebilir)
-> Efsun Diyarı seni bekliyor! 5 bölüm, 6 dev boss ve yüzlerce eşya. Normal, Zor ve Kabus seviyelerinde ne kadar ileri gidebilirsin?
-
-**Anahtar kelimeler** (App Store en fazla 100, virgülle, boşluksuz)
-> rpg,aksiyon,hayatta kalma,okçu,büyü,boss,ejder,kılıç,roguelike,zindan,kahraman,macera,türkçe
+**Anahtar kelimeler** (en fazla 100, virgülle, boşluksuz)
+> rpg,aksiyon,hayatta kalma,okçu,büyü,boss,arena,roguelike,zindan,kahraman,sezon,ejder,türkçe
 
 **Açıklama** (en fazla 4000)
 ```
-Efsun Diyarı karanlığa gömüldü. Kılıcını, yayını ya da asanı kuşan ve sürülerle dolu bölümleri temizle!
+Efsun Diyarı karanlığa gömüldü. Kılıcını, yayını ya da asanı kuşan, sürülerle dolu bölümleri temizle!
 
 ⚔️ TEK PARMAKLA OYNA
 Ekranda sürükleyerek hareket et, saldırı otomatik! Düşman mermilerinden kaç, ganimetleri topla, kısa ve heyecanlı savaşların tadını çıkar.
 
-🌟 HER SEVİYEDE YENİ GÜÇ
-Seviye atladıkça 19 güçten birini seç: çoklu atış, ateş küreleri, yıldırım, meteor yağmuru, buz halkası… Her savaşta farklı bir kombinasyon kur.
+🧬 GÜÇLERİNİ EVRİMLEŞTİR
+Seviye atladıkça 19 güçten birini seç: çoklu atış, ateş küreleri, yıldırım, meteor, buz halkası… Doğru ikiliyi tamamla, 6 süper evrimden birini aç: Güneş Çemberi, Kasırga, Gök Hükmü, Mutlak Sıfır, Kıyamet Yağmuru, Kutsal Aura.
 
 🐉 DEV BOSSLAR
-Yaşlı Kökdev, Kum Akrebi, Ayaz Kraliçesi, Gölge Ejder ve Magma Titanı seni bekliyor. Kırmızı uyarıları izle, saldırılardan kaç, ganimeti kap!
+Yaşlı Kökdev, Kum Akrebi, Ayaz Kraliçesi, Gölge Ejder ve Magma Titanı seni bekliyor. Kırmızı uyarıları izle, saldırılardan kaç, hazine sandığını kap!
+
+🏟️ SONSUZ ARENA
+Bitmeyen dalgalara karşı ne kadar dayanabilirsin? Her 5 dalgada bir boss, her 5 dalgada yeni bir bölge. Rekorunu kır, ödülleri topla.
+
+🏆 HER AY YENİ SEZON
+Her ay yeni bir tema ve sadece o sezona özel bir efsanevi set. Zorlu sezon görevlerini bitir, puan topla. Kalıcı aura animasyonu, kalıcı kostüm ve "Sezon Şampiyonu" unvanı yalnızca en iyilere!
 
 ✨ DERİN EKİPMAN SİSTEMİ
 • 6 ekipman yuvası, Sıradan'dan Mitik'e 6 nadirlik
 • 19 farklı efsun: kilitle, yeniden çek, mükemmel efsunun peşine düş
 • 3 aynı eşyayı birleştir, nadirliği yükselt
-• 4 parça set tamamla, özel güçleri aç: ateş patlaması, dondurucu dalga, yıldırım çağrısı
+• 4 parça set tamamla, özel güçleri aç
 
 🦸 KAHRAMANLAR VE EVCİL DOSTLAR
-Kale Muhafızı Kaya, Rüzgâr Okçusu Lina, Kan Çılgını Zerk ve Gölge Cadısı Nyx. Her birinin kendine özgü gücü var. Yanına Bilge Baykuş, Ruh Tilkisi ya da Yavru Ejder'i al!
+Kale Muhafızı Kaya, Rüzgâr Okçusu Lina, Kan Çılgını Zerk ve Gölge Cadısı Nyx, her birinin kendine özgü gücü var. Yanına Bilge Baykuş, Ruh Tilkisi ya da Yavru Ejder'i al!
 
 🔥 ZORLUK SEVİYELERİ
 Her bölümü Normal, Zor ve Kabus seviyelerinde oyna. Zorlaştıkça ganimet de büyür!
 
-🏆 VE DAHA FAZLASI
+🎯 VE DAHA FAZLASI
+• Bitmeyen kademeli başarımlar: aldıkça hedef yükselir
 • Günlük görevler, giriş ödülleri ve Günün Mücadelesi
-• Sezon bileti ve başarımlar
-• Küresel sıralama: bölüm, güç ve kombo tabloları
-• Game Center / Google Play Oyunlar ile hesap ve bulut kaydı
-• İnternetsiz de oynanabilir
+• Efsun Bileti (her sezon yenilenir)
+• Temizlediğin bölümleri Hızlı Tarama ile geç
+• Reklam yok, internetsiz de oynanır
 
-Efsun Avcısı ücretsiz oynanır. İsteğe bağlı uygulama içi satın almalar ve ödüllü reklamlar içerir. Sandık olasılıkları oyun içinde mağazada yayımlanır.
+Efsun Avcısı ücretsiz oynanır ve isteğe bağlı uygulama içi satın almalar içerir. Sandık olasılıkları oyun içindeki mağazada yayımlanır. Efsun Bileti 1 sezon (1 takvim ayı) geçerlidir.
 
 Gizlilik Politikası: {{GIZLILIK_URL}}
 Kullanım Şartları: {{SARTLAR_URL}}
 ```
 
 **Bu sürümdeki yenilikler**
-> Efsun Avcısı yayında! 5 bölüm, 6 boss, 4 kahraman, efsun ve set sistemi, zorluk seviyeleri ve küresel sıralama. İyi avlar!
+> Efsun Avcısı yayında! 5 bölüm, 6 boss, 4 kahraman, 6 süper evrim, sonsuz Arena ve her ay yeni sezon. İyi avlar!
 
 ## English
 
-**Name:** Spell Hunter: Action RPG  •  **Subtitle:** Enchant, merge, defeat bosses
-**Short description:** One-finger action RPG! Enchant your gear, complete sets and defeat giant bosses.
-**Keywords:** rpg,action,survival,archer,magic,boss,dragon,sword,roguelike,dungeon,hero,adventure
+**Name:** Spell Hunter: Action RPG  •  **Subtitle:** Enchant, evolve, defeat bosses
+**Promotional text:** A new season every month! Break records in the endless Arena, evolve your powers, defeat giant bosses. Permanent aura and costume for champions only. No ads!
+**Keywords:** rpg,action,survival,archer,magic,boss,arena,roguelike,dungeon,hero,season,dragon
 
 **Description**
 ```
 The Spell Realm has fallen into darkness. Grab your sword, bow or staff and clear chapters swarming with monsters!
 
 ⚔️ ONE-FINGER CONTROLS: drag to move, attacks are automatic. Dodge bullets, grab loot, enjoy short and intense battles.
-🌟 NEW POWER EVERY LEVEL: choose from 19 skills (multishot, fire orbs, lightning, meteors, frost ring…) and build a new combo every run.
+🧬 EVOLVE YOUR POWERS: choose from 19 skills every level and unlock 6 super evolutions by combining the right pair.
 🐉 GIANT BOSSES with telegraphed attacks: watch the red warnings and dodge!
-✨ DEEP GEAR: 6 slots, 6 rarities, 19 enchantments you can lock and reroll, merge 3 identical items to upgrade, complete 4-piece sets for special powers.
+🏟️ ENDLESS ARENA: how many waves can you survive? A boss every 5 waves, a new region every 5 waves.
+🏆 A NEW SEASON EVERY MONTH: a season-only legendary set and hard season tasks. Permanent aura, costume and "Season Champion" title for the best players only.
+✨ DEEP GEAR: 6 slots, 6 rarities, 19 enchantments you can lock and reroll, merge 3 identical items, complete 4-piece sets for special powers.
 🦸 4 HEROES & PETS, each with a unique passive.
 🔥 DIFFICULTIES: Normal, Hard and Nightmare with bigger rewards.
-🏆 Daily quests, login rewards, season pass, achievements, global leaderboards, cloud save, offline play.
+🎯 Endless tiered achievements, daily quests, login rewards, season pass, quick sweep. No ads, plays offline.
 
-Free to play. Contains optional in-app purchases and rewarded ads. Loot box odds are published in the in-game shop. Game text is in Turkish.
+Free to play with optional in-app purchases. Loot box odds are published in the in-game shop. The season pass is valid for one season (one calendar month). Game text is in Turkish.
 ```
 
 ## Kategori ve sınıflandırma
@@ -86,10 +93,10 @@ Free to play. Contains optional in-app purchases and rewarded ads. Loot box odds
 | Alan | Değer |
 |---|---|
 | Kategori | Oyunlar > Aksiyon (ikincil: Rol Yapma) |
-| Hedef kitle | **13 yaş ve üzeri**. Çocuklara yönelik değil, çünkü uygulama içi satın almalar, rastgele ödüllü sandıklar ve reklamlar içeriyor |
+| Hedef kitle | **13 yaş ve üzeri**. Çocuklara yönelik değil, çünkü uygulama içi satın almalar ve rastgele ödüllü sandıklar içeriyor |
 | Apple yaş derecelendirmesi | Çizgi film/fantastik şiddet: **Seyrek/Hafif**. Sıklıkla/yoğun simüle kumar: **Hayır**. Kaba mizah, korku, kan: **Yok**. Rastgele ödüller ("loot box"): **Evet** (olasılıklar yayımlanıyor) |
-| Google Play IARC anketi | Şiddet: fantastik karakterlere karşı çizgi film şiddeti. Kumar: hayır (gerçek para kazanılmaz). Rastgele ödüllü dijital satın almalar: **Evet**. Kullanıcı etkileşimi: sıralamada oyuncu adı görünür |
-| Reklam içeriyor mu | Evet (ödüllü reklamlar) |
+| Google Play IARC anketi | Şiddet: fantastik karakterlere karşı çizgi film şiddeti. Kumar: hayır (gerçek para kazanılmaz). Rastgele ödüllü dijital satın almalar: **Evet**. Kullanıcı etkileşimi: yok (1.0'da küresel sıralama yok) |
+| Reklam içeriyor mu | **Hayır** (1.0). Reklamlar açılırsa Evet |
 | Uygulama içi satın alma | Evet |
 | Destek URL'si | {{DESTEK_URL}} (ya da `mailto:` adresi) |
 | Gizlilik politikası URL'si | {{GIZLILIK_URL}} |
