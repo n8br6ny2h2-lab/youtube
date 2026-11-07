@@ -516,3 +516,9 @@ input[type=range] { flex: none; width: 150px; padding: 0; border: 0; background:
 .sv-list .item .ii { font-size: 24px; }
 .sv-sum { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 8px 0; padding: 8px; border-radius: 12px; background: #0007; font-size: 14px; }
 .sv-sum span { color: var(--mut); }
+.sv-h { display: flex; align-items: center; justify-content: space-between; }
+.sv-all { text-transform: none; letter-spacing: 0; font-size: 12px; padding: 4px 10px; border-radius: 9px; background: #fde68a22; border: 1.5px solid #fde68a88; color: #fde68a; }
+.sv-rar button small i { font-style: normal; color: #fbbf24; }
+.sv-opt em { font-style: normal; font-size: 11px; padding: 0 6px; border-radius: 8px; background: #0009; margin-left: 2px; }
+.sv-kept { margin: 8px 0 2px; padding: 8px 10px; border-radius: 12px; background: #78350f55; border: 1.5px solid #f59e0b88; font-size: 13px; color: #fde68a; }
+.sv-kept small { display: block; color: #e2e8f0; font-size: 11px; margin-top: 3px; }

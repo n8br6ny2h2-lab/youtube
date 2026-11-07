@@ -647,25 +647,33 @@ function bulkSalvage() {
   const cfg = S.settings.salvage = { rar: [0, 1], slot: 'all', keepSet: true, keepSeason: true, keepUp: false, ...(S.settings.salvage || {}) };
   const skip = new Set();
   const eqIds = new Set(Object.values(S.equipped));
-  const base = () => S.inventory.filter(i => !eqIds.has(i.uid) && !i.lock);
-  const pool = () => base().filter(i => (cfg.slot === 'all' || i.slot === cfg.slot)
-    && !(cfg.keepSet && i.set && !i.season) && !(cfg.keepSeason && i.season) && !(cfg.keepUp && i.lvl > 1));
+  // korunma nedeni (yoksa null) — pencerede sayılarıyla gösterilir
+  const why = i => eqIds.has(i.uid) ? 'eq' : i.lock ? 'lock' : cfg.keepSeason && i.season ? 'keepSeason' : cfg.keepSet && i.set && !i.season ? 'keepSet' : cfg.keepUp && i.lvl > 1 ? 'keepUp' : null;
+  const inSlot = i => cfg.slot === 'all' || i.slot === cfg.slot;
+  const pool = () => S.inventory.filter(i => inSlot(i) && !why(i));
+  const kept = () => { const c = {}; for (const i of S.inventory) { if (!inSlot(i) || !cfg.rar.includes(i.rarity)) continue; const w = why(i); if (w) c[w] = (c[w] || 0) + 1; } return c; };
+  const KEEP = { keepSet: 'set', keepSeason: 'sezon', keepUp: 'yükseltilmiş', lock: 'kilitli', eq: 'kuşanılı' };
   const picked = () => pool().filter(i => cfg.rar.includes(i.rarity) && !skip.has(i.uid)).sort((a, b) => a.rarity - b.rarity || a.slot.localeCompare(b.slot));
   const m = modal('', { cls: 'salvage', onClose: render });
   const draw = () => {
     const list = picked(), tot = { gold: 0, scrolls: 0, runes: 0 };
     for (const it of list) { const v = E.salvageValue(it); tot.gold += v.gold; tot.scrolls += v.scrolls; tot.runes += v.runes; }
     const cnt = r => pool().filter(i => i.rarity === r).length;
+    const prot = r => S.inventory.filter(i => i.rarity === r && inSlot(i) && why(i)).length;
     const high = list.filter(i => i.rarity >= 3).length;
-    const chk = (k, label) => `<button class="sv-opt ${cfg[k] ? 'on' : ''}" data-s="opt" data-k="${k}">${cfg[k] ? '☑' : '☐'} ${label}</button>`;
+    const kc = kept(), kn = Object.values(kc).reduce((a, b) => a + b, 0);
+    const optN = k => S.inventory.filter(i => inSlot(i) && cfg.rar.includes(i.rarity) && !eqIds.has(i.uid) && !i.lock && (k === 'keepSet' ? i.set && !i.season : k === 'keepSeason' ? i.season : i.lvl > 1)).length;
+    const chk = (k, label) => `<button class="sv-opt ${cfg[k] ? 'on' : ''}" data-s="opt" data-k="${k}">${cfg[k] ? '☑' : '☐'} ${label} <em>${optN(k)}</em></button>`;
+    const allOn = cfg.rar.length === D.RARITIES.length;
     m.el.innerHTML = `<button class="x" data-close>✕</button><h2>♻️ Toplu Parçala</h2>
-      <h4 class="sv-h">Hangi nadirlikler?</h4>
-      <div class="sv-rar">${D.RARITIES.map(r => `<button class="${cfg.rar.includes(r.id) ? 'on' : ''}" style="--rc:${r.color}" data-s="rar" data-r="${r.id}"><b>${r.name}</b><small>${cnt(r.id)} eşya</small></button>`).join('')}</div>
+      <h4 class="sv-h">Hangi nadirlikler? <button class="sv-all" data-s="all">${allOn ? 'Hiçbiri' : 'Tüm nadirlikler'}</button></h4>
+      <div class="sv-rar">${D.RARITIES.map(r => `<button class="${cfg.rar.includes(r.id) ? 'on' : ''}" style="--rc:${r.color}" data-s="rar" data-r="${r.id}"><b>${r.name}</b><small>${cnt(r.id)} eşya${prot(r.id) ? ` <i>+${prot(r.id)} korunan</i>` : ''}</small></button>`).join('')}</div>
       <h4 class="sv-h">Yuva</h4>
       <div class="sv-slot">${['all', ...D.SLOT_ORDER].map(f => `<button class="${cfg.slot === f ? 'on' : ''}" data-s="slot" data-f="${f}">${f === 'all' ? 'Tümü' : D.SLOTS[f].icon}</button>`).join('')}</div>
       <h4 class="sv-h">Koru</h4>
       <div class="sv-opts">${chk('keepSet', 'Set eşyaları')}${chk('keepSeason', 'Sezon eşyaları')}${chk('keepUp', 'Yükseltilmiş (Sv2+)')}</div>
-      <p class="muted small">Kuşanılı ve 🔒 kilitli eşyalar her zaman korunur. Eşyaya dokunarak listeden çıkar.</p>
+      ${kn ? `<div class="sv-kept">🛡️ <b>${kn} eşya korunuyor</b> (parçalanmayacak): ${Object.entries(kc).map(([k, n]) => `${n} ${KEEP[k]}`).join(' • ')}<small>Set/sezon/yükseltilmiş korumasını yukarıdan kapatabilirsin. Kuşanılı ve 🔒 kilitli eşyalar her zaman korunur.</small></div>` : ''}
+      <p class="muted small">Eşyaya dokunarak listeden çıkar.</p>
       <div class="sv-list inv-grid">${list.map(it => itemCell(it, {})).join('') || '<p class="muted center">Seçime uyan eşya yok</p>'}</div>
       ${skip.size ? `<button class="btn small grey" data-s="reset">↩ Çıkarılan ${skip.size} eşyayı geri al</button>` : ''}
       <div class="sv-sum"><span>Kazanç:</span><b>🪙 ${fmt(tot.gold)}</b><b>📜 ${fmt(tot.scrolls)}</b><b>🔮 ${fmt(tot.runes)}</b></div>
@@ -680,6 +688,7 @@ function bulkSalvage() {
     if (k === 'rar') { const r = +b.dataset.r; cfg.rar = cfg.rar.includes(r) ? cfg.rar.filter(x => x !== r) : [...cfg.rar, r]; }
     if (k === 'slot') cfg.slot = b.dataset.f;
     if (k === 'opt') cfg[b.dataset.k] = !cfg[b.dataset.k];
+    if (k === 'all') cfg.rar = cfg.rar.length === D.RARITIES.length ? [] : D.RARITIES.map(r => r.id);
     if (k === 'reset') skip.clear();
     if (k === 'go') {
       const list = picked(); if (!list.length) return;
@@ -689,8 +698,9 @@ function bulkSalvage() {
       for (const x of list) { const v = E.salvageValue(x); tot.gold += v.gold; tot.scrolls += v.scrolls; tot.runes += v.runes; }
       const ids = new Set(list.map(x => x.uid));
       S.inventory = S.inventory.filter(i => !ids.has(i.uid));
+      const kc2 = kept(), kn2 = Object.values(kc2).reduce((a, c) => a + c, 0);
       m.close(); play('coin'); vib(30); save(true);
-      rewardPopup(E.grant(S, tot), `♻️ ${list.length} eşya parçalandı`); render();
+      rewardPopup(E.grant(S, tot), `♻️ ${list.length} eşya parçalandı`, kn2 ? `🛡️ ${kn2} eşya korundu: ${Object.entries(kc2).map(([w, n]) => `${n} ${KEEP[w]}`).join(', ')}` : ''); render();
       return;
     }
     play('click'); save(); draw();
