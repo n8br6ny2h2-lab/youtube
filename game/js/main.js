@@ -331,7 +331,8 @@ function questHtml() {
         ${m.id === 'ad' && m.prog < m.goal ? `<button class="btn small blue" data-act="adMission">📺 İzle</button>` : `<button class="btn small ${m.prog >= m.goal && !m.claimed ? 'green pulse' : 'grey'}" data-act="mission" data-id="${m.id}" ${m.prog >= m.goal && !m.claimed ? '' : 'disabled'}>${m.claimed ? '✓' : 'Al'}</button>`}</div>`).join('')}`;
   } else if (questTab === 'pass') {
     const tier = E.passTier(S), into = S.pass.xp - tier * D.PASS_XP;
-    body = `<div class="pass-head"><div><b>🎫 Efsun Bileti • Sezon ${S.pass.season}</b><small>Kademe ${tier}/${D.PASS_TIERS}</small>${bar(tier >= D.PASS_TIERS ? 1 : into, tier >= D.PASS_TIERS ? 1 : D.PASS_XP, 'gold')}</div>
+    const si = D.seasonInfo();
+    body = `<div class="pass-head"><div><b>🎫 Efsun Bileti • Sezon ${S.pass.season}</b><small class="dates">📅 ${si.range} • 1 ay geçerli • ⏳ <span data-until="${si.endsAt}">${countdown(si.endsAt - Date.now())}</span></small><small>Kademe ${tier}/${D.PASS_TIERS}</small>${bar(tier >= D.PASS_TIERS ? 1 : into, tier >= D.PASS_TIERS ? 1 : D.PASS_XP, 'gold')}</div>
       ${S.pass.premium ? '<span class="tag gold">PREMIUM ✓</span>' : `<button class="btn small orange" data-act="buy" data-id="battle_pass">Premium ${store.price('battle_pass')}</button>`}</div>
       <div class="pass-cols"><span>Ücretsiz</span><span></span><span>Premium 👑</span></div>
       <div class="pass">${Array.from({ length: D.PASS_TIERS }, (_, i) => i + 1).map(t => {
@@ -394,7 +395,7 @@ function shopHtml() {
 
     <h3>⭐ Abonelik & Bilet</h3>
     ${['monthly_card', 'vip_noads', 'battle_pass'].filter(id => ADS || id !== 'vip_noads').map(id => { const p = D.PRODUCT[id]; const done = (id === 'vip_noads' && S.vip) || (id === 'battle_pass' && S.pass.premium);
-      return `<div class="srow"><div class="si">${p.icon}</div><div class="sinfo"><b>${p.name}</b><small>${p.desc}</small></div><button class="btn small ${done ? 'grey' : 'orange'}" data-act="buy" data-id="${id}" ${done ? 'disabled' : ''}>${done ? '✓ Aktif' : store.price(id)}</button></div>`; }).join('')}
+      return `<div class="srow"><div class="si">${p.icon}</div><div class="sinfo"><b>${p.name}</b><small>${p.desc}</small>${id === 'battle_pass' ? `<small class="dates">📅 Sezon ${D.seasonInfo().n}: ${D.seasonInfo().range}</small>` : ''}</div><button class="btn small ${done ? 'grey' : 'orange'}" data-act="buy" data-id="${id}" ${done ? 'disabled' : ''}>${done ? '✓ Aktif' : store.price(id)}</button></div>`; }).join('')}
 
     <h3>🎁 Sandıklar</h3>
     <div class="chests">
@@ -794,7 +795,7 @@ function offerModal(id) {
   const isStarter = id === 'kit_starter' && S.offers.starterUntil > Date.now();
   const m = modal(`<div class="offer-head" style="--kc:${p.color || '#f59e0b'}"><div class="kv">${p.value || ''}</div><div class="oi">${p.icon}</div><h2>${p.name}</h2>
     ${isStarter ? `<div class="timer">⏳ Teklif bitiyor: <b data-until="${S.offers.starterUntil}">${countdown(S.offers.starterUntil - Date.now())}</b></div>` : ''}</div>
-    ${lines.length ? `<ul class="contents">${lines.map(l => `<li>${l}</li>`).join('')}</ul>` : `<p class="center">${p.desc}</p>`}
+    ${lines.length ? `<ul class="contents">${lines.map(l => `<li>${l}</li>`).join('')}</ul>` : `<p class="center">${p.desc}</p>`}${id === 'battle_pass' ? `<p class="center dates">📅 Sezon ${D.seasonInfo().n}: <b>${D.seasonInfo().range}</b></p>` : ''}
     <button class="btn orange wide big" data-x="buy" ${owned ? 'disabled' : ''}>${owned ? '✓ Satın alındı' : store.price(id)}</button>
     <p class="muted center small">${store.native ? 'Ödeme mağaza hesabınızdan alınır.' : 'Tarayıcı sürümü: Test Mağazası'}</p>`, { cls: 'offer' });
   m.el.querySelector('[data-x]').onclick = () => { m.close(); store.buy(id); };
@@ -942,6 +943,7 @@ function seasonHtml() {
   const pick = (t, list, label) => list.length ? `<div class="wrow"><span>${label}</span><div class="seg"><button class="${!C[t] ? 'on' : ''}" data-act="cos" data-t="${t}" data-v="">Kapalı</button>${list.map(k => `<button class="${C[t] === k ? 'on' : ''}" data-act="cos" data-t="${t}" data-v="${k}">${t === 'title' ? `Sezon ${k.slice(1)}` : D.SEASON_THEME[k].name}</button>`).join('')}</div></div>` : '';
   return `<div class="season-head" style="--sc:${th.color}">
       <div class="sh-top"><b>🏆 Sezon ${se.n}: ${th.name}</b><small>⏳ <span data-until="${info.endsAt}">${countdown(info.endsAt - Date.now())}</span></small></div>
+      <div class="sh-dates">📅 ${info.range} • Sezon ve Efsun Bileti 1 ay sürer</div>
       <div class="sh-pts"><b>${fmt(se.pts)}</b> / ${max} Sezon Puanı</div>
       <div class="sp-track"><div style="width:${Math.min(100, se.pts / max * 100)}%"></div>${D.SEASON_REWARDS.map(r => `<i style="left:${r.pts / max * 100}%" class="${se.pts >= r.pts ? 'on' : ''}"></i>`).join('')}</div>
       <small>Özel set: ${set.icon} <b>${set.name}</b> — 4 parça: ${set.d4}</small>

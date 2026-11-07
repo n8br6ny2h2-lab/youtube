@@ -242,7 +242,7 @@ export const PRODUCTS = [
   { id: 'vip_noads', kind: 'vip', type: 'non_consumable', once: true, name: 'VIP • Reklamsız', icon: '⭐', price: '₺179,99',
     desc: 'Tüm reklamlar atlanır, ödüller anında alınır, kalıcı +%25 altın, 2× devriye ödülü' },
   { id: 'battle_pass', kind: 'pass', type: 'consumable', name: 'Efsun Bileti (Sezon)', icon: '🎫', price: '₺199,99',
-    desc: 'Sezonun premium ödül hattı: Mitik eşya, binlerce elmas, özel sandıklar' },
+    desc: 'Sezonun premium ödül hattı: Mitik eşya, binlerce elmas, özel sandıklar. 1 ay geçerlidir; ayın son günü sezonla birlikte biter, yeni sezonda yeniden alınır.' },
 ];
 export const PRODUCT = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
 
@@ -310,7 +310,11 @@ export const SEASON_THEME = Object.fromEntries(SEASON_THEMES.map(t => [t.key, t]
 export function seasonInfo(d = new Date()) {
   const idx = Math.max(0, (d.getFullYear() - SEASON_START.y) * 12 + (d.getMonth() + 1 - SEASON_START.m));
   const theme = SEASON_THEMES[idx % SEASON_THEMES.length];
-  return { n: idx + 1, id: `${d.getFullYear()}-${d.getMonth() + 1}`, theme, endsAt: new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime() };
+  const start = new Date(d.getFullYear(), d.getMonth(), 1), end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  const ay = x => x.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
+  // range: "1 Kasım – 30 Kasım 2026" (sezon ve bilet 1 ay geçerli)
+  return { n: idx + 1, id: `${d.getFullYear()}-${d.getMonth() + 1}`, theme, startsAt: start.getTime(), endsAt: new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime(),
+    range: `${ay(start)} – ${ay(end)} ${end.getFullYear()}` };
 }
 // Zor sezon görevleri (sezonda bir kez). kind: 'arena' dalga, 'flag' tek seferlik olay, 'cnt' sezon sayacı
 export const SEASON_TASKS = [
