@@ -33,7 +33,7 @@ sonra her kanal için `python main.py --mode auth` (Gece için `--channel gece` 
   Onay gelince: `python main.py --mode enable-auto-publish` (her iki kanal için).
 - Kota proje başına 10.000 birim/gün (Pasifik saatiyle sıfırlanır), iki kanal ortak kullanır.
 - Gece: sıradaki senaryo `003-yildizlarin-dogumu-ve-uykusu`; `002-okyanus` Pexels anahtarı bekliyor.
-- Bulutkent'te üretilmiş, yüklenmeyi bekleyen: video 5, 9–14 (`state/videos.json`).
+- Bulutkent sesleri Google Chirp 3 HD kadın sesleri (Text-to-Speech API, aynı API anahtarı). Eski erkek sesli videolar `scripts/revoice.py` ile yeniden üretildi; eski yüklemeler yenisi yüklenince `--retire` ile siliniyor (gece görevi çalıştırır).
 - Gece zamanlanmış görev: her gece 02:37 İstanbul, iki kanalın döngüsü + telefona özet bildirimi.
 
 ## Temizlik kuralı
