@@ -4,6 +4,7 @@ import {
   TALENTS, WEAPON_TYPES, CHESTS, MISSIONS, ACHIEVEMENTS, PASS_XP, PASS_TIERS, DAILY_CHALLENGES,
 } from './data.js';
 import { today } from './save.js';
+import { FEATURES } from './features.js';
 
 let uidc = 0;
 export const uid = () => Date.now().toString(36) + (uidc++).toString(36) + Math.floor(Math.random() * 1e6).toString(36);
@@ -251,7 +252,7 @@ export function progress(save, id, n = 1) {
 }
 
 export function missionsState(save) {
-  return MISSIONS.map(m => ({ ...m, prog: Math.min(m.goal, save.daily.prog[m.id] || 0), claimed: save.daily.claimed.includes(m.id) }));
+  return MISSIONS.filter(m => FEATURES.ads || m.id !== 'ad').map(m => ({ ...m, prog: Math.min(m.goal, save.daily.prog[m.id] || 0), claimed: save.daily.claimed.includes(m.id) }));
 }
 
 export function achievementsState(save) {

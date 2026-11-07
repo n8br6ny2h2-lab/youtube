@@ -4,6 +4,8 @@
 // Google Play Billing / App Store StoreKit kullanılır. Tarayıcıda gerçek ödeme ALINMAZ;
 // "Test Mağazası" modunda satın alma onaylanınca ürün verilir (geliştirme/demo için).
 import { PRODUCTS } from './data.js';
+import { FEATURES } from './features.js';
+export { FEATURES };
 
 export const CONFIG = {
   // Sunucu tarafı makbuz doğrulama (server/validate.mjs). Boşsa istemci tarafında onaylanır.
@@ -101,7 +103,9 @@ export class Store {
 export class Ads {
   constructor() { this.native = null; this.onSimulate = null; this.canRequest = true; this.privacyRequired = false; }
   // Google'ın önerdiği sıra: (1) UMP onay formu (AB/İngiltere vb.)  (2) iOS ATT izni  (3) AdMob başlatma
+  get enabled() { return FEATURES.ads; }
   async init() {
+    if (!FEATURES.ads) return; // reklamlar kapalı: onay formu, izleme izni ve SDK başlatma yok
     const AdMob = window.Capacitor?.Plugins?.AdMob;
     if (!isNative() || !AdMob) return;
     try {
@@ -129,7 +133,7 @@ export class Ads {
   }
   // true = ödül kazanıldı
   async rewarded(vip) {
-    if (vip) return true;
+    if (vip || !FEATURES.ads) return true; // reklamsız sürümde ödül doğrudan verilir
     if (this.native) {
       if (!this.canRequest) return false;
       try {

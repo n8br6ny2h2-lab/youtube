@@ -4,10 +4,26 @@
   "webDir": "www",
   "backgroundColor": "#0b0d17",
   "android": {
-    "allowMixedContent": false
+    "allowMixedContent": false,
+    "includePlugins": [
+      "@capacitor/app",
+      "@capacitor/haptics",
+      "@capacitor/local-notifications",
+      "@capacitor/splash-screen",
+      "@capacitor/status-bar",
+      "cordova-plugin-purchase"
+    ]
   },
   "ios": {
-    "contentInset": "never"
+    "contentInset": "never",
+    "includePlugins": [
+      "@capacitor/app",
+      "@capacitor/haptics",
+      "@capacitor/local-notifications",
+      "@capacitor/splash-screen",
+      "@capacitor/status-bar",
+      "cordova-plugin-purchase"
+    ]
   },
   "plugins": {
     "AdMob": {
@@ -40,11 +56,7 @@
     "ios": {
       "spm": {
         "swiftToolsVersion": "6.1",
-        "packageTraits": {
-          "@capacitor-firebase/authentication": [
-            "Google"
-          ]
-        }
+        "packageTraits": {}
       }
     }
   }

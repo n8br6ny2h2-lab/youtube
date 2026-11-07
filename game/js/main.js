@@ -2,7 +2,8 @@
 import * as D from './data.js';
 import * as E from './economy.js';
 import { load, persist, wipe, today, exportSave, importSave } from './save.js';
-import { Store, Ads, Sfx, haptic, share, scheduleEnergyNotification } from './services.js';
+import { Store, Ads, Sfx, haptic, share, scheduleEnergyNotification, FEATURES } from './services.js';
+const ADS = FEATURES.ads;
 import { Account } from './account.js';
 import { createMenus } from './menus.js';
 import { Game, RUN_SKILLS } from './game.js';
@@ -366,7 +367,7 @@ function shopHtml() {
       ${p.limit ? `<div class="klim">${S.purchases[p.id] || 0}/${p.limit}</div>` : ''}</div>`).join('')}</div>
 
     <h3>⭐ Abonelik & Bilet</h3>
-    ${['monthly_card', 'vip_noads', 'battle_pass'].map(id => { const p = D.PRODUCT[id]; const done = (id === 'vip_noads' && S.vip) || (id === 'battle_pass' && S.pass.premium);
+    ${['monthly_card', 'vip_noads', 'battle_pass'].filter(id => ADS || id !== 'vip_noads').map(id => { const p = D.PRODUCT[id]; const done = (id === 'vip_noads' && S.vip) || (id === 'battle_pass' && S.pass.premium);
       return `<div class="srow"><div class="si">${p.icon}</div><div class="sinfo"><b>${p.name}</b><small>${p.desc}</small></div><button class="btn small ${done ? 'grey' : 'orange'}" data-act="buy" data-id="${id}" ${done ? 'disabled' : ''}>${done ? '✓ Aktif' : store.price(id)}</button></div>`; }).join('')}
 
     <h3>🎁 Sandıklar</h3>
@@ -377,7 +378,7 @@ function shopHtml() {
         ${c.pity ? `<small>${c.pity.every - (S.pity[id] || 0)} açılışta ${D.RARITIES[c.pity.rarity].name} garanti</small>` : '<small>Başlangıç eşyaları</small>'}
         <button class="btn small ${c.cost.gold ? 'gold' : 'blue'}" data-act="chest" data-id="${id}" data-n="1">${c.cost.gold ? `🪙 ${fmt(c.cost.gold)}` : `💎 ${c.cost.gems}`}</button>
         ${c.cost10 ? `<button class="btn small purple" data-act="chest" data-id="${id}" data-n="10">10× 💎 ${fmt(c.cost10.gems)}</button>` : ''}
-        ${id === 'bronze' ? `<button class="btn small ${S.daily.freeChest ? 'grey' : 'green pulse'}" data-act="freeChest" ${S.daily.freeChest ? 'disabled' : ''}>${S.daily.freeChest ? 'Yarın' : '📺 Ücretsiz'}</button>` : ''}
+        ${id === 'bronze' ? `<button class="btn small ${S.daily.freeChest ? 'grey' : 'green pulse'}" data-act="freeChest" ${S.daily.freeChest ? 'disabled' : ''}>${S.daily.freeChest ? 'Yarın' : (ADS ? '📺 Ücretsiz' : '🎁 Günlük hediye')}</button>` : ''}
       </div>`).join('')}
     </div>
 
@@ -703,7 +704,7 @@ function dailyModal() {
 function energyModal() {
   const m = modal(`<h2>🔋 Enerji</h2><p class="center">${S.energy}/${E.energyMax(S)} • Her ${D.GAME.energyRegenSec / 60} dakikada 1 dolar</p>
     <div class="col gap"><button class="btn blue" data-x="gems">30 Enerji • 💎 60</button>
-    <button class="btn green" data-x="ad" ${(S.daily.adEnergy || 0) >= 3 ? 'disabled' : ''}>📺 Reklam izle: +10 Enerji (${3 - (S.daily.adEnergy || 0)}/3)</button>
+    <button class="btn green" data-x="ad" ${(S.daily.adEnergy || 0) >= 3 ? 'disabled' : ''}>${ADS ? '📺 Reklam izle' : '🎁 Günlük hediye'}: +10 Enerji (${3 - (S.daily.adEnergy || 0)}/3)</button>
     <button class="btn orange" data-x="card">📆 Aylık Kart: enerji sınırı +10</button></div>`);
   m.el.addEventListener('click', async e => {
     const b = e.target.closest('[data-x]'); if (!b || b.disabled) return;
@@ -922,7 +923,7 @@ function levelUpModal(choices, cb) {
   const draw = list => {
     m.el.innerHTML = `<h2 class="glow">SEVİYE ATLADIN!</h2><p class="muted center">Bir güç seç</p>
       <div class="skills">${list.map(s => `<button class="skill" data-id="${s.id}"><div class="sk-i">${s.icon}</div><b>${s.name}</b><small>${s.desc}</small><div class="stars">${'★'.repeat(s.lvl)}${'☆'.repeat(Math.max(0, Math.min(s.max, 6) - s.lvl))}</div></button>`).join('')}</div>
-      ${run.rerolls > 0 ? '<button class="btn blue small" data-r>📺 Yenile</button>' : ''}`;
+      ${run.rerolls > 0 ? `<button class="btn blue small" data-r>${ADS ? '📺' : '🔄'} Yenile</button>` : ''}`;
   };
   draw(choices);
   m.el.addEventListener('click', async e => {
@@ -957,7 +958,7 @@ function deathModal(canRevive, cb) {
   if (!canRevive) return cb(false);
   let done = false;
   const m = modal(`<h2>💀 Yenildin!</h2><p class="center">Bir şans daha? Tüm canınla dirilir, etrafındaki düşmanları dondurursun.</p>
-    <div class="col gap"><button class="btn blue" data-d="gems">💎 80 ile Diril</button><button class="btn green" data-d="ad">📺 Reklam izle ve Diril</button><button class="btn grey" data-d="no">Vazgeç</button></div>`, { closable: false });
+    <div class="col gap"><button class="btn blue" data-d="gems">💎 80 ile Diril</button>${ADS ? '<button class="btn green" data-d="ad">📺 Reklam izle ve Diril</button>' : ''}<button class="btn grey" data-d="no">Vazgeç</button></div>`, { closable: false });
   m.el.addEventListener('click', async e => {
     const b = e.target.closest('[data-d]'); if (!b || done) return;
     if (b.dataset.d === 'gems') { if (!E.pay(S, { gems: 80 })) { play('error'); return toast('Yeterli elmas yok', 'bad'); } done = true; m.close(); play('level'); cb(true); }
@@ -992,7 +993,7 @@ function endModal(res) {
     <div class="res-stats"><div><b>${Math.floor(res.wave)}</b><small>Dalga</small></div><div><b>${fmt(res.kills)}</b><small>Düşman</small></div><div><b>${res.maxCombo || 0}</b><small>Kombo</small></div><div><b>${mmss(Math.floor(res.time))}</b><small>Süre</small></div></div>
     <div class="reward-grid">${list.map((r, i) => `<div class="reward-cell ${r.rarity !== undefined ? 'rar' + r.rarity : ''}" style="animation-delay:${i * 80}ms"><div class="ri">${r.icon}</div><div class="rt">${esc(r.text)}</div></div>`).join('')}</div>
     <div class="col gap">
-      <button class="btn blue" data-e="double">📺 2× Altın (+${fmt(loot.gold)} 🪙)</button>
+      ${ADS ? `<button class="btn blue" data-e="double">📺 2× Altın (+${fmt(loot.gold)} 🪙)</button>` : ''}
       <div class="row gap"><button class="btn purple" data-e="share">📤 Paylaş</button><button class="btn green" data-e="ok">Devam</button></div>
     </div>`, { closable: false, cls: 'results' });
   m.el.addEventListener('click', async e => {

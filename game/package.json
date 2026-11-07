@@ -2,6 +2,7 @@
   "name": "efsun-avcisi",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Efsun Avcısı — mobil aksiyon RPG (HTML5 + Capacitor)",
   "scripts": {
     "dev": "python3 -m http.server 8080",
@@ -12,7 +13,9 @@
     "native-setup": "node scripts/native-setup.mjs",
     "assets": "npx @capacitor/assets generate --android --ios --iconBackgroundColor '#3b1a78' --splashBackgroundColor '#0b0820'",
     "legal-fill": "node scripts/legal-fill.mjs",
-    "release-check": "node scripts/release-check.mjs"
+    "release-check": "node scripts/release-check.mjs",
+    "features": "node scripts/features.mjs",
+    "release-check:ios": "node scripts/release-check.mjs --ios"
   },
   "dependencies": {
     "@capacitor-community/admob": "^8.3.0",

@@ -27,6 +27,8 @@ defaults:
 jobs:
   android:
     name: Android
+    # Şimdilik yalnızca App Store'a çıkılıyor; Android derlemesi sadece elle başlatılınca çalışır.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -48,6 +50,7 @@ jobs:
       - name: Android projesi
         run: |
           npm run build
+          npm run features
           npx cap add android
           if [ -n "$GOOGLE_SERVICES_JSON" ]; then printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json; fi
           npm run native-setup
@@ -103,6 +106,7 @@ jobs:
       - name: iOS projesi
         run: |
           npm run build
+          npm run features
           npx cap add ios
           if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then printf '%s' "$GOOGLE_SERVICE_INFO_PLIST" > ios/App/App/GoogleService-Info.plist; fi
           npm run native-setup

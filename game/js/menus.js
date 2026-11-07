@@ -1,7 +1,7 @@
 // Ana menü (başlık ekranı) ve menü pencereleri: hesap, ayarlar, sıralama, posta, haberler, hediye kodu, destek, hakkında, profil
 import * as D from './data.js';
 import { PROVIDERS } from './account.js';
-import { CONFIG } from './services.js';
+import { CONFIG, FEATURES } from './services.js';
 import { drawHero, drawEnemy, drawPet } from './art.js';
 import { $, esc, modal, toast, confirmBox, rewardPopup } from './ui.js';
 
@@ -26,7 +26,9 @@ export function createMenus(app) {
 
   function refreshTitle() {
     const s = S(), links = Object.keys(s.account.links);
-    $('#title-acc').innerHTML = links.length
+    $('#title-acc').dataset.m = FEATURES.accounts ? 'account' : 'profile';
+    if (!FEATURES.accounts) $('#title-acc').innerHTML = `<span class="dot on"></span>${esc(s.playerName)}`;
+    else $('#title-acc').innerHTML = links.length
       ? `<span class="dot on"></span>${links.map(l => esc(PROVIDERS[l].name)).join(' • ')}`
       : '<span class="dot"></span>Misafir hesap • <u>Bağla</u>';
     const unread = mailCount();
@@ -105,7 +107,7 @@ export function createMenus(app) {
 
   // ================================================================ MENÜ LİSTESİ (lobide ☰)
   function openMenu() {
-    const items = [['home', '🏠', 'Ana Menü'], ['profile', '👤', 'Profil'], ['account', '🔗', 'Hesap & Bulut'], ['leader', '🏆', 'Sıralama'],
+    const items = [['home', '🏠', 'Ana Menü'], ['profile', '👤', 'Profil'], ['account', FEATURES.accounts ? '🔗' : '💾', FEATURES.accounts ? 'Hesap & Bulut' : 'Hesap & Yedek'], ['leader', '🏆', 'Sıralama'],
       ['mail', '✉️', `Posta${mailCount() ? ` (${mailCount()})` : ''}`], ['news', '📰', 'Haberler'], ['code', '🎁', 'Hediye Kodu'], ['settings', '⚙️', 'Ayarlar'], ['help', '❓', 'Destek & SSS'], ['about', 'ℹ️', 'Hakkında']];
     const m = modal(`<h2>Menü</h2><div class="menu-list">${items.map(([k, i, n]) => `<button data-mm="${k}"><span>${i}</span>${n}<em>›</em></button>`).join('')}</div>`, { cls: 'menusheet' });
     m.el.addEventListener('click', e => { const b = e.target.closest('[data-mm]'); if (!b) return; m.close(); app.play('click'); open(b.dataset.mm); });
@@ -118,6 +120,7 @@ export function createMenus(app) {
 
   // ================================================================ HESAP
   function account() {
+    if (!FEATURES.accounts) return backupOnly();
     const m = modal('', { cls: 'acc', onClose: () => { refreshTitle(); app.render(); } });
     const draw = () => {
       const s = S(), links = s.account.links, av = app.account.available();
@@ -178,6 +181,16 @@ export function createMenus(app) {
     });
   }
 
+  // Hesap bağlama kapalıyken: ilerlemeyi yedek koduyla koruma
+  function backupOnly() {
+    const s = S();
+    const m = modal(`<h2>💾 Hesap & Yedek</h2>
+      <div class="acc-card warn"><b>🔜 Hesap bağlama çok yakında</b><small>Game Center ve Apple ile giriş sonraki güncellemede geliyor. Şimdilik ilerlemen bu telefonda saklanıyor. Telefon değiştirmeden ya da oyunu silmeden önce yedek kodu al ve notlarına kaydet.</small></div>
+      <div class="col gap"><button class="btn blue" data-k="export">💾 Yedek kodu al</button><button class="btn grey" data-k="import">📥 Yedekten yükle</button></div>
+      <div class="pid">Oyuncu kimliği: <b>${s.account.playerId}</b></div>`, { cls: 'acc' });
+    m.el.addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (!b) return; if (b.dataset.k === 'export') app.exportCode(); else app.importCode(); });
+  }
+
   async function cloudPull(auto) {
     const s = S();
     const r = await app.account.pull();
@@ -213,7 +226,7 @@ export function createMenus(app) {
         <div class="setgroup"><h4>Bildirimler</h4>${tg('notify', '⚡ Enerji dolunca haber ver')}</div>
         <div class="setgroup"><h4>Dil</h4><div class="setrow"><span>🌐 Dil</span><div class="seg"><button class="on">Türkçe</button><button disabled>English (yakında)</button></div></div></div>
         <div class="setgroup"><h4>Hesap & Veri</h4><div class="col gap">
-          <button class="btn blue" data-b="account">🔗 Hesap & Bulut</button>
+          <button class="btn blue" data-b="account">${FEATURES.accounts ? '🔗 Hesap & Bulut' : '💾 Hesap & Yedek'}</button>
           <button class="btn grey" data-b="restore">🧾 Satın alımları geri yükle</button>
           ${app.ads?.privacyRequired ? '<button class="btn grey" data-b="adprivacy">🛡️ Reklam gizlilik seçenekleri</button>' : ''}
           <div class="row gap"><button class="btn grey" data-b="export">💾 Yedek kodu al</button><button class="btn grey" data-b="import">📥 Yedekten yükle</button></div>
@@ -263,7 +276,7 @@ export function createMenus(app) {
       m.el.innerHTML = `<button class="x" data-close>✕</button><h2>🏆 Sıralama</h2>
         <div class="subtabs">${boards.map(([k, n]) => `<button class="${cur === k ? 'on' : ''}" data-b="${k}">${n}</button>`).join('')}</div>
         <div class="lb-list"><p class="muted center">${CONFIG.cloudUrl ? 'Yükleniyor…' : 'Küresel sıralama yakında açılıyor! Şimdilik kişisel rekorlarını geliştir.'}</p></div>
-        ${linked ? '' : '<button class="btn green wide" data-l="link">🔗 Sıralamaya girmek için hesabını bağla</button>'}
+        ${linked || !FEATURES.accounts ? '' : '<button class="btn green wide" data-l="link">🔗 Sıralamaya girmek için hesabını bağla</button>'}
         <div class="lb-me"><span>Senin skorun</span><b>${app.fmt(mine[cur])}</b></div>`;
       if (!CONFIG.cloudUrl) return;
       try {
@@ -332,7 +345,7 @@ export function createMenus(app) {
   function help() {
     const s = S();
     modal(`<h2>❓ Destek & SSS</h2>
-      <div class="faq">${D.FAQ.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
+      <div class="faq">${D.FAQ.filter(([q]) => FEATURES.accounts || !q.startsWith('Hesabımı')).map(([q, a]) => [q, !FEATURES.accounts && q.startsWith('İlerlemem') ? 'Şimdilik ilerlemen bu telefonda saklanıyor. Ana Menü > Hesap > Yedek kodu al ile kodunu notlarına kaydet; yeni telefonda Yedekten yükle ile geri getirirsin. Hesap bağlama yakında geliyor.' : a]).map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
       <div class="pid">Oyuncu kimliğin: <b>${s.account.playerId}</b></div>
       ${CONFIG.supportEmail ? `<a class="btn blue wide" href="mailto:${CONFIG.supportEmail}?subject=${encodeURIComponent('Efsun Avcısı Destek - ' + s.account.playerId)}&body=${encodeURIComponent(`Oyuncu: ${s.account.playerId}\nSürüm: ${D.GAME.version}\nCihaz: ${navigator.userAgent}\n\nSorun:\n`)}">✉️ Destek ekibine yaz</a>` : ''}`, { cls: 'helpbox' });
   }
@@ -362,7 +375,7 @@ export function createMenus(app) {
       m.el.innerHTML = `<button class="x" data-close>✕</button>
         <div class="prof-head" style="--hc:${h.color}"><canvas class="hero-cv" data-hero="${s.hero}" data-w="${st.wtype}" data-color="${h.color}"></canvas>
           <div><input id="pname2" value="${esc(s.playerName)}" maxlength="16" aria-label="Oyuncu adı"><small>${h.name} • ⚡ ${app.fmt(st.power)}</small>
-          <small>${links.length ? '🔗 ' + links.map(l => PROVIDERS[l].name).join(', ') : '⚠️ Misafir hesap'}</small></div></div>
+          <small>${!FEATURES.accounts ? '💾 İlerleme bu telefonda' : links.length ? '🔗 ' + links.map(l => PROVIDERS[l].name).join(', ') : '⚠️ Misafir hesap'}</small></div></div>
         <div class="statgrid">${[['🗺️ Bölüm', s.maxChapter], ['⚔️ Savaş', s.stats.runs], ['🏆 Zafer', s.stats.wins], ['💀 Düşman', app.fmt(s.stats.kills)], ['👑 Boss', s.stats.bossKills], ['🔥 En iyi kombo', s.stats.maxCombo || 0],
           ['🎁 Sandık', s.stats.chests], ['✨ Efsun', s.stats.enchants], ['🌟 Mitik eşya', s.stats.mythics], ['⏱️ Oyun süresi', Math.floor((s.stats.playSec || 0) / 60) + ' dk']].map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('')}</div>
         <div class="row gap"><button class="btn blue" data-p="account">🔗 Hesap</button><button class="btn purple" data-p="ach">🏆 Başarımlar</button></div>`;

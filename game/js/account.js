@@ -6,7 +6,7 @@
 //   böylece oyuncu iPhone'dan Android'e geçse bile aynı ilerlemeye ulaşır.
 // Bulut kaydı ve sıralama: server/cloud.mjs (Firebase ID token'ı sunucuda doğrulanır).
 // Tarayıcıda gerçek giriş yapılamaz; açıkça "Test" olarak işaretlenmiş bir bağlantı oluşturulur.
-import { CONFIG } from './services.js';
+import { CONFIG, FEATURES } from './services.js';
 
 export const PROVIDERS = {
   gamecenter: { name: 'Game Center',         icon: '🎮', firebase: 'gc.apple.com',         fn: 'GameCenter', kind: 'games' },
@@ -20,12 +20,14 @@ const FA = () => window.Capacitor?.Plugins?.FirebaseAuthentication;
 export class Account {
   constructor() {
     this.platform = window.Capacitor?.getPlatform?.() || 'web';
-    this.native = (this.platform === 'ios' || this.platform === 'android') && !!FA();
+    this.enabled = FEATURES.accounts;
+    this.native = this.enabled && (this.platform === 'ios' || this.platform === 'android') && !!FA();
     this.onTestConfirm = null; // (provider) => Promise<boolean>
   }
 
   // Apple yönergesi 4.8: iOS'te başka bir sosyal giriş sunuluyorsa Apple ile Giriş de sunulmalı.
   available() {
+    if (!this.enabled) return [];
     if (this.platform === 'ios') return ['gamecenter', 'apple', 'google'];
     if (this.platform === 'android') return ['playgames', 'google'];
     return ['gamecenter', 'apple', 'playgames', 'google'];
@@ -66,7 +68,7 @@ export class Account {
   }
 
   // ---- Bulut kaydı ve sıralama (server/cloud.mjs) ----
-  cloudReady(links) { return !!CONFIG.cloudUrl && this.native && Object.values(links || {}).some(l => !l.test); }
+  cloudReady(links) { return this.enabled && !!CONFIG.cloudUrl && this.native && Object.values(links || {}).some(l => !l.test); }
   async call(path, method, body) {
     const token = await this.token();
     if (!CONFIG.cloudUrl || !token) throw new Error('Bulut için hesabını bağla');
@@ -85,7 +87,7 @@ export class Account {
 
   async submitScores(scores) { try { await this.call('/scores', 'POST', scores); } catch (e) { /* çevrimdışıysa sessiz */ } }
   async leaderboard(board) {
-    if (!CONFIG.cloudUrl) return null;
+    if (!this.enabled || !CONFIG.cloudUrl) return null;
     const res = await fetch(`${CONFIG.cloudUrl.replace(/\/$/, '')}/leaderboard?board=${encodeURIComponent(board)}`);
     if (!res.ok) throw new Error('Sıralama yüklenemedi');
     return res.json(); // { top: [{rank, name, value, hero}], }
