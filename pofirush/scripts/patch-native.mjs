@@ -1,6 +1,7 @@
 // `npx cap add android/ios` sonrası yerel projeleri yayına hazır hale getirir (tekrar çalıştırmak güvenlidir):
 //  • AdMob uygulama kimliği (Android manifest + iOS Info.plist)
-//  • iOS: ATT izin metni, SKAdNetwork, yalnız dikey ekran, tam ekran, şifreleme beyanı
+//  • iOS: ATT izin metni, SKAdNetwork, yalnız dikey ekran, tam ekran, şifreleme beyanı,
+//         Apple gizlilik bildirimi (PrivacyInfo.xcprivacy) — dosyayı yazar ve Xcode projesine ekler
 //  • Android: yalnız dikey ekran, sürüm numarası package.json'dan
 //
 // YAYIN ÖNCESİ: aşağıdaki iki AdMob UYGULAMA kimliğini (~ içeren) kendi kimliklerinizle değiştirin
@@ -8,6 +9,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
@@ -62,11 +64,73 @@ if (!edit(plist, s => {
   s = setKey(s, 'UISupportedInterfaceOrientations', '<array>\n\t\t<string>UIInterfaceOrientationPortrait</string>\n\t</array>');
   s = setKey(s, 'UISupportedInterfaceOrientations~ipad', '<array>\n\t\t<string>UIInterfaceOrientationPortrait</string>\n\t\t<string>UIInterfaceOrientationPortraitUpsideDown</string>\n\t</array>');
   s = setKey(s, 'UIRequiresFullScreen', '<true/>');
+  s = setKey(s, 'CFBundleLocalizations', '<array>\n\t\t<string>en</string>\n\t\t<string>tr</string>\n\t</array>'); // App Store'da TR + EN görünür
   s = setKey(s, 'ITSAppUsesNonExemptEncryption', '<false/>');
   s = setKey(s, 'CFBundleShortVersionString', `<string>${pkg.version}</string>`);
   s = setKey(s, 'CFBundleVersion', `<string>${versionCode}</string>`);
   return s;
 })) console.log('ios/ yok — önce (macOS): npx cap add ios');
+
+// ---------------- iOS gizlilik bildirimi (App Store zorunlu) ----------------
+// Uygulamanın kendi kodu: UserDefaults (Capacitor Preferences ile kayıt yedeği) → gerekçe CA92.1.
+// Toplanan veri: satın alma geçmişi (makbuz doğrulama, kimliğe bağlı değil, izleme yok).
+// Reklam kimliği / izleme bildirimleri Google Mobile Ads SDK'nın kendi PrivacyInfo dosyasından gelir.
+const PRIVACY = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypePurchaseHistory</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
+`;
+const iosApp = join(root, 'ios/App/App');
+if (existsSync(iosApp)) {
+  const pf = join(iosApp, 'PrivacyInfo.xcprivacy');
+  if (!existsSync(pf) || readFileSync(pf, 'utf8') !== PRIVACY) { writeFileSync(pf, PRIVACY); changed++; console.log('✓ yazıldı: ios/App/App/PrivacyInfo.xcprivacy'); }
+  const pbx = join(root, 'ios/App/App.xcodeproj/project.pbxproj');
+  try {
+    const xcode = createRequire(import.meta.url)('xcode');
+    const proj = xcode.project(pbx); proj.parseSync();
+    if (!readFileSync(pbx, 'utf8').includes('PrivacyInfo.xcprivacy')) {
+      const groups = proj.hash.project.objects.PBXGroup;
+      const appGroup = Object.keys(groups).find(k => groups[k].path === 'App' || groups[k].name === 'App');
+      proj.addResourceFile('PrivacyInfo.xcprivacy', {}, appGroup);
+      const out = proj.writeSync().replace(/(\/\* PrivacyInfo\.xcprivacy \*\/ = )\{isa = PBXFileReference;[^}]*\}/,
+        '$1{isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; }');
+      writeFileSync(pbx, out); changed++;
+      console.log('✓ Xcode projesine eklendi: PrivacyInfo.xcprivacy');
+    }
+  } catch (e) { console.log('⚠ PrivacyInfo.xcprivacy Xcode projesine eklenemedi; Xcode\'da App klasörüne sürükleyip "App" hedefini işaretleyin.', e.message); }
+}
 
 console.log(changed ? `Bitti (${changed} dosya).` : 'Zaten güncel.');
 if (ANDROID_APP_ID.includes('3940256099942544') || IOS_APP_ID.includes('3940256099942544')) console.log('⚠ AdMob TEST uygulama kimlikleri kullanılıyor — yayından önce kendi kimliklerinizi girin.');

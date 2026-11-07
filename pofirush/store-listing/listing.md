@@ -104,14 +104,10 @@ Share your score and beat your friends. Ready?
 | Satın almalar › Satın alma geçmişi | Uygulama işlevselliği | Hayır | Hayır |
 
 ### İnceleme notu (App Review Notes)
-```
-Pofi Rush is a single-player offline arcade game. No account or login is required.
-In-app purchases: pofi_noads, pofi_starter, pofi_doubler, pofi_legends (non-consumable), pofi_coins_s/m/l (consumable).
-"Restore purchases" is available in Shop and Settings. Ads are served by Google AdMob; ATT permission is requested on first launch.
-```
+Güncel ve ayrıntılı metin `APP_STORE.md` → 6. bölümde.
 
 ## Ekran görüntüleri
-`screenshots/` klasöründe: `ios-*` 1290×2796 (iPhone 6.9"), `android-*` 1080×1920; `tr` ve `en` sürümleri.
+`screenshots/` klasöründe: `ios-*` 1290×2796 (iPhone 6.9"), `ipad-*` 2064×2752 (iPad 13"), `android-*` 1080×1920; `tr` ve `en` sürümleri.
 Sıra: menü, Neon (kalkan), Buz (mıknatıs), Volkan, Uzay, kostümler. Yeniden üretmek için `node scripts/store-shots.mjs` çalıştırın.
 
 Önerilen başlık bantları (Canva/Figma ile görüntünün üstüne):

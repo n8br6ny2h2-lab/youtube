@@ -25,6 +25,7 @@ npm run web                       # paylaşılabilir tek dosya: dist/pofi-rush.h
 | **5 bölge** | Her 20 puanda değişir: Gün Batımı → Neon Şehir → Buz Vadisi → Volkan → Uzay. Renk geçişi yumuşaktır ve parallaks katmanlar vardır |
 | **13 kostüm** | 6'sı jetonla, 2'si skorla, 1'i 7 günlük giriş serisiyle, 4'ü **Efsane Paketi**'yle açılır. Her kostümün kendi iz efekti var (kalp, kar, alev, gökkuşağı…) |
 | **Madalyalar** | Bronz 10 · Gümüş 25 · Altın 50 · Elmas 100 · Efsane 200 |
+| **Puanlama** | Yalnızca sistemin kendi değerlendirme penceresi (Apple 5.6.1 uyumlu) |
 | **Bağlılık** | 7 günlük giriş ödülü (reklamla ×2) · günde 3 görev · 10 başarım · mod başına ilk 10 rekor |
 | **His** | Sabit adımlı fizik (60/90/120 Hz ekranlarda aynı oynanış), ekran sarsıntısı, parçacıklar, titreşim, ölümde yavaş çekim, skora göre yoğunlaşan prosedürel müzik |
 | **Diller** | Türkçe + İngilizce, cihaz dilinden otomatik seçilir (`js/i18n.js`) |
@@ -87,7 +88,7 @@ npm run ios             # Xcode açılır → Signing & Capabilities › + In-Ap
 ```
 
 `npm run patch` (`scripts/patch-native.mjs`) şunları otomatik ayarlar ve tekrar çalıştırmak güvenlidir:
-AdMob uygulama kimliği, iOS ATT metni, SKAdNetwork, yalnız dikey ekran, iPad tam ekran, şifreleme beyanı ve `package.json` sürümünden üretilen sürüm numaraları.
+AdMob uygulama kimliği, iOS ATT metni, SKAdNetwork, Apple gizlilik bildirimi (`PrivacyInfo.xcprivacy`, Xcode projesine de eklenir), TR/EN dil bildirimi, yalnız dikey ekran, iPad tam ekran, şifreleme beyanı ve `package.json` sürümünden üretilen sürüm numaraları.
 
 Kodda değişiklik yaptıktan sonra: `npm run build && npx cap sync`.
 
@@ -109,6 +110,8 @@ Web sürümünde zorunlu reklam yoktur. Ödüllü reklam düğmeleri "TEST REKLA
 ---
 
 ## 4. Yayın öncesi kontrol listesi
+
+> **App Store için adım adım rehber:** [`store-listing/APP_STORE.md`](store-listing/APP_STORE.md). Göndermeden önce `npm run preflight` çalıştırın: AdMob test kimlikleri, eksik adresler, gizlilik bildirimi, simge ve ekran görüntüsü boyutları gibi eksikleri listeler.
 
 1. **Ad ve kimlik**: `capacitor.config.json` → `appId` (ör. `com.sirketiniz.pofirush`). `server/validate.mjs` içinde `PACKAGE_NAME` ile aynı olmalı. Mağazada adın boşta olduğunu kontrol edin
 2. **AdMob**: admob.google.com'da Android ve iOS uygulaması açın, ardından:
@@ -137,7 +140,7 @@ pofirush/
 ├── js/services.js   ← IAP (cordova-plugin-purchase), AdMob + onay + ATT, ses/müzik, titreşim, paylaşım
 ├── js/save.js       ← kayıt (localStorage + Capacitor Preferences yedeği, bütünlük özeti)
 ├── js/i18n.js       ← Türkçe / İngilizce metinler
-├── scripts/         ← build, bundle-web, patch-native, make-assets, smoke-test, store-shots
+├── scripts/         ← build, bundle-web, patch-native, preflight, make-assets, smoke-test, store-shots
 ├── dist/            ← paylaşılabilir tek dosyalık web sürümü
 ├── assets/          ← simge ve açılış ekranı kaynakları (@capacitor/assets)
 ├── server/          ← makbuz doğrulama sunucusu

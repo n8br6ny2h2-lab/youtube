@@ -14,10 +14,12 @@
     "ios": "npm run build && npx cap sync ios && npx cap open ios",
     "test": "node scripts/smoke-test.mjs",
     "validator": "node server/validate.mjs",
-    "web": "node scripts/bundle-web.mjs"
+    "web": "node scripts/bundle-web.mjs",
+    "preflight": "node scripts/preflight.mjs"
   },
   "dependencies": {
     "@capacitor-community/admob": "^8.3.0",
+    "@capacitor-community/in-app-review": "^8.0.0",
     "@capacitor/android": "^8.6.0",
     "@capacitor/app": "^8.1.2",
     "@capacitor/core": "^8.6.0",

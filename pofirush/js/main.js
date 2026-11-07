@@ -694,9 +694,11 @@ function showStarterOffer() {
   $('#oNo').onclick = () => { click(); closeModal(false); };
 }
 
+// Apple 5.6.1 ve Google kuralları gereği yalnızca sistemin kendi değerlendirme penceresi kullanılır
+// (SKStoreReviewController / Google In-App Review). Sistem gösterip göstermemeye kendisi karar verir.
 async function askRate() {
   if (view === 'play') return;
-  if (await dialog({ title: t('rateQ'), text: t('rateD'), ok: '⭐ ' + t('rate'), cancel: t('later') })) openUrl(platform() === 'ios' ? GAME.iosUrl : GAME.androidUrl);
+  try { await plugin('InAppReview')?.requestReview?.(); } catch (e) { /* desteklenmiyor */ }
 }
 
 function tickCountdowns() {
