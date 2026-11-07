@@ -80,6 +80,7 @@ function enterLobby() {
   $('#menu').hidden = false;
   sfx.music('menu');
   render();
+  if (window.EFSUN_DEMO) return;
   if (S.stats.runs === 0) setTimeout(() => toast('İlk savaşın için ⚔️ SAVAŞ\'a dokun!'), 400);
   else if (E.loginState(S).canClaim) setTimeout(loginModal, 400);
   else if (menus.mailCount()) setTimeout(() => toast('✉️ Postanda hediye var!', 'good'), 400);
@@ -880,6 +881,7 @@ function sweep() {
 
 // ============================================================ SAVAŞ AKIŞI
 function startBattle(chapter, mods = null) {
+  if (DEMO) S.energy = Math.max(S.energy, D.GAME.energyPerRun);
   if (S.energy < D.GAME.energyPerRun) { play('error'); return energyModal(); }
   if (S.energy >= E.energyMax(S)) S.energyTs = Date.now();
   S.energy -= D.GAME.energyPerRun;
@@ -1076,7 +1078,32 @@ if (loaded.fresh) {
   E.dailyReset(S);
   save(true);
 }
-boot();
+// Deneme modu: sayfa window.EFSUN_DEMO = { chapter } ile açılırsa doğrudan o bölümde savaş başlar.
+// Uygulama paketinde bu değişken hiç tanımlanmaz; yalnızca ayrı deneme bağlantısı için.
+const DEMO = window.EFSUN_DEMO;
+function setupDemo(ch) {
+  S.maxChapter = Math.max(S.maxChapter, ch);
+  for (let c = 1; c < ch; c++) S.cleared[`${c}:0`] = true;
+  if (!S.demoGear) {
+    // önerilen gücün biraz üstünde: Destansı Sv15 eşyalar, 4 parça Ejder seti
+    for (const slot of D.SLOT_ORDER) {
+      const it = E.genItem(slot, 3, { set: ['weapon', 'helmet', 'armor', 'boots'].includes(slot) ? 'dragon' : null, base: slot === 'weapon' ? 'bow' : undefined });
+      it.lvl = 15; it.isNew = false; S.inventory.push(it); S.equipped[slot] = it.uid;
+    }
+    S.demoGear = true;
+  }
+  S.energy = E.energyMax(S);
+  selCh = ch;
+  save(true);
+}
+boot().then(() => {
+  if (!DEMO) return;
+  const ch = Math.max(1, Math.min(D.CHAPTERS.length, DEMO.chapter | 0 || D.CHAPTERS.length));
+  setupDemo(ch);
+  enterLobby();
+  startBattle(ch, { diff: 0, lootMul: 1 });
+  setTimeout(() => toast(`🧪 Deneme: ${D.chapterInfo(ch).title}`, 'good'), 600);
+});
 
 // Hata ayıklama / otomatik test erişimi (yalnızca yerel geliştirmede)
 if (['localhost', '127.0.0.1'].includes(location.hostname)) {
