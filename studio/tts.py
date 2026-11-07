@@ -1,4 +1,4 @@
-"""Seslendirme: Piper (yerel, ücretsiz) veya ElevenLabs (isteğe bağlı, ücretli).
+"""Seslendirme: Google Chirp 3 HD (doğal kadın sesleri), ElevenLabs (isteğe bağlı) veya Piper (yerel, ücretsiz).
 
 Her karakterin kendine özgü sesi: Piper Türkçe modeli + karakter başına konuşma hızı ve
 ton kaydırma (FFmpeg rubberband, formant korumalı). Çıktı: 44.1 kHz mono WAV.
@@ -32,10 +32,16 @@ def _piper():
     return _voice
 
 
+def _google_key() -> str:
+    return env("GOOGLE_TTS_API_KEY") or env("YOUTUBE_API_KEY")
+
+
 def engine() -> str:
     pref = settings()["audio"].get("tts_engine", "auto")
     if pref in ("auto", "elevenlabs") and has_key("ELEVENLABS_API_KEY"):
         return "elevenlabs"
+    if pref in ("auto", "google") and _google_key() and google_ok():
+        return "google"
     if pref == "espeak":
         return "espeak"
     model = Paths.root / settings()["audio"]["piper_voice"]
@@ -75,6 +81,15 @@ def synth(text: str, speaker: str, out_dir: Path) -> Path:
         except Exception as exc:
             logger.warning(f"ElevenLabs başarısız, Piper'a geçiliyor: {exc}")
             eng = "piper"
+    if eng == "google":
+        try:
+            _google(clean, v, raw)
+            _post(raw, out, v.get("g_pitch", 0.0), v.get("g_rate", 1.0))
+            raw.unlink(missing_ok=True)
+            return out
+        except Exception as exc:
+            logger.warning(f"Google TTS başarısız, Piper'a geçiliyor: {exc}")
+            eng = "piper"
     if eng == "piper":
         from piper import SynthesisConfig
         cfg = SynthesisConfig(length_scale=v["length_scale"], noise_scale=v["noise_scale"], noise_w_scale=0.8)
@@ -104,6 +119,58 @@ def _eleven(text: str, voice: dict, out: Path) -> None:
     with wave.open(str(out), "wb") as wf:
         wf.setnchannels(1); wf.setsampwidth(2); wf.setframerate(44100); wf.writeframes(r.content)
     costs.record("elevenlabs", "tts", len(text), usd, voice_id)
+
+
+GOOGLE_FEMALE_FALLBACK = ("Aoede", "Kore", "Leda", "Zephyr")
+_google_state: dict = {}
+
+
+def _google_voices() -> list[str]:
+    if "voices" not in _google_state:
+        r = httpx.get("https://texttospeech.googleapis.com/v1/voices", params={"languageCode": "tr-TR"},
+                      headers={"x-goog-api-key": _google_key()}, timeout=30)
+        r.raise_for_status()
+        _google_state["voices"] = [x["name"] for x in r.json().get("voices", [])]
+    return _google_state["voices"]
+
+
+def google_ok() -> bool:
+    """Text-to-Speech API anahtarla erişilebilir mi (bir kez denenir)."""
+    if "ok" not in _google_state:
+        try:
+            _google_state["ok"] = bool(_google_voices())
+        except Exception as exc:
+            logger.info(f"Google TTS kullanılamıyor: {str(exc)[:160]}")
+            _google_state["ok"] = False
+    return _google_state["ok"]
+
+
+def _google_voice(name: str) -> str:
+    names = _google_voices()
+    for want in (name, *GOOGLE_FEMALE_FALLBACK):
+        full = f"tr-TR-Chirp3-HD-{want}"
+        if full in names:
+            return full
+    fem = [n for n in names if n.endswith(("Wavenet-A", "Wavenet-C", "Wavenet-D"))]
+    if fem:
+        return fem[0]
+    raise RuntimeError("Türkçe kadın sesi bulunamadı")
+
+
+def _google(text: str, voice: dict, out: Path) -> None:
+    name = _google_voice(voice.get("google", "Aoede"))
+    usd = len(text) / 1e6 * GOOGLE_TTS_USD_PER_1M_CHARS
+    costs.check(usd)
+    r = httpx.post("https://texttospeech.googleapis.com/v1/text:synthesize", headers={"x-goog-api-key": _google_key()},
+                   json={"input": {"text": text}, "voice": {"languageCode": "tr-TR", "name": name},
+                         "audioConfig": {"audioEncoding": "LINEAR16", "sampleRateHertz": SR}}, timeout=120)
+    r.raise_for_status()
+    import base64
+    out.write_bytes(base64.b64decode(r.json()["audioContent"]))  # LINEAR16 = WAV başlıklı
+    costs.record("google_tts", "tts", len(text), usd, name)
+
+
+GOOGLE_TTS_USD_PER_1M_CHARS = 30.0  # Chirp 3 HD liste fiyatı; aylık ücretsiz kota içinde fiilen 0
 
 
 def duration(path: Path) -> float:
