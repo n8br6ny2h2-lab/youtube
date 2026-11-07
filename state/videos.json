@@ -1,0 +1,210 @@
+{
+ "bulutkent": [
+  {
+   "id": 1,
+   "kind": "long",
+   "status": "uploaded",
+   "title": "Tombi'nin Bilmece Bahçesi: Üç Bilmece, Üç Cevap | Bulutkent",
+   "path": "renders/bc5e2e96ff3f29d6.mp4",
+   "parent_id": null,
+   "youtube_id": "QAgZAEXwukE",
+   "privacy": "private",
+   "up_publish_at": null,
+   "upload_status": "uploaded"
+  },
+  {
+   "id": 2,
+   "kind": "short",
+   "status": "uploaded",
+   "title": "Bu bilmeceyi bilir misin? #shorts",
+   "path": "shorts/bc5e2e96ff3f29d6_s1.mp4",
+   "parent_id": 1,
+   "youtube_id": "MW5BeOAoZmk",
+   "privacy": "private",
+   "up_publish_at": null,
+   "upload_status": "uploaded"
+  },
+  {
+   "id": 3,
+   "kind": "short",
+   "status": "uploaded",
+   "title": "Ben neyim? Bil bakalım! #shorts",
+   "path": "shorts/bc5e2e96ff3f29d6_s2.mp4",
+   "parent_id": 1,
+   "youtube_id": "96HH7GgYMH4",
+   "privacy": "private",
+   "up_publish_at": null,
+   "upload_status": "uploaded"
+  },
+  {
+   "id": 4,
+   "kind": "short",
+   "status": "qc_failed",
+   "title": "Tombi'nin Bilmece Bahçesi: Üç Bilmece, Üç Cevap #shorts",
+   "path": "shorts/bc5e2e96ff3f29d6_s3.mp4",
+   "parent_id": 1,
+   "youtube_id": null,
+   "privacy": null,
+   "up_publish_at": null,
+   "upload_status": null
+  },
+  {
+   "id": 5,
+   "kind": "long",
+   "status": "scheduled",
+   "title": "Bobo ile Ritim Zamanı: Alkış, Tap ve Ördek Dansı 🥁 | Çocuk Çizgi Filmi | Bulutkent",
+   "path": "renders/71a6ec9c86a88ab2.mp4",
+   "parent_id": null,
+   "youtube_id": null,
+   "privacy": null,
+   "up_publish_at": null,
+   "upload_status": null
+  },
+  {
+   "id": 6,
+   "kind": "short",
+   "status": "uploaded",
+   "title": "Şimdi göl kenarında yeni bir ritim: Şıp, şıp, şıp! #shorts",
+   "path": "shorts/71a6ec9c86a88ab2_s1.mp4",
+   "parent_id": 5,
+   "youtube_id": "Eln4_H4KKS4",
+   "privacy": "private",
+   "up_publish_at": null,
+   "upload_status": "uploaded"
+  },
+  {
+   "id": 7,
+   "kind": "short",
+   "status": "qc_failed",
+   "title": "Ördek dansı! #shorts",
+   "path": "shorts/71a6ec9c86a88ab2_s2.mp4",
+   "parent_id": 5,
+   "youtube_id": null,
+   "privacy": null,
+   "up_publish_at": null,
+   "upload_status": null
+  },
+  {
+   "id": 8,
+   "kind": "short",
+   "status": "qc_failed",
+   "title": "Alkış, alkış, tap, tap! #shorts",
+   "path": "shorts/71a6ec9c86a88ab2_s3.mp4",
+   "parent_id": 5,
+   "youtube_id": null,
+   "privacy": null,
+   "up_publish_at": null,
+   "upload_status": null
+  },
+  {
+   "id": 9,
+   "kind": "long",
+   "status": "scheduled",
+   "title": "Tombi ile Minik Tohum Kocaman Çiçek 🌷 | Çocuk Çizgi Filmi | Bulutkent",
+   "path": "renders/5de3a29d9e3b4f6d.mp4",
+   "parent_id": null,
+   "youtube_id": null,
+   "privacy": null,
+   "up_publish_at": null,
+   "upload_status": null
+  },
+  {
+   "id": 10,
+   "kind": "short",
+   "status": "scheduled",
+   "title": "Bahar bahçesi: büyük final! 🌷 #shorts",
+   "path": "shorts/5de3a29d9e3b4f6d_s1.mp4",
+   "parent_id": 9,
+   "youtube_id": null,
+   "privacy": null,
+   "up_publish_at": null,
+   "upload_status": null
+  },
+  {
+   "id": 11,
+   "kind": "short",
+   "status": "scheduled",
+   "title": "Minik Tohum Kocaman Çiçek Olur mu? 🌷 #shorts",
+   "path": "shorts/5de3a29d9e3b4f6d_s2.mp4",
+   "parent_id": 9,
+   "youtube_id": null,
+   "privacy": null,
+   "up_publish_at": null,
+   "upload_status": null
+  },
+  {
+   "id": 12,
+   "kind": "long",
+   "status": "scheduled",
+   "title": "Pofi ile Büyük Dans Gösterisi 🎶 | Çocuk Çizgi Filmi | Bulutkent",
+   "path": "renders/bc4634b844912a6e.mp4",
+   "parent_id": null,
+   "youtube_id": null,
+   "privacy": null,
+   "up_publish_at": null,
+   "upload_status": null
+  },
+  {
+   "id": 13,
+   "kind": "short",
+   "status": "scheduled",
+   "title": "Müzik ve dans: büyük final! 🎶 #shorts",
+   "path": "shorts/bc4634b844912a6e_s1.mp4",
+   "parent_id": 12,
+   "youtube_id": null,
+   "privacy": null,
+   "up_publish_at": null,
+   "upload_status": null
+  },
+  {
+   "id": 14,
+   "kind": "short",
+   "status": "scheduled",
+   "title": "Bu akşam büyük dans gösterisi var ama… 🎶 #shorts",
+   "path": "shorts/bc4634b844912a6e_s2.mp4",
+   "parent_id": 12,
+   "youtube_id": null,
+   "privacy": null,
+   "up_publish_at": null,
+   "upload_status": null
+  }
+ ],
+ "gece": [
+  {
+   "id": 1,
+   "kind": "long",
+   "status": "uploaded",
+   "title": "Evrenin En Sessiz Yerleri 🌙 Uykudan Önce Dinle | Gece Kütüphanesi",
+   "path": "channels/gece/renders/001-evrenin-sessiz-yerleri.mp4",
+   "parent_id": null,
+   "youtube_id": "sUx3P9YOTpE",
+   "privacy": "private",
+   "up_publish_at": null,
+   "upload_status": "uploaded"
+  },
+  {
+   "id": 2,
+   "kind": "short",
+   "status": "uploaded",
+   "title": "Uzayda Neden Ses Yok? 🌙 #shorts",
+   "path": "channels/gece/shorts/001-evrenin-sessiz-yerleri_s1.mp4",
+   "parent_id": 1,
+   "youtube_id": "ZiQ4T8UBM10",
+   "privacy": "private",
+   "up_publish_at": null,
+   "upload_status": "uploaded"
+  },
+  {
+   "id": 3,
+   "kind": "short",
+   "status": "uploaded",
+   "title": "Dünya'dan Büyük Bir Fırtına 🌙 #shorts",
+   "path": "channels/gece/shorts/001-evrenin-sessiz-yerleri_s2.mp4",
+   "parent_id": 1,
+   "youtube_id": "r098AlaSBD8",
+   "privacy": "private",
+   "up_publish_at": null,
+   "upload_status": "uploaded"
+  }
+ ]
+}
