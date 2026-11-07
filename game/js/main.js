@@ -518,7 +518,9 @@ function openItem(uid) {
   const it = S.inventory.find(i => i.uid === uid);
   if (!it) return;
   if (it.isNew) { it.isNew = false; }
-  const locks = new Set();
+  // efsun kilitleri eşyada saklanır (it.affLocks): pencere kapanınca/oyun yeniden açılınca kaybolmaz
+  const locks = new Set((it.affLocks || []).filter(i => i < it.affixes.length));
+  if (locks.size >= it.affixes.length) locks.clear();
   const m = modal('', { cls: 'itemmodal', onClose: render });
   const draw = () => {
     const r = D.RARITIES[it.rarity], eq = E.isEquipped(S, it);
@@ -555,7 +557,7 @@ function openItem(uid) {
   draw();
   m.el.addEventListener('click', async e => {
     const lk = e.target.closest('[data-lock]');
-    if (lk) { const i = +lk.dataset.lock; if (locks.has(i)) locks.delete(i); else if (locks.size < it.affixes.length - 1) locks.add(i); else toast('En az 1 efsun açık kalmalı'); play('click'); return draw(); }
+    if (lk) { const i = +lk.dataset.lock; if (locks.has(i)) locks.delete(i); else if (locks.size < it.affixes.length - 1) locks.add(i); else toast('En az 1 efsun açık kalmalı'); it.affLocks = [...locks].sort((a, b) => a - b); if (!it.affLocks.length) delete it.affLocks; save(); play('click'); return draw(); }
     const b = e.target.closest('[data-i]');
     if (!b || b.disabled) return;
     const act = b.dataset.i;
