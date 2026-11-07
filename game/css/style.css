@@ -67,8 +67,8 @@ h3 small { font-family: 'Nunito'; font-size: 12px; color: var(--mut); font-weigh
 @keyframes pulse { 0%,100% { box-shadow: 0 4px 0 var(--d, #0000), 0 0 0 0 rgba(250,204,21,.6); } 50% { box-shadow: 0 4px 0 var(--d, #0000), 0 0 0 8px rgba(250,204,21,0); } }
 
 /* ---------- Savaş ana ekran ---------- */
-.home { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 4px; }
-.side { position: absolute; top: 96px; z-index: 2; display: flex; flex-direction: column; gap: 10px; }
+.home { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 4px; }
+.side { position: absolute; top: 132px; z-index: 2; display: flex; flex-direction: column; gap: 10px; }
 .side.left { left: -4px; } .side.right { right: -4px; }
 .sidebtn { width: 58px; display: flex; flex-direction: column; align-items: center; padding: 6px 2px; border-radius: 14px; background: #0009; border: 1.5px solid var(--line); position: relative; }
 .sidebtn span { font-size: 24px; } .sidebtn small { font-size: 10px; color: #e2e8f0; white-space: nowrap; }
@@ -86,7 +86,7 @@ h3 small { font-family: 'Nunito'; font-size: 12px; color: var(--mut); font-weigh
 .ch-nav button:disabled { opacity: .3; }
 .ch-title { font-family: var(--head); font-size: 22px; color: var(--acc); text-shadow: 0 2px 0 #000; }
 .ch-sub { font-size: 12px; color: #cbd5e1; }
-.hero-pedestal { position: relative; height: 230px; display: grid; place-items: center; }
+.hero-pedestal { position: relative; height: 180px; display: grid; place-items: center; }
 .hero-glow { position: absolute; width: 190px; height: 190px; border-radius: 50%; background: radial-gradient(circle, var(--hc) 0%, transparent 65%); opacity: .55; animation: breathe 3s ease-in-out infinite; }
 .hero-pedestal::after { content: ''; position: absolute; bottom: 22px; width: 170px; height: 34px; border-radius: 50%; background: radial-gradient(#0009, transparent 70%); }
 .hero-emoji { font-size: 120px; position: relative; z-index: 1; animation: float 2.6s ease-in-out infinite; filter: drop-shadow(0 8px 6px #0008); }
@@ -336,7 +336,7 @@ body.flash-4::after { background: radial-gradient(#fb923c, transparent 70%); } b
 .avatar { overflow: hidden; }
 .avatar .hero-cv, .hicon .hero-cv { width: 100%; height: 100%; }
 .hicon { overflow: hidden; }
-.home-cv { position: relative; z-index: 1; width: 220px; height: 230px; }
+.home-cv { position: relative; z-index: 1; width: 174px; height: 180px; }
 .gear-cv { width: 100%; height: 140px; margin: -6px auto 0; }
 .hero-pedestal::after { display: none; }
 
@@ -462,3 +462,13 @@ input[type=range] { flex: none; width: 150px; padding: 0; border: 0; background:
 .play-row .btn.play { flex: 0 1 320px; }
 .btn.sweep { --c: #0ea5e9; --d: #075985; flex: 0 0 72px; padding: 6px 4px; font-size: 12px; border-radius: 18px; }
 .btn.sweep span { font-size: 22px; line-height: 1; } .btn.sweep small { font-size: 11px; opacity: .9; }
+
+/* mod seçimi (Bölümler / Arena), arena kartı, kademeli başarımlar */
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: min(300px, 80%); padding: 3px; border-radius: 14px; background: #0008; border: 1.5px solid var(--line); }
+.modes button { padding: 6px 4px; border-radius: 11px; font-weight: 800; font-size: 13px; color: #cbd5e1; }
+.modes button.on { background: linear-gradient(#f59e0b, #b45309); color: #fff; box-shadow: 0 2px 8px #f59e0b66; }
+.arena-card .ch-nav { justify-content: center; text-align: center; }
+.arena-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+.arena-info div { display: flex; flex-direction: column; align-items: center; padding: 6px 2px; border-radius: 12px; background: #0008; border: 2px solid #fbbf2455; }
+.arena-info b { font-family: var(--head); font-weight: 400; font-size: 20px; color: #fde68a; } .arena-info small { font-size: 9px; color: var(--mut); text-align: center; }
+.qrow .tier { font-size: 10px; color: #fde68a; background: #0006; padding: 1px 6px; border-radius: 8px; margin-left: 4px; }

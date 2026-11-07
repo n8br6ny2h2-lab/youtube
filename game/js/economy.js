@@ -1,7 +1,7 @@
 // Ekonomi: eşya üretimi, statlar, yükseltme, efsun, birleştirme, sandık, ödüller.
 import {
   GAME, RARITIES, SLOTS, SLOT_ORDER, BASES, PREFIXES, MAIN, AFFIXES, AFFIX, SETS, HEROES, PETS,
-  TALENTS, WEAPON_TYPES, CHESTS, MISSIONS, ACHIEVEMENTS, PASS_XP, PASS_TIERS, DAILY_CHALLENGES,
+  TALENTS, WEAPON_TYPES, CHESTS, MISSIONS, ACH_LINES, ACH_LEGACY, PASS_XP, PASS_TIERS, DAILY_CHALLENGES,
 } from './data.js';
 import { today } from './save.js';
 import { FEATURES } from './features.js';
@@ -268,9 +268,32 @@ export function missionsState(save) {
   return MISSIONS.filter(m => FEATURES.ads || m.id !== 'ad').map(m => ({ ...m, prog: Math.min(m.goal, save.daily.prog[m.id] || 0), claimed: save.daily.claimed.includes(m.id) }));
 }
 
+// Her hat için şu anki kademe; claimable: hedefe ulaşılmış ve ödül alınmamış
 export function achievementsState(save) {
-  const val = { maxChapter: save.maxChapter, ...save.stats };
-  return ACHIEVEMENTS.map(a => ({ ...a, prog: Math.min(a.goal, val[a.stat] || 0), claimed: save.achievements.includes(a.id) }));
+  const val = { maxChapter: save.maxChapter, ...save.stats, playMin: Math.floor((save.stats.playSec || 0) / 60) };
+  return ACH_LINES.map(l => {
+    const tier = save.achTier[l.id] || 0, goal = l.goal(tier), prog = val[l.stat] || 0;
+    return { id: l.id, icon: l.icon, tier, goal, prog: Math.min(goal, prog), name: l.name(fmt(goal), goal), reward: l.reward(tier), claimable: prog >= goal };
+  });
+}
+
+// Eski sabit başarımlardan kademeli sisteme geçiş (bir kez)
+export function migrateAchievements(save) {
+  if (save.achV >= 2) return;
+  for (const id of save.achievements || []) {
+    const m = ACH_LEGACY[id]; if (!m) continue;
+    const line = ACH_LINES.find(l => l.id === m[0]);
+    let t = 0; while (line.goal(t) <= m[1] && t < 200) t++;
+    save.achTier[m[0]] = Math.max(save.achTier[m[0]] || 0, t);
+  }
+  save.achV = 2;
+}
+
+export function claimAchievement(save, id) {
+  const a = achievementsState(save).find(x => x.id === id);
+  if (!a || !a.claimable) return null;
+  save.achTier[id] = a.tier + 1;
+  return a;
 }
 
 export const passTier = save => Math.min(PASS_TIERS, Math.floor(save.pass.xp / PASS_XP));
@@ -298,5 +321,19 @@ export function runLoot(save, res, mods = {}) {
   }
   if (res.victory) rew.shards = { [save.hero]: 2 + dl * 2 + Math.floor(ch / 3) };
   if (res.victory && !mods.daily && !(save.cleared || {})[`${ch}:${dl}`]) rew.gems = (60 + ch * 15) * (1 + dl); // ilk geçiş
+  return rew;
+}
+
+// Arena ganimeti: ulaşılan dalgaya göre; rekor kırınca her yeni 5 dalga eşiği için küçük elmas ödülü
+export function arenaLoot(save, res) {
+  const w = Math.floor(res.wave), lvl = 1 + Math.floor(w / 4);
+  const mul = (1 + res.goldBonus / 100) * (save.vip ? 1.25 : 1);
+  const rew = {
+    gold: Math.floor((res.goldPicked + res.kills * (2 + lvl * 0.5) + w * 50 * lvl) * mul),
+    scrolls: Math.floor(w * (1.2 + lvl * 0.2)), runes: res.runes, passXp: Math.floor(30 + w * 10), items: [],
+  };
+  for (let i = 0; i < Math.min(6, Math.floor(w / 5)); i++) rew.items.push({ slot: 'any', rarity: weighted([[1, 50], [2, 30 + lvl * 2], [3, 8 + lvl * 2], [4, 1 + lvl * 0.5]]) });
+  const ms = Math.floor(w / 5) - Math.floor((save.arena.best || 0) / 5);
+  if (ms > 0) rew.gems = ms * 20;
   return rew;
 }

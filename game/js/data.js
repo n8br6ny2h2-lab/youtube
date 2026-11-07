@@ -233,15 +233,26 @@ export const MISSIONS = [
   { id: 'ad',      name: '2 ödüllü video izle', goal: 2,   reward: { gems: 30, passXp: 60 } },
 ];
 
-export const ACHIEVEMENTS = [
-  { id: 'ch3',     name: '3. Bölümü geç',       stat: 'maxChapter', goal: 4,     reward: { gems: 200 } },
-  { id: 'ch6',     name: '6. Bölümü geç',       stat: 'maxChapter', goal: 7,     reward: { gems: 500 } },
-  { id: 'k5000',   name: '5.000 düşman',        stat: 'kills',      goal: 5000,  reward: { gems: 150 } },
-  { id: 'k50000',  name: '50.000 düşman',       stat: 'kills',      goal: 50000, reward: { gems: 600 } },
-  { id: 'boss25',  name: '25 boss avı',         stat: 'bossKills',  goal: 25,    reward: { gems: 300 } },
-  { id: 'myth',    name: 'Mitik eşya bul',      stat: 'mythics',    goal: 1,     reward: { gems: 500 } },
-  { id: 'ench100', name: '100 kez efsunla',     stat: 'enchants',   goal: 100,   reward: { seals: 20 } },
+// Sonsuz başarımlar: her hat kademelidir. Ödül alınınca hedef yükselir, ödül de yavaşça (bir tavana kadar) artar.
+// name(hedefYazısı, hedef), goal(kademe), reward(kademe); kademe 0'dan başlar.
+const nice = v => { const p = 10 ** Math.max(0, Math.floor(Math.log10(v)) - 1); return Math.round(v / p) * p; };
+const cap = (v, m) => Math.min(Math.round(v), m);
+export const ACH_LINES = [
+  { id: 'chapter', icon: '🗺️', stat: 'maxChapter', name: (s, g) => `${g - 1}. bölümü geç`,   goal: t => t + 2,             reward: t => ({ gems: cap(20 + 5 * t, 60) }) },
+  { id: 'kills',   icon: '💀', stat: 'kills',      name: s => `${s} düşman yok et`,           goal: t => nice(300 * 2.2 ** t), reward: t => ({ gems: cap(10 + 3 * t, 40), gold: 800 * (t + 1) }) },
+  { id: 'boss',    icon: '👑', stat: 'bossKills',  name: s => `${s} boss avla`,               goal: t => nice(3 * 2 ** t),     reward: t => ({ gems: cap(15 + 4 * t, 50) }) },
+  { id: 'wins',    icon: '🏆', stat: 'wins',       name: s => `${s} zafer kazan`,             goal: t => nice(2 * 2 ** t),     reward: t => ({ gems: 10, scrolls: cap(15 + 5 * t, 80) }) },
+  { id: 'arena',   icon: '🏟️', stat: 'arenaBest',  name: s => `Arenada ${s}. dalgaya ulaş`,   goal: t => 5 * (t + 1),          reward: t => ({ gems: cap(15 + 5 * t, 60), runes: 5 }) },
+  { id: 'combo',   icon: '🔥', stat: 'maxCombo',   name: s => `${s} kombo yap`,               goal: t => 50 * (t + 1),         reward: t => ({ runes: cap(4 + 2 * t, 20) }) },
+  { id: 'runs',    icon: '⚔️', stat: 'runs',       name: s => `${s} savaşa gir`,              goal: t => nice(5 * 2 ** t),     reward: t => ({ gold: cap(1500 * (t + 1), 30000), energy: 5 }) },
+  { id: 'enchant', icon: '✨', stat: 'enchants',   name: s => `${s} kez efsunla`,             goal: t => nice(10 * 2 ** t),    reward: t => ({ seals: cap(2 + t, 10) }) },
+  { id: 'upgrade', icon: '⇧',  stat: 'upgrades',   name: s => `${s} kez eşya yükselt`,        goal: t => nice(10 * 2 ** t),    reward: t => ({ scrolls: cap(20 + 10 * t, 120) }) },
+  { id: 'chests',  icon: '🎁', stat: 'chests',     name: s => `${s} sandık aç`,               goal: t => nice(5 * 2 ** t),     reward: t => ({ gems: cap(10 + 3 * t, 40) }) },
+  { id: 'mythic',  icon: '🌟', stat: 'mythics',    name: s => `${s} Mitik eşya bul`,          goal: t => 2 ** t,               reward: t => ({ gems: cap(30 + 10 * t, 100) }) },
+  { id: 'time',    icon: '⏱️', stat: 'playMin',    name: s => `${s} dakika oyna`,             goal: t => nice(30 * 2 ** t),    reward: t => ({ energy: 10, gold: cap(1000 * (t + 1), 20000) }) },
 ];
+// Eski (sabit) başarım kimlikleri → yeni hat ve hedef; eski kayıtlarda alınmış kademeleri tekrar verdirmemek için
+export const ACH_LEGACY = { ch3: ['chapter', 4], ch6: ['chapter', 7], k5000: ['kills', 5000], k50000: ['kills', 50000], boss25: ['boss', 25], myth: ['mythic', 1], ench100: ['enchant', 100] };
 
 // Sezon bileti: 30 kademe, kademe başı 300 XP
 export const PASS_TIERS = 30;
@@ -275,6 +286,7 @@ export const DIFFS = [
 export const NEWS = [
   { tag: 'ÇIKIŞ', date: 'Kasım 2026', title: 'Efsun Avcısı yayında!', body: 'Efsun Diyarı\'na hoş geldin! 5 bölüm, 6 boss, 4 kahraman ve yüzlerce eşya seni bekliyor. Her bölümü Normal, Zor ve Kabus seviyelerinde oyna; zorlaştıkça ganimet de büyür.' },
   { tag: 'SEZON', date: 'Kasım 2026', title: 'Sezon 1: Efsunun Uyanışı', body: 'Efsun Bileti\'nin 30 kademesinde Mitik Ayaz Silahı seni bekliyor. Günlük görevleri tamamlayarak bilet XP\'si kazan.' },
+  { tag: 'YENİ', date: 'Kasım 2026', title: '🏟️ Arena ve Sonsuz Başarımlar', body: 'Savaş ekranındaki Arena sekmesinde sonsuz dalgalara karşı ne kadar dayanabileceğini gör! Her 5 dalgada boss, her 5 dalgada yeni bölge. Rekor kırdıkça elmas kazan. Başarımlar artık bitmiyor: aldıkça hedef yükseliyor.' },
   { tag: 'YENİ', date: 'Kasım 2026', title: 'Evrimler ve Hazine Sandıkları', body: 'Bir beceriyi en yüksek seviyeye çıkar, eşleşen destek gücünü de al: 6 süper evrim seni bekliyor (ör. Ateş Küresi + Güç Patlaması = Güneş Çemberi). Mini boss ve seçkin düşmanlar 🎁 hazine sandığı düşürür. Temizlediğin bölümleri günde 3 kez Hızlı Tarama ile geçebilirsin.' },
   { tag: 'İPUCU', date: '', title: 'Bosslar uyarı verir', body: 'Kırmızı daire = yere vuruş, kırmızı şerit = hücum. Kırmızı alanın dışına çık! Yaban domuzları da hücumdan önce kırmızı şerit gösterir.' },
   { tag: 'İPUCU', date: '', title: 'Güç yetmiyor mu?', body: 'Aynı 3 eşyayı birleştir, Gelişim\'te yetenek al, efsunlarını yenile. Önerilen gücün altındaysan önceki bölümleri tekrar oynayıp ganimet topla.' },

@@ -1,5 +1,5 @@
 // Efsun Avcısı — savaş motoru (Canvas 2D, 60 FPS, mobil dokunmatik joystick)
-import { chapterInfo, GAME } from './data.js';
+import { chapterInfo, GAME, CHAPTERS } from './data.js';
 import { drawHero, drawEnemy as artEnemy, drawPet as artPet, ART } from './art.js';
 
 const TAU = Math.PI * 2;
@@ -75,6 +75,7 @@ export class Game {
     this.ch = cfg.chapter;
     this.theme = chapterInfo(this.ch);
     this.chIdx = (this.ch - 1) % 5;
+    this.arena = !!this.mods.arena;
     this.input = { id: null, ox: 0, oy: 0, x: 0, y: 0, keys: {} };
     this.bind();
     this.resize();
@@ -102,6 +103,7 @@ export class Game {
     this.skills = {}; this.dmgBy = {}; this.nextChest = 0;
     this.hudT = 0;
     this.banner = { text: this.theme.name, sub: `${this.ch}. Bölüm • Dalga 1`, t: 2.4 };
+    if (this.arena) { this.arenaStage(); this.banner = { text: '🏟️ ARENA', sub: `Sonsuz dalga • Rekor: ${this.cfg.arenaBest ? 'Dalga ' + this.cfg.arenaBest : 'yok'}`, t: 2.6 }; }
     this.endT = 0;
   }
 
@@ -217,7 +219,7 @@ export class Game {
     const isBoss = this.isBossWave(this.wave);
     return {
       hp: this.p.hp, maxHp: this.p.maxHp, xp: this.xp, xpNeed: this.xpNeed, level: this.level, wave: this.wave,
-      waves: GAME.wavesPerChapter, waveP: isBoss ? (this.bossActive ? 1 : 0) : this.waveT / GAME.waveLen,
+      waves: this.arena ? 0 : GAME.wavesPerChapter, waveP: isBoss ? (this.bossActive ? 1 : 0) : this.waveT / this.waveLen(),
       kills: this.kills, gold: this.goldPicked, shield: this.p.shield, combo: this.comboT > 0 ? this.combo : 0,
       boss: this.boss && !this.boss.dead ? { name: this.boss.name, hp: this.boss.hp, maxHp: this.boss.maxHp } : null,
       time: this.time,
@@ -410,7 +412,7 @@ export class Game {
     }
     if (Math.random() < (e.elite ? 0.25 : 0.012)) this.drop('heart', e.x, e.y, 1);
     if (Math.random() < 0.003) this.drop('magnet', e.x, e.y, 1);
-    if ((e.boss && e.mini) || (e.elite && Math.random() < 0.08)) this.drop('chest', e.x, e.y, 1);
+    if ((e.boss && (e.mini || this.arena)) || (e.elite && Math.random() < 0.08)) this.drop('chest', e.x, e.y, 1);
     if (this.st.spirits && Math.random() * 100 < this.st.spirits) this.spirits.push({ x: e.x, y: e.y, t: 4, vx: 0, vy: -100 });
     if (e.boss) {
       this.bossKills++;
@@ -420,7 +422,7 @@ export class Game {
       this.fx.push({ type: 'ring', x: e.x, y: e.y, r: 10, maxR: 420, t: 0, life: 0.8, color: e.color });
       this.bossActive = false; this.boss = null;
       this.cfg.onBoss?.(false);
-      if (this.wave >= GAME.wavesPerChapter) { this.endT = 1.6; this.banner = { text: 'ZAFER!', sub: 'Bölüm temizlendi', t: 3 }; this.sfx('win'); }
+      if (!this.arena && this.wave >= GAME.wavesPerChapter) { this.endT = 1.6; this.banner = { text: 'ZAFER!', sub: 'Bölüm temizlendi', t: 3 }; this.sfx('win'); }
       else { this.nextWave(); }
     } else if (e.elite) { this.shake = Math.max(this.shake, 5); }
   }
@@ -463,7 +465,7 @@ export class Game {
     if (this.over) return;
     this.over = true; this.paused = true;
     this.cfg.onEnd?.({
-      victory, chapter: this.ch, wave: victory ? GAME.wavesPerChapter : this.wave - 1 + Math.min(0.99, this.waveT / GAME.waveLen),
+      victory, chapter: this.ch, arena: this.arena, wave: victory ? GAME.wavesPerChapter : this.wave - 1 + Math.min(0.99, this.waveT / this.waveLen()),
       waveReached: this.wave, kills: this.kills, goldPicked: this.goldPicked, runes: this.runes, time: this.time,
       level: this.level, bossKills: this.bossKills, maxCombo: this.maxCombo, goldBonus: this.st.gold,
       dmgBy: this.dmgBy, skills: { ...this.skills },
@@ -471,7 +473,19 @@ export class Game {
   }
 
   // ---------------- dalgalar ----------------
-  isBossWave(w) { return w === 5 || w === GAME.wavesPerChapter || (this.mods.extraBoss && w === 8); }
+  isBossWave(w) { return this.arena ? w % 5 === 0 : w === 5 || w === GAME.wavesPerChapter || (this.mods.extraBoss && w === 8); }
+  waveLen() { return this.arena ? 15 : GAME.waveLen; }
+
+  // Arena: bölge (görünüm + düşman türleri) her 5 dalgada değişir; güç seviyesi her 4 dalgada bir bölüm kadar artar
+  arenaStage() {
+    const st = Math.floor((this.wave - 1) / 5), t = CHAPTERS[st % CHAPTERS.length];
+    this.theme = { ...t, n: st + 1, title: `Arena • ${t.name}` };
+    this.chIdx = st % CHAPTERS.length;
+    this.amb = null;
+    this.arenaLvl();
+  }
+  arenaLvl() { this.ch = 1 + Math.floor((this.wave - 1) / 4); }
+  arenaK() { return (this.wave - 1) / 4; }
 
   updateWaves(dt) {
     if (this.endT > 0) return;
@@ -479,10 +493,10 @@ export class Game {
       this.waveT += dt;
       if (this.isBossWave(this.wave)) {
         if (!this.bossSpawned && this.waveT > 2.5) this.spawnBoss();
-      } else if (this.waveT >= GAME.waveLen) this.nextWave();
+      } else if (this.waveT >= this.waveLen()) this.nextWave();
     }
-    const rate = (1.1 + this.wave * 0.3) * (this.mods.spawnMul || 1) * (this.bossActive ? 0.2 : 1) * (this.isBossWave(this.wave) && !this.bossSpawned ? 0.2 : 1);
-    const cap = Math.min(95, 45 + this.wave * 5) * (this.mods.spawnMul || 1);
+    const rate = (1.1 + (this.arena ? Math.min(this.wave, 14) : this.wave) * 0.3) * (this.mods.spawnMul || 1) * (this.bossActive ? 0.2 : 1) * (this.isBossWave(this.wave) && !this.bossSpawned ? 0.2 : 1);
+    const cap = Math.min(95, 45 + Math.min(this.wave, 10) * 5) * (this.mods.spawnMul || 1);
     this.spawnAcc += dt * rate;
     while (this.spawnAcc >= 1) {
       this.spawnAcc -= 1;
@@ -493,12 +507,20 @@ export class Game {
   nextWave() {
     this.wave++; this.waveT = 0; this.bossSpawned = false;
     const boss = this.isBossWave(this.wave);
-    this.banner = { text: boss ? '⚠ BOSS DALGASI ⚠' : `Dalga ${this.wave}`, sub: boss ? 'Hazırlan!' : `${GAME.wavesPerChapter - this.wave + 1} dalga kaldı`, t: 2 };
+    let sub = boss ? 'Hazırlan!' : `${GAME.wavesPerChapter - this.wave + 1} dalga kaldı`;
+    if (this.arena) {
+      const best = this.cfg.arenaBest || 0;
+      if (!boss) sub = this.wave > best && best > 0 ? '🔥 YENİ REKOR!' : `🏟️ Rekor: Dalga ${best}`;
+      if ((this.wave - 1) % 5 === 0) { this.arenaStage(); if (!boss) sub = `Yeni bölge: ${this.theme.name}`; } else this.arenaLvl();
+    }
+    this.banner = { text: boss ? '⚠ BOSS DALGASI ⚠' : `Dalga ${this.wave}`, sub, t: 2 };
     this.healP(0.08);
   }
 
-  diffHp() { return Math.pow(1.42, this.ch - 1) * (1 + 0.11 * (this.wave - 1)) * (this.mods.enemyHp || 1); }
-  diffDmg() { return 1.25 * Math.pow(1.3, this.ch - 1) * (1 + 0.06 * (this.wave - 1)) * (this.mods.enemyDmg || 1); }
+  diffHp() { if (this.arena) return Math.pow(1.42, this.arenaK()) * (1 + 0.04 * ((this.wave - 1) % 4)) * (this.mods.enemyHp || 1);
+    return Math.pow(1.42, this.ch - 1) * (1 + 0.11 * (this.wave - 1)) * (this.mods.enemyHp || 1); }
+  diffDmg() { if (this.arena) return 1.25 * Math.pow(1.3, this.arenaK()) * (this.mods.enemyDmg || 1);
+    return 1.25 * Math.pow(1.3, this.ch - 1) * (1 + 0.06 * (this.wave - 1)) * (this.mods.enemyDmg || 1); }
 
   spawnPos(dist) {
     const a = rand(0, TAU);
@@ -510,7 +532,7 @@ export class Game {
     const list = CH_ENEMIES[this.chIdx];
     type = type || this.weightedType(list);
     const d = ENEMIES[type];
-    const elite = opt.elite ?? Math.random() < (0.03 + this.wave * 0.007) * (this.mods.eliteMul || 1);
+    const elite = opt.elite ?? Math.random() < Math.min(0.25, (0.03 + this.wave * 0.007) * (this.mods.eliteMul || 1));
     const sc = elite ? 1.45 : 1;
     const hp = d.hp * this.diffHp() * (elite ? 3.5 : 1);
     pos = pos || this.spawnPos();
@@ -532,10 +554,10 @@ export class Game {
 
   spawnBoss() {
     this.bossSpawned = true; this.bossActive = true;
-    const mini = this.wave < GAME.wavesPerChapter;
+    const mini = this.arena ? this.wave % 10 !== 0 : this.wave < GAME.wavesPerChapter;
     const key = mini ? 'guardian' : this.theme.boss;
     const b = BOSSES[key];
-    const hp = (mini ? 550 : 1300) * Math.pow(1.42, this.ch - 1) * (this.mods.enemyHp || 1);
+    const hp = (mini ? 550 : 1300) * Math.pow(1.42, this.arena ? this.arenaK() : this.ch - 1) * (this.mods.enemyHp || 1);
     const pos = this.spawnPos(320);
     const e = {
       type: 'boss', boss: true, mini, key, name: b.name, ai: 'boss', x: pos.x, y: pos.y, r: mini ? 38 : 52, hp, maxHp: hp,

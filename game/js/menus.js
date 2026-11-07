@@ -205,7 +205,7 @@ export function createMenus(app) {
   function syncScores() {
     const s = S();
     if (!app.account.cloudReady(s.account.links)) return;
-    app.account.submitScores({ name: s.playerName, hero: s.hero, chapter: s.maxChapter - 1, power: app.stats().power, kills: s.stats.kills, combo: s.stats.maxCombo || 0 });
+    app.account.submitScores({ name: s.playerName, hero: s.hero, chapter: s.maxChapter - 1, arena: s.arena.best || 0, power: app.stats().power, kills: s.stats.kills, combo: s.stats.maxCombo || 0 });
   }
 
   // ================================================================ AYARLAR
@@ -267,9 +267,9 @@ export function createMenus(app) {
   // ================================================================ SIRALAMA
   function leader() {
     const s = S(), st = app.stats();
-    const boards = [['chapter', '🗺️ Bölüm'], ['power', '⚡ Güç'], ['kills', '💀 Düşman'], ['combo', '🔥 Kombo']];
+    const boards = [['chapter', '🗺️ Bölüm'], ['arena', '🏟️ Arena'], ['power', '⚡ Güç'], ['kills', '💀 Düşman'], ['combo', '🔥 Kombo']];
     let cur = 'chapter';
-    const mine = { chapter: s.maxChapter - 1, power: st.power, kills: s.stats.kills, combo: s.stats.maxCombo || 0 };
+    const mine = { chapter: s.maxChapter - 1, arena: s.arena.best || 0, power: st.power, kills: s.stats.kills, combo: s.stats.maxCombo || 0 };
     const m = modal('', { cls: 'leader' });
     const draw = async () => {
       const linked = app.account.cloudReady(s.account.links);
@@ -377,7 +377,7 @@ export function createMenus(app) {
           <div><input id="pname2" value="${esc(s.playerName)}" maxlength="16" aria-label="Oyuncu adı"><small>${h.name} • ⚡ ${app.fmt(st.power)}</small>
           <small>${!FEATURES.accounts ? '💾 İlerleme bu telefonda' : links.length ? '🔗 ' + links.map(l => PROVIDERS[l].name).join(', ') : '⚠️ Misafir hesap'}</small></div></div>
         <div class="statgrid">${[['🗺️ Bölüm', s.maxChapter], ['⚔️ Savaş', s.stats.runs], ['🏆 Zafer', s.stats.wins], ['💀 Düşman', app.fmt(s.stats.kills)], ['👑 Boss', s.stats.bossKills], ['🔥 En iyi kombo', s.stats.maxCombo || 0],
-          ['🎁 Sandık', s.stats.chests], ['✨ Efsun', s.stats.enchants], ['🌟 Mitik eşya', s.stats.mythics], ['⏱️ Oyun süresi', Math.floor((s.stats.playSec || 0) / 60) + ' dk']].map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('')}</div>
+          ['🏟️ Arena rekoru', s.arena.best || 0], ['🎁 Sandık', s.stats.chests], ['✨ Efsun', s.stats.enchants], ['🌟 Mitik eşya', s.stats.mythics], ['⏱️ Oyun süresi', Math.floor((s.stats.playSec || 0) / 60) + ' dk']].map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('')}</div>
         <div class="row gap"><button class="btn blue" data-p="account">🔗 Hesap</button><button class="btn purple" data-p="ach">🏆 Başarımlar</button></div>`;
     };
     draw();

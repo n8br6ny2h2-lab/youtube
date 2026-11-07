@@ -16,8 +16,8 @@ if (!PROJECT) { console.error('FIREBASE_PROJECT_ID gerekli'); process.exit(1); }
 const DATA = process.env.DATA_DIR || './data';
 mkdirSync(join(DATA, 'saves'), { recursive: true });
 const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'));
-const BOARDS = ['chapter', 'power', 'kills', 'combo'];
-const LIMITS = { chapter: 10000, power: 1e10, kills: 1e9, combo: 1e6 };
+const BOARDS = ['chapter', 'power', 'kills', 'combo', 'arena'];
+const LIMITS = { chapter: 10000, power: 1e10, kills: 1e9, combo: 1e6, arena: 100000 };
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));

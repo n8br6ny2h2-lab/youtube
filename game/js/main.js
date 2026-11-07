@@ -18,7 +18,7 @@ const sfx = new Sfx();
 const store = new Store();
 const ads = new Ads();
 const account = new Account();
-let tab = 'battle', questTab = 'daily', invFilter = 'all';
+let tab = 'battle', questTab = 'daily', invFilter = 'all', mode = 'chapter';
 let selCh = S.maxChapter;
 let game = null, run = null;
 
@@ -30,6 +30,7 @@ const stats = () => E.computeStats(S);
 
 // ============================================================ BAŞLANGIÇ
 async function boot() {
+  E.migrateAchievements(S);
   E.dailyReset(S);
   E.tickEnergy(S);
   sfx.on = S.settings.sound;
@@ -160,7 +161,7 @@ function render() {
 
 function navBadges() {
   const ms = E.missionsState(S).filter(m => m.prog >= m.goal && !m.claimed).length;
-  const ach = E.achievementsState(S).filter(a => a.prog >= a.goal && !a.claimed).length;
+  const ach = E.achievementsState(S).filter(a => a.claimable).length;
   const tier = E.passTier(S);
   let pass = 0; for (let t = 1; t <= tier; t++) { if (!S.pass.free.includes(t)) pass++; if (S.pass.premium && !S.pass.prem.includes(t)) pass++; }
   const login = E.loginState(S).canClaim ? 1 : 0;
@@ -191,7 +192,20 @@ function battleHtml() {
   const dc = D.DAILY_CHALLENGES[S.daily.challengeIdx || 0];
   const starterLive = !S.purchases.kit_starter && S.offers.starterUntil > Date.now();
   const bossName = { treant: 'Yaşlı Kökdev', scorpion: 'Kum Akrebi', frostQueen: 'Ayaz Kraliçesi', shadowDragon: 'Gölge Ejder', magmaTitan: 'Magma Titanı' }[ch.boss];
+  const arenaOpen = S.maxChapter >= 2, arena = mode === 'arena' && arenaOpen;
+  const modes = `<div class="modes"><button class="${!arena ? 'on' : ''}" data-act="mode" data-m="chapter">⚔️ Bölümler</button><button class="${arena ? 'on' : ''}" data-act="mode" data-m="arena">${arenaOpen ? '🏟️' : '🔒'} Arena</button></div>`;
+  const ab = S.arena.best || 0, nextMs = (Math.floor(ab / 5) + 1) * 5;
+  const card = arena ? `<div class="chapter arena-card" style="--acc:#fbbf24;--bg:#3a2306">
+      <div class="ch-nav"><div><div class="ch-title">🏟️ Arena • Sonsuz Dalga</div><div class="ch-sub">Her 5 dalgada boss • Bölge her 5 dalgada değişir</div></div></div>
+      <div class="hero-pedestal">
+        <div class="hero-glow" style="--hc:${h.color}"></div>
+        <canvas class="hero-cv home-cv" data-hero="${S.hero}" data-w="${st.wtype}" data-pet="${S.pet || ''}" data-color="${h.color}"></canvas>
+      </div>
+      <div class="hero-label">${h.name} • ${h.title}</div>
+      <div class="arena-info"><div><b>${ab || '—'}</b><small>Rekor dalga</small></div><div><b>${nextMs}</b><small>Sonraki rekor +20💎</small></div><div><b>${S.arena.runs}</b><small>Arena savaşı</small></div></div>
+    </div>` : null;
   return `<div class="home">
+    ${modes}
     <div class="side left">
       <button class="sidebtn ${login.canClaim ? 'pulse' : ''}" data-act="login"><span>📅</span><small>Giriş</small>${login.canClaim ? '<i class="dot"></i>' : ''}</button>
       <button class="sidebtn" data-act="idle"><span>🏕️</span><small id="idle-amt">${fmt(idle.gold)}</small></button>
@@ -202,7 +216,7 @@ function battleHtml() {
       <button class="sidebtn" data-act="tab" data-tab="quest" data-qt="pass"><span>🎫</span><small>Bilet</small></button>
       <button class="sidebtn ${mc.canClaim ? 'pulse' : ''}" data-act="${mc.active ? 'monthlyClaim' : 'offer'}" data-id="monthly_card"><span>📆</span><small>${mc.active ? mc.daysLeft + ' gün' : 'Aylık'}</small></button>
     </div>
-    <div class="chapter" style="--acc:${ch.accent};--bg:${ch.bg}">
+    ${card || `<div class="chapter" style="--acc:${ch.accent};--bg:${ch.bg}">
       <div class="ch-nav">
         <button data-act="ch" data-d="-1" ${selCh <= 1 ? 'disabled' : ''}>‹</button>
         <div><div class="ch-title">${ch.title}</div><div class="ch-sub">Boss: ${bossName} • En iyi: ${best >= 10 ? '✅ Temizlendi' : `Dalga ${Math.floor(best)}/10`}</div></div>
@@ -215,11 +229,11 @@ function battleHtml() {
       <div class="hero-label">${h.name} • ${h.title}</div>
       ${bar(best, 10, 'ch-bar')}
       <div class="diffs">${D.DIFFS.map(df => { const un = diffUnlocked(selCh, df.id); return `<button class="${dsel === df.id ? 'on' : ''}" style="--dc:${df.color}" data-act="${un ? 'diff' : 'difflock'}" data-d="${df.id}">${un ? df.icon : '🔒'} ${df.name}${df.loot > 1 ? `<small>${df.loot}× ganimet</small>` : '<small>&nbsp;</small>'}</button>`; }).join('')}</div>
-    </div>
-    <div class="power-big ${st.power < recommendedPower(selCh, dsel) ? 'low' : ''}">⚡ ${fmt(st.power)} <small>Önerilen: ${fmt(recommendedPower(selCh, dsel))}</small></div>
+    </div>`}
+    ${arena ? `<div class="power-big">⚡ ${fmt(st.power)} <small>Ne kadar dayanabilirsin?</small></div>` : `<div class="power-big ${st.power < recommendedPower(selCh, dsel) ? 'low' : ''}">⚡ ${fmt(st.power)} <small>Önerilen: ${fmt(recommendedPower(selCh, dsel))}</small></div>`}
     <div class="play-row">
-    <button class="btn play" data-act="play" style="--c:${dsel === 2 ? '#e11d48' : dsel === 1 ? '#f97316' : '#f59e0b'}"><span>SAVAŞ</span><small>${dinfo.icon} ${dinfo.name} • 🔋 ${D.GAME.energyPerRun}</small></button>
-    ${S.cleared[`${selCh}:${dsel}`] ? `<button class="btn sweep" data-act="sweep" aria-label="Hızlı Tarama"><span>⚡</span>Tarama<small>${D.GAME.sweepsPerDay - (S.daily.sweeps || 0)}/${D.GAME.sweepsPerDay}</small></button>` : ''}
+    <button class="btn play" data-act="play" style="--c:${arena ? '#d97706' : dsel === 2 ? '#e11d48' : dsel === 1 ? '#f97316' : '#f59e0b'}"><span>${arena ? 'ARENA' : 'SAVAŞ'}</span><small>${arena ? '🏟️ Sonsuz dalga' : `${dinfo.icon} ${dinfo.name}`} • 🔋 ${D.GAME.energyPerRun}</small></button>
+    ${!arena && S.cleared[`${selCh}:${dsel}`] ? `<button class="btn sweep" data-act="sweep" aria-label="Hızlı Tarama"><span>⚡</span>Tarama<small>${D.GAME.sweepsPerDay - (S.daily.sweeps || 0)}/${D.GAME.sweepsPerDay}</small></button>` : ''}
     </div>
     <div class="tip">${tipText()}</div>
   </div>`;
@@ -326,8 +340,12 @@ function questHtml() {
         </div>`;
       }).join('')}</div>`;
   } else if (questTab === 'ach') {
-    body = `<h3>🏆 Başarımlar</h3>${E.achievementsState(S).map(a => `<div class="qrow ${a.claimed ? 'done' : ''}"><div class="qinfo"><b>${a.name}</b>${bar(a.prog, a.goal)}<small>${fmt(a.prog)}/${fmt(a.goal)} • ${rewText(a.reward)}</small></div>
-      <button class="btn small ${a.prog >= a.goal && !a.claimed ? 'green pulse' : 'grey'}" data-act="ach" data-id="${a.id}" ${a.prog >= a.goal && !a.claimed ? '' : 'disabled'}>${a.claimed ? '✓' : 'Al'}</button></div>`).join('')}`;
+    const list = E.achievementsState(S).sort((x, y) => y.claimable - x.claimable || y.prog / y.goal - x.prog / x.goal);
+    const ready = list.filter(x => x.claimable).length;
+    body = `<h3>🏆 Başarımlar <small>Sonsuz: aldıkça hedef yükselir</small></h3>
+      ${ready > 1 ? `<button class="btn green wide" data-act="achAll">Tümünü al (${ready})</button>` : ''}
+      ${list.map(a => `<div class="qrow"><div class="qinfo"><b>${a.icon} ${a.name} <small class="tier">Kademe ${a.tier + 1}</small></b>${bar(a.prog, a.goal)}<small>${fmt(a.prog)}/${fmt(a.goal)} • ${rewText(a.reward)}</small></div>
+      <button class="btn small ${a.claimable ? 'green pulse' : 'grey'}" data-act="ach" data-id="${a.id}" ${a.claimable ? '' : 'disabled'}>Al</button></div>`).join('')}`;
   } else {
     body = `<div class="invite">
       <div class="big-emoji">🤝</div>
@@ -418,7 +436,8 @@ const ACT = {
   tab: d => { tab = d.tab; if (d.qt) questTab = d.qt; play('click'); render(); $('#screen').scrollTop = 0; },
   qtab: d => { questTab = d.q; render(); },
   ch: d => { selCh = Math.max(1, Math.min(S.maxChapter, selCh + +d.d)); play('click'); render(); },
-  play: () => { const d = diffOf(selCh); startBattle(selCh, { ...D.DIFFS[d].mods, diff: d, lootMul: D.DIFFS[d].loot }); },
+  mode: d => { if (d.m === 'arena' && S.maxChapter < 2) { play('error'); return toast('Arena, 1. bölümü temizleyince açılır', 'bad'); } mode = d.m; play('click'); render(); },
+  play: () => { if (mode === 'arena' && S.maxChapter >= 2) return startBattle(1, { arena: true }); const d = diffOf(selCh); startBattle(selCh, { ...D.DIFFS[d].mods, diff: d, lootMul: D.DIFFS[d].loot }); },
   sweep: () => sweep(),
   difflock: d => { play('error'); toast(`Önce bu bölümü ${D.DIFFS[+d.d - 1].name} seviyesinde temizle`, 'bad'); },
   filter: d => { invFilter = d.f; render(); },
@@ -442,7 +461,16 @@ const ACT = {
   petUp: d => { const c = D.petLevelCost(S.pets[d.id].lvl); if (!E.pay(S, c)) return c.gems && S.gems < c.gems ? noGems() : noGold(); S.pets[d.id].lvl++; play('buy'); render(); },
   mission: d => { const m = D.MISSIONS.find(x => x.id === d.id); S.daily.claimed.push(m.id); play('coin'); rewardPopup(E.grant(S, m.reward)); render(); },
   adMission: async () => { if (await watchAd()) { E.progress(S, 'ad'); render(); } },
-  ach: d => { const a = D.ACHIEVEMENTS.find(x => x.id === d.id); S.achievements.push(a.id); play('legend'); rewardPopup(E.grant(S, a.reward), 'Başarım!'); render(); },
+  ach: d => { const a = E.claimAchievement(S, d.id); if (!a) return; play('legend'); rewardPopup(E.grant(S, a.reward), `🏆 ${a.name}`, `Kademe ${a.tier + 1} tamamlandı • Sıradaki hedef yükseldi`); render(); },
+  achAll: () => {
+    const rew = {}; let n = 0, a;
+    for (let guard = 0; guard < 300; guard++) {
+      const next = E.achievementsState(S).find(x => x.claimable); if (!next) break;
+      a = E.claimAchievement(S, next.id); n++;
+      for (const [k, v] of Object.entries(a.reward)) rew[k] = (rew[k] || 0) + v;
+    }
+    if (!n) return; play('legend'); rewardPopup(E.grant(S, rew), `🏆 ${n} başarım alındı`); render();
+  },
   passClaim: d => { const t = +d.t, prem = d.p === '1'; (prem ? S.pass.prem : S.pass.free).push(t); play('coin'); rewardPopup(E.grant(S, D.passReward(t, prem))); render(); },
   monthlyClaim: () => { const m = E.monthlyState(S); if (!m.canClaim) return toast(m.active ? 'Bugünkü elmasını aldın' : 'Aylık kart aktif değil'); S.monthly.last = today(); rewardPopup(E.grant(S, { gems: 100 }), 'Aylık Kart'); render(); },
   refShare: () => doShare(`Efsun Avcısı'nda bana katıl! Davet kodum: ${S.referral.code} — ikimiz de 200 💎 kazanalım ⚔️`),
@@ -844,7 +872,7 @@ function shareCard(res) {
   x.textAlign = 'center'; x.fillStyle = '#fde68a'; x.font = '900 72px system-ui'; x.fillText('EFSUN AVCISI', 360, 150);
   x.font = '220px serif'; x.fillText(h.icon, 360, 600);
   x.fillStyle = '#fff'; x.font = '800 54px system-ui'; x.fillText(res.victory ? 'BÖLÜM TEMİZLENDİ!' : `${Math.floor(res.wave)}. DALGA`, 360, 760);
-  x.font = '600 38px system-ui'; x.fillStyle = '#cbd5e1'; x.fillText(th.title, 360, 820);
+  x.font = '600 38px system-ui'; x.fillStyle = '#cbd5e1'; x.fillText(res.arena ? '🏟️ Arena • Sonsuz Dalga' : th.title, 360, 820);
   x.fillStyle = '#fff'; x.font = '700 44px system-ui';
   x.fillText(`💀 ${fmt(res.kills)} düşman   ⏱️ ${mmss(Math.floor(res.time))}`, 360, 920);
   x.fillText(`⚡ ${fmt(stats().power)} Güç`, 360, 990);
@@ -886,6 +914,7 @@ function startBattle(chapter, mods = null) {
   if (S.energy >= E.energyMax(S)) S.energyTs = Date.now();
   S.energy -= D.GAME.energyPerRun;
   S.stats.runs++; E.progress(S, 'runs');
+  if (mods?.arena) S.arena.runs++;
   save(true);
   sfx.unlock(); play('click');
   closeAllModals();
@@ -893,7 +922,7 @@ function startBattle(chapter, mods = null) {
   run = { mods, rerolls: 1, adDouble: false };
   const st = stats();
   game = new Game($('#cv'), {
-    stats: st, chapter, mods: mods || {}, quality: S.settings.quality, heroColor: D.HEROES[S.hero].color,
+    stats: st, chapter, mods: mods || {}, arenaBest: S.arena.best || 0, quality: S.settings.quality, heroColor: D.HEROES[S.hero].color,
     sfx: play, haptic: vib, onHud: hud, onLevelUp: levelUpModal, onDeath: deathModal, onEnd: endModal,
     dmgNumbers: S.settings.dmgNumbers, shake: S.settings.shake, fps: S.settings.fps,
     onBoss: on => sfx.music(on ? 'boss' : 'battle'),
@@ -934,7 +963,7 @@ function hud(d) {
   H.shield.style.display = d.shield > 0 ? '' : 'none';
   H.lvl.textContent = d.level;
   H.xp.style.width = (d.xp / d.xpNeed * 100) + '%';
-  H.wave.textContent = `Dalga ${d.wave}/${d.waves}`;
+  H.wave.textContent = d.waves ? `Dalga ${d.wave}/${d.waves}` : `🏟️ Dalga ${d.wave}`;
   H.wbar.style.width = Math.min(100, d.waveP * 100) + '%';
   H.kills.textContent = `💀 ${d.kills}`;
   H.gold.textContent = `🪙 ${fmt(d.gold)}`;
@@ -995,6 +1024,7 @@ function deathModal(canRevive, cb) {
 
 function endModal(res) {
   const mods = run?.mods || {};
+  if (mods.arena) return arenaEnd(res);
   const loot = E.runLoot(S, res, mods);
   // ilerleme
   S.stats.kills += res.kills; S.stats.bossKills += res.bossKills;
@@ -1027,6 +1057,30 @@ function endModal(res) {
     const b = e.target.closest('[data-e]'); if (!b || b.disabled) return;
     if (b.dataset.e === 'double') { if (await watchAd()) { E.grant(S, { gold: loot.gold }); b.disabled = true; b.textContent = '✓ 2× alındı'; play('coin'); save(); } }
     if (b.dataset.e === 'share') { const blob = await shareCard(res); doShare(`Efsun Avcısı ${res.chapter}. bölüm: ${res.victory ? 'TEMİZLEDİM' : Math.floor(res.wave) + '. dalga'} 💀${res.kills} ⚡${fmt(stats().power)} — Beni geçebilir misin?`, blob); }
+    if (b.dataset.e === 'ok') { m.close(); exitBattle(res); }
+  });
+}
+
+function arenaEnd(res) {
+  const w = Math.floor(res.wave), prev = S.arena.best || 0, record = w > prev;
+  const loot = E.arenaLoot(S, res);
+  S.stats.kills += res.kills; S.stats.bossKills += res.bossKills;
+  E.progress(S, 'kills', res.kills); E.progress(S, 'boss', res.bossKills);
+  S.stats.maxCombo = Math.max(S.stats.maxCombo || 0, res.maxCombo || 0);
+  if (record) { S.arena.best = w; S.stats.arenaBest = w; }
+  menus.syncScores();
+  const list = E.grant(S, loot);
+  save(true);
+  play(record ? 'win' : 'lose');
+  const m = modal(`<div class="res-head ${record ? 'win' : 'lose'}"><h2>${record ? '🔥 YENİ REKOR!' : '🏟️ Arena Bitti'}</h2>
+      <p>${record ? `Önceki rekor: Dalga ${prev}` : `Rekorun: Dalga ${prev}`}</p></div>
+    <div class="res-stats"><div><b>${w}</b><small>Dalga</small></div><div><b>${fmt(res.kills)}</b><small>Düşman</small></div><div><b>${res.maxCombo || 0}</b><small>Kombo</small></div><div><b>${mmss(Math.floor(res.time))}</b><small>Süre</small></div></div>
+    ${dmgHtml(res)}
+    <div class="reward-grid">${list.map((r, i) => `<div class="reward-cell ${r.rarity !== undefined ? 'rar' + r.rarity : ''}" style="animation-delay:${i * 80}ms"><div class="ri">${r.icon}</div><div class="rt">${esc(r.text)}</div></div>`).join('')}</div>
+    <div class="row gap"><button class="btn purple" data-e="share">📤 Paylaş</button><button class="btn green" data-e="ok">Devam</button></div>`, { closable: false, cls: 'results' });
+  m.el.addEventListener('click', async e => {
+    const b = e.target.closest('[data-e]'); if (!b) return;
+    if (b.dataset.e === 'share') { const blob = await shareCard(res); doShare(`Efsun Avcısı Arenası'nda ${w}. dalgaya ulaştım! 💀${res.kills} ⚡${fmt(stats().power)} — Beni geçebilir misin?`, blob); }
     if (b.dataset.e === 'ok') { m.close(); exitBattle(res); }
   });
 }
