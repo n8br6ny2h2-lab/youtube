@@ -104,6 +104,11 @@ def update(table: str, row_id: int, **values: Any) -> None:
         con.execute(f"UPDATE {table} SET {sets} WHERE id=?", (*values.values(), row_id))
 
 
+def execute(sql: str, params: tuple = ()) -> None:
+    with connect() as con:
+        con.execute(sql, params)
+
+
 def query(sql: str, params: tuple = ()) -> list[dict]:
     with connect() as con:
         return [dict(r) for r in con.execute(sql, params).fetchall()]
