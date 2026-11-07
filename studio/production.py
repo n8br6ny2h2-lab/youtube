@@ -119,6 +119,18 @@ def produce_long(story: dict) -> dict:
     composer.mux(silent, Path(au["mix"]), out, tlp["duration"])
     srt = Paths.subtitles / f"{fp}.srt"
     shutil.copy(au["srt"], srt)
+    try:  # 3D sinematik açılış (Gemini Omni); bütçe/hata durumunda video açılışsız kalır
+        from . import cinematic
+        if cinematic.enabled():
+            intro = cinematic.long_intro(story, work, story["title"])
+            if intro:
+                tmp = out.with_name(out.stem + "_cine.mp4")
+                cinematic.prepend(intro, out, tmp)
+                tmp.replace(out)
+                _shift_srt(srt, cinematic.CLIP_SECONDS)
+                logger.info("[video] 3D açılış eklendi")
+    except Exception as exc:
+        logger.warning(f"[video] 3D açılış eklenemedi: {exc}")
     th = thumbnails.make(story, Paths.thumbnails / fp)
     md = metadata(story, "long")
     v = settings()["video"]
@@ -137,6 +149,16 @@ def produce_long(story: dict) -> dict:
     logger.info(f"[video] Uzun video hazır: {out.name} QC={'GEÇTİ' if report['passed'] else 'KALDI ' + str(report.get('failed'))}")
     return {"video_id": vid, "path": str(out), "timeline": tlp, "audio": au, "thumbnail": th, "qc": report, "meta": md,
             "work": str(work), "seed": seed, "fingerprint": fp}
+
+
+def _shift_srt(path: Path, seconds: float) -> None:
+    import re as _re
+
+    def f(m):
+        h, mi, se, ms = map(int, m.groups())
+        t = h * 3600 + mi * 60 + se + ms / 1000 + seconds
+        return f"{int(t // 3600):02d}:{int(t % 3600 // 60):02d}:{int(t % 60):02d},{int(round((t % 1) * 1000)) % 1000:03d}"
+    path.write_text(_re.sub(r"(\d{2}):(\d{2}):(\d{2}),(\d{3})", f, path.read_text(encoding="utf-8")), encoding="utf-8")
 
 
 def _score_short(tlp: dict, scene_ids: list[str]) -> float:
@@ -185,11 +207,21 @@ def produce_shorts(story: dict, long_result: dict, limit: int | None = None) -> 
         work = Path(long_result["work"]) / f"short{idx}"
         stl = composer.subset(tlp, c["scene_ids"], c["hook_text"], Path(long_result["work"]))
         au = composer.build_audio(stl, work, long_result["seed"] + idx)
-        composer.build_html(stl, work / "hf", composer.PORTRAIT, kit, shorts_title=c["title"])
-        silent = work / "video_silent.mp4"
-        composer.render(work / "hf", silent)
         out = Paths.shorts / f"{fp}_s{idx}.mp4"
-        composer.mux(silent, Path(au["mix"]), out, stl["duration"])
+        made3d = None
+        try:  # ilk Shorts 3D sinematik sahnelerle (bütçe varsa)
+            from . import cinematic
+            if cinematic.enabled() and idx <= int(settings().get("cinematic", {}).get("shorts_3d_per_long", 1)):
+                made3d = cinematic.short_3d(story, stl, Path(au["mix"]), Path(au["srt"]), c["title"], out)
+                if made3d:
+                    logger.info(f"[shorts] {out.name} 3D sahnelerle hazırlandı")
+        except Exception as exc:
+            logger.warning(f"[shorts] 3D sürüm yapılamadı, çizimle devam: {exc}")
+        if not made3d:
+            composer.build_html(stl, work / "hf", composer.PORTRAIT, kit, shorts_title=c["title"])
+            silent = work / "video_silent.mp4"
+            composer.render(work / "hf", silent)
+            composer.mux(silent, Path(au["mix"]), out, stl["duration"])
         mini = {**story, "title": c["title"], "thumb_text": None, "scenes": [s for s in story["scenes"] if s["id"] in c["scene_ids"]] or story["scenes"]}
         cover = thumbnails.make(mini, Paths.thumbnails / fp, portrait=True, prefix=f"short{idx}")
         md = metadata(story, "short", c["title"], hook=c.get("hook_text"))

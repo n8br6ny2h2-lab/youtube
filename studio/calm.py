@@ -452,6 +452,8 @@ def build_video(tlp: dict, work: Path, out: Path, mix: Path, w: int, h: int, ass
     n = 0
     nasa_q = {s["visual"]: s.get("nasa") for s in segs}
     nasa_ids = {s["visual"]: s.get("nasa_ids") for s in segs}
+    gen_flags = {s["visual"]: s.get("gen") for s in segs}
+    gen_used = [0]
     for vis, seconds in timeline:
         k = max(1, math.ceil(seconds / CLIP_SECONDS))
         per = seconds / k
@@ -474,9 +476,21 @@ def build_video(tlp: dict, work: Path, out: Path, mix: Path, w: int, h: int, ass
                     logger.warning(f"{fn.__name__} '{vis}': {exc}")
                 if srcs:
                     break
+        gen = None
+        if gen_flags.get(vis) and gen_used[0] < int(settings().get("cinematic", {}).get("gece_relax_clips", 4)):
+            try:
+                from . import cinematic
+                if cinematic.enabled():
+                    gen = cinematic.relax_clip(vis, n)
+            except Exception as exc:
+                logger.warning(f"Sinematik klip: {exc}")
+            if gen:
+                gen_used[0] += 1
         for j in range(k):
             dst = clips_dir / f"{n:04d}.mp4"
-            if stills:
+            if gen and j == 0:  # bölümün ilk klibi özgün yapay zekâ çekimi (slime/akışkan makro)
+                parts.append(_norm_clip(gen, dst, per, w, h))
+            elif stills:
                 parts.append(still_clip(stills[j % len(stills)], per, n, w, h, dst))
             else:
                 src = srcs[j % len(srcs)] if srcs else fallback_clip(vis, per, n)
