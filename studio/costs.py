@@ -44,7 +44,9 @@ def spent(period: str = "day") -> float:
     now = _local_now()
     prefix = now.strftime("%Y-%m-%d") if period == "day" else now.strftime("%Y-%m")
     # created_at UTC saklanır; yerel gün sınırı için yaklaşık eşleşme yeterli
-    row = db.one("SELECT COALESCE(SUM(usd),0) s FROM costs WHERE substr(created_at,1,?)=?", (len(prefix), prefix))
+    # Sinematik video (gemini_video) kendi aylık bütçesiyle yönetilir; genel günlük/aylık sınırı tüketmez
+    row = db.one("SELECT COALESCE(SUM(usd),0) s FROM costs WHERE substr(created_at,1,?)=? AND service!='gemini_video'",
+                 (len(prefix), prefix))
     return float(row["s"]) if row else 0.0
 
 

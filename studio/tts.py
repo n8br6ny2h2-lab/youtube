@@ -57,9 +57,28 @@ def _post(raw: Path, out: Path, pitch: float, tempo: float = 1.0) -> None:
                     str(out)], check=True)
 
 
+_INTERJ = {"a": "Ah", "o": "Oh", "e": "Eh", "ı": "Hı", "i": "Hı", "u": "Uh", "ü": "Uh"}
+
+
+def _fluent(text: str) -> str:
+    """Akıcı okuma için: 'Aaa!' gibi uzatılmış ünlemler TTS'te 'A, a, a' diye kesik okunur -> 'Ah!';
+    kelime içindeki 3+ tekrarlı harfler tek harfe iner ('Yaşasııın' -> 'Yaşasın'); üç nokta virgüle döner."""
+    import re as _re
+
+    def interj(m):
+        first = m.group(1)
+        out = _INTERJ.get(first.lower().replace("i̇", "i"), first)
+        return out if first.isupper() else out.lower()
+    text = _re.sub(r"\b([aoeıiuüİ])\1+\b", interj, text, flags=_re.I)
+    text = _re.sub(r"([^\W\d_])\1{2,}", r"\1", text)
+    text = text.replace("…", ",").replace("...", ",")
+    return _re.sub(r"\s+", " ", text).strip()
+
+
 def _clean_text(text: str) -> str:
     # TTS için yalnızca okunacak metin; emoji vb. çıkarılır
-    return "".join(ch for ch in text if ch.isalnum() or ch in " .,!?'-:;…\"").strip() or "..."
+    text = _fluent(text)
+    return "".join(ch for ch in text if ch.isalnum() or ch in " .,!?'-:;\"").strip() or "..."
 
 
 def synth(text: str, speaker: str, out_dir: Path) -> Path:
@@ -84,7 +103,7 @@ def synth(text: str, speaker: str, out_dir: Path) -> Path:
     if eng == "google":
         try:
             _google(clean, v, raw)
-            _post(raw, out, v.get("g_pitch", 0.0), v.get("g_rate", 1.0))
+            _post(raw, out, 0.0)  # doğal ses: ton kaydırma yok, hız API'de ayarlanır
             raw.unlink(missing_ok=True)
             return out
         except Exception as exc:
@@ -163,7 +182,8 @@ def _google(text: str, voice: dict, out: Path) -> None:
     costs.check(usd)
     r = httpx.post("https://texttospeech.googleapis.com/v1/text:synthesize", headers={"x-goog-api-key": _google_key()},
                    json={"input": {"text": text}, "voice": {"languageCode": "tr-TR", "name": name},
-                         "audioConfig": {"audioEncoding": "LINEAR16", "sampleRateHertz": SR}}, timeout=120)
+                         "audioConfig": {"audioEncoding": "LINEAR16", "sampleRateHertz": SR,
+                                                   "speakingRate": float(voice.get("g_rate", 1.0))}}, timeout=120)
     r.raise_for_status()
     import base64
     out.write_bytes(base64.b64decode(r.json()["audioContent"]))  # LINEAR16 = WAV başlıklı
