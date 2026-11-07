@@ -3,7 +3,16 @@
   "thumb_text": "Gecenin Ustaları",
   "category": "animals",
   "description": "Biz uyurken orman uyanır. Sessizce uçan baykuşlar, karanlığı sesle gören yarasalar ve kendi ışığını üreten ateş böcekleri... Bilge ile uykudan önce, gecenin ustalarını yakından tanıyoruz.",
-  "tags": ["baykuş", "yarasa", "ateş böceği", "gece hayvanları", "hayvanlar belgeseli", "uyku öncesi", "Bilge", "Gece Kütüphanesi"],
+  "tags": [
+    "baykuş",
+    "yarasa",
+    "ateş böceği",
+    "gece hayvanları",
+    "hayvanlar belgeseli",
+    "uyku öncesi",
+    "Bilge",
+    "Gece Kütüphanesi"
+  ],
   "sources": [
     "Britannica – Owl (britannica.com/animal/owl)",
     "Cornell Lab of Ornithology – All About Birds: Barn Owl",
@@ -15,26 +24,116 @@
     "Fabian, S. T. et al. (2024). Why flying insects gather at artificial light. Nature Communications"
   ],
   "segments": [
-    {"chapter": "Gece başlıyor", "visual": "moon forest", "text": "Merhaba, ben Bilge. Gece Kütüphanesi'ne hoş geldin. Bu gece, biz uyurken uyanan canlılardan konuşacağız. Rahatça uzan, nefesini yavaşlat. Güneş batınca orman susmaz; aksine, bambaşka bir hayat başlar. Bu hayatın kahramanlarına gecenin ustaları diyelim."},
-    {"chapter": "Gece neden güvenli?", "visual": "night forest", "text": "Pek çok hayvan için karanlık bir saklanma yeridir. Gündüz avcılarından uzak kalmak, serin havada su kaybetmemek ve rakiplerin az olduğu saatlerde beslenmek gecenin büyük avantajlarıdır. Ama karanlıkta yaşamak özel yetenekler ister. Kimisi sesi, kimisi kokuyu, kimisi de kendi ışığını kullanır."},
-    {"chapter": "Baykuşların dünyası", "visual": "owl night", "text": "Önce benim akrabalarımla başlayalım: baykuşlar. Dünyada iki yüz ellinin üzerinde baykuş türü yaşıyor. Antarktika dışında her kıtada bulunuyorlar. Çoğu gece avlanır, bazıları ise alacakaranlıkta ya da gündüz de etkindir."},
-    {"chapter": "Sessiz kanatlar", "visual": "owl flying", "text": "Baykuşların en şaşırtıcı yeteneği neredeyse sessiz uçmalarıdır. Kanatlarının ön kenarındaki tüyler tarak gibi tırtıklıdır ve havayı yumuşakça böler. Tüylerin yüzeyi kadife gibidir, arka kenarları ise saçaklıdır. Bu üç özellik birlikte, kanat çırpışının sesini büyük ölçüde yutar."},
-    {"chapter": "Yüzdeki çanak", "visual": "barn owl", "text": "Peçeli baykuşun yüzüne dikkatle bakarsan, kalp biçiminde bir çanak görürsün. Bu yüz diski, tıpkı bir uydu anteni gibi sesleri toplar ve kulaklara yönlendirir. Kulakları da birbirinin tam simetriği değildir; biri biraz daha yukarıda, diğeri biraz daha aşağıdadır."},
-    {"chapter": "Karanlıkta duyarak görmek", "visual": "owl eyes", "text": "Bu küçük fark, sesin iki kulağa ulaşma zamanını ve şiddetini değiştirir. Baykuşun beyni bu farkları hesaplar ve sesin hem yönünü hem yüksekliğini bulur. Laboratuvar deneyleri, peçeli baykuşun hiç ışık olmayan bir odada bile yalnızca sesi izleyerek avını yakalayabildiğini göstermiştir."},
-    {"chapter": "Dönen baş", "visual": "owl head", "text": "Baykuşların gözleri iri ama yuvalarında dönemez; boru biçimlidirler. Bu yüzden baykuş bakmak için başını çevirir. Boynunda bizim iki katımız kadar, yani on dört omur vardır. Bu sayede başını her iki yöne yaklaşık iki yüz yetmiş dereceye kadar döndürebilir."},
-    {"chapter": "Gece kanatlıları: yarasalar", "visual": "bat flying", "text": "Şimdi gökyüzündeki diğer gece yolcusuna bakalım: yarasalar. Yarasalar, gerçek anlamda uçabilen tek memelilerdir. Bin dört yüzden fazla yarasa türü bilinir; bu, memeli türlerinin yaklaşık beşte biri demektir. Kanatları aslında incecik bir deriyle birbirine bağlanmış, uzamış parmaklardır."},
-    {"chapter": "Sesle görmek", "visual": "bats cave", "text": "Pek çok yarasa karanlıkta yolunu sesle bulur. Çok tiz, çoğunu bizim duyamadığımız sesler çıkarır ve geri dönen yankıları dinler. Buna ekolokasyon denir. Yankının ne kadar sürede döndüğü, bir böceğin uzaklığını, hızını, hatta boyutunu bile anlatır."},
-    {"chapter": "Ormanın bahçıvanları", "visual": "night flowers", "text": "Yarasalar yalnızca böcek avcısı değildir. Bazı türler meyve ve nektarla beslenir; çiçekleri tozlaştırır, tohumları uzaklara taşır. Tropik ormanlarda pek çok bitki, ormanın yenilenmesi için bu gece bahçıvanlarına güvenir. Yani bir yarasa, aslında sessiz bir orman dikicisidir."},
-    {"chapter": "Kendi ışığını üretenler", "visual": "fireflies", "text": "Şimdi ışıkları biraz kısalım ve çimenlerin arasına bakalım. Orada yanıp sönen minik ışıklar ateş böcekleri. Aslında bunlar sinek değil, birer böcektir. Karınlarındaki özel bir bölümde, lusiferin adlı bir maddeyi lusiferaz adlı bir enzimle oksijenle buluşturarak ışık üretirler."},
-    {"chapter": "Soğuk ışık", "visual": "firefly", "text": "Bu ışığın bir özelliği var: neredeyse hiç ısı üretmez. Bu yüzden ona soğuk ışık denir. Her ateş böceği türünün kendine özgü bir yanıp sönme deseni vardır. Bu desenler bir tür ışıklı dildir; böcekler onunla birbirlerini bulur ve tanır."},
-    {"chapter": "Işığa koşan kanatlar", "visual": "moth", "text": "Geceleri bir lambanın etrafında dönen güveleri hiç izledin mi? Uzun süre bunun sebebinin Ay'a göre yön bulmak olduğu düşünüldü. Yakın tarihli yüksek hızlı kamera çalışmaları başka bir açıklama öneriyor: böcekler sırtlarını ışığa çevirerek uçmaya çalışıyor ve yapay ışık onları şaşırtıyor."},
-    {"chapter": "Yerdeki gezginler", "visual": "hedgehog", "text": "Yere inelim. Yapraklar arasında hışırdayan küçük bir top görürsen, büyük ihtimalle bir kirpidir. Kirpiler geceleri kilometrelerce yürüyebilir. Böcek, solucan ve salyangoz arayarak bahçeleri gezerler. Tehlike sezdiklerinde dikenli bir topa dönüşerek kendilerini korurlar."},
-    {"chapter": "Gecenin şarkıcıları", "visual": "frog night", "text": "Bu arada kulaklarını dinlendir. O ritmik sesler cırcır böceklerinden ve kurbağalardan geliyor. Cırcır böceği kanatlarını birbirine sürterek öter; kurbağalar ise ses keselerini bir balon gibi şişirerek seslerini uzaklara taşır. Gece, aslında sessiz değil; sadece sakin bir orkestradır."},
-    {"chapter": "Sabaha doğru", "visual": "deer dusk", "text": "Gökyüzü yavaş yavaş aydınlanırken gecenin ustaları da evlerine döner. Baykuşlar ağaç kovuklarına, yarasalar mağaralara, kirpiler yaprak yuvalarına çekilir. Biz uyanırken onlar dinlenmeye başlar. Doğa, böylece yirmi dört saat boyunca nöbetleşe yaşar."},
-    {"chapter": "İyi geceler", "visual": "starry sky", "text": "Bu gecelik bu kadar. Bir dahaki sefere dışarıda karanlığa baktığında, orada sessizce çalışan ustaları hatırla. Şimdi sana bir sorum var: Sence en etkileyici gece yeteneği hangisi; sessiz uçmak mı, sesle görmek mi, yoksa kendi ışığını üretmek mi? Yorumlarda bana yaz. İyi geceler, ben Bilge."}
+    {
+      "chapter": "Gece başlıyor",
+      "visual": "moon forest",
+      "text": "Merhaba, ben Bilge. Gece Kütüphanesi'ne hoş geldin. Bu gece, biz uyurken uyanan canlılardan konuşacağız. Rahatça uzan, nefesini yavaşlat. Güneş batınca orman susmaz; aksine, bambaşka bir hayat başlar. Bu hayatın kahramanlarına gecenin ustaları diyelim."
+    },
+    {
+      "chapter": "Gece neden güvenli?",
+      "visual": "night forest",
+      "text": "Pek çok hayvan için karanlık bir saklanma yeridir. Gündüz avcılarından uzak kalmak, serin havada su kaybetmemek ve rakiplerin az olduğu saatlerde beslenmek gecenin büyük avantajlarıdır. Ama karanlıkta yaşamak özel yetenekler ister. Kimisi sesi, kimisi kokuyu, kimisi de kendi ışığını kullanır."
+    },
+    {
+      "chapter": "Baykuşların dünyası",
+      "visual": "owl night",
+      "text": "Önce benim akrabalarımla başlayalım: baykuşlar. Dünyada iki yüz ellinin üzerinde baykuş türü yaşıyor. Antarktika dışında her kıtada bulunuyorlar. Çoğu gece avlanır, bazıları ise alacakaranlıkta ya da gündüz de etkindir."
+    },
+    {
+      "chapter": "Sessiz kanatlar",
+      "visual": "owl flying",
+      "text": "Baykuşların en şaşırtıcı yeteneği neredeyse sessiz uçmalarıdır. Kanatlarının ön kenarındaki tüyler tarak gibi tırtıklıdır ve havayı yumuşakça böler. Tüylerin yüzeyi kadife gibidir, arka kenarları ise saçaklıdır. Bu üç özellik birlikte, kanat çırpışının sesini büyük ölçüde yutar. Bu sessizlik baykuşa iki şey kazandırır: avı onun geldiğini duymaz, baykuş da uçarken avının en küçük kıpırtısını dinlemeye devam edebilir."
+    },
+    {
+      "chapter": "Yüzdeki çanak",
+      "visual": "barn owl",
+      "text": "Peçeli baykuşun yüzüne dikkatle bakarsan, kalp biçiminde bir çanak görürsün. Bu yüz diski, tıpkı bir uydu anteni gibi sesleri toplar ve kulaklara yönlendirir. Kulakları da birbirinin tam simetriği değildir; biri biraz daha yukarıda, diğeri biraz daha aşağıdadır."
+    },
+    {
+      "chapter": "Karanlıkta duyarak görmek",
+      "visual": "owl eyes",
+      "text": "Bu küçük fark, sesin iki kulağa ulaşma zamanını ve şiddetini değiştirir. Baykuşun beyni bu farkları hesaplar ve sesin hem yönünü hem yüksekliğini bulur. Laboratuvar deneyleri, peçeli baykuşun hiç ışık olmayan bir odada bile yalnızca sesi izleyerek avını yakalayabildiğini göstermiştir."
+    },
+    {
+      "chapter": "Dönen baş",
+      "visual": "owl head",
+      "text": "Baykuşların gözleri iri ama yuvalarında dönemez; boru biçimlidirler. Bu yüzden baykuş bakmak için başını çevirir. Boynunda bizim iki katımız kadar, yani on dört omur vardır. Bu sayede başını her iki yöne yaklaşık iki yüz yetmiş dereceye kadar döndürebilir."
+    },
+    {
+      "chapter": "Yutan avcılar",
+      "visual": "owl feathers",
+      "text": "Baykuşlar avlarını çoğu zaman bütün olarak yutar. Sindiremedikleri kemik ve tüyleri ise birkaç saat sonra küçük, sıkı yumaklar halinde geri çıkarırlar. Bilim insanları bu yumakları inceleyerek bir bölgede hangi küçük hayvanların yaşadığını öğrenir. Yani bir baykuşun artığı bile ormanın sessiz bir günlüğüdür."
+    },
+    {
+      "chapter": "Gece kanatlıları: yarasalar",
+      "visual": "bat flying",
+      "text": "Şimdi gökyüzündeki diğer gece yolcusuna bakalım: yarasalar. Yarasalar, gerçek anlamda uçabilen tek memelilerdir. Bin dört yüzden fazla yarasa türü bilinir; bu, memeli türlerinin yaklaşık beşte biri demektir. Kanatları aslında incecik bir deriyle birbirine bağlanmış, uzamış parmaklardır."
+    },
+    {
+      "chapter": "Sesle görmek",
+      "visual": "bats cave",
+      "text": "Pek çok yarasa karanlıkta yolunu sesle bulur. Çok tiz, çoğunu bizim duyamadığımız sesler çıkarır ve geri dönen yankıları dinler. Buna ekolokasyon denir. Yankının ne kadar sürede döndüğü, bir böceğin uzaklığını, hızını, hatta boyutunu bile anlatır."
+    },
+    {
+      "chapter": "Ormanın bahçıvanları",
+      "visual": "night flowers",
+      "text": "Yarasalar yalnızca böcek avcısı değildir. Bazı türler meyve ve nektarla beslenir; çiçekleri tozlaştırır, tohumları uzaklara taşır. Tropik ormanlarda pek çok bitki, ormanın yenilenmesi için bu gece bahçıvanlarına güvenir. Yani bir yarasa, aslında sessiz bir orman dikicisidir."
+    },
+    {
+      "chapter": "Kendi ışığını üretenler",
+      "visual": "fireflies",
+      "text": "Şimdi ışıkları biraz kısalım ve çimenlerin arasına bakalım. Orada yanıp sönen minik ışıklar ateş böcekleri. Aslında bunlar sinek değil, birer böcektir. Karınlarındaki özel bir bölümde, lusiferin adlı bir maddeyi lusiferaz adlı bir enzimle oksijenle buluşturarak ışık üretirler. Işığın rengi türe göre sarıdan yeşile ve turuncuya kadar değişir. Bazı yerlerde binlerce ateş böceği aynı anda yanıp söner ve bütün orman tek bir kalp gibi atar."
+    },
+    {
+      "chapter": "Soğuk ışık",
+      "visual": "firefly",
+      "text": "Bu ışığın bir özelliği var: neredeyse hiç ısı üretmez. Bu yüzden ona soğuk ışık denir. Her ateş böceği türünün kendine özgü bir yanıp sönme deseni vardır. Bu desenler bir tür ışıklı dildir; böcekler onunla birbirlerini bulur ve tanır."
+    },
+    {
+      "chapter": "Işığa koşan kanatlar",
+      "visual": "moth",
+      "text": "Geceleri bir lambanın etrafında dönen güveleri hiç izledin mi? Uzun süre bunun sebebinin Ay'a göre yön bulmak olduğu düşünüldü. Yakın tarihli yüksek hızlı kamera çalışmaları başka bir açıklama öneriyor: böcekler sırtlarını ışığa çevirerek uçmaya çalışıyor ve yapay ışık onları şaşırtıyor."
+    },
+    {
+      "chapter": "Yerdeki gezginler",
+      "visual": "hedgehog",
+      "text": "Yere inelim. Yapraklar arasında hışırdayan küçük bir top görürsen, büyük ihtimalle bir kirpidir. Kirpiler geceleri kilometrelerce yürüyebilir. Böcek, solucan ve salyangoz arayarak bahçeleri gezerler. Tehlike sezdiklerinde dikenli bir topa dönüşerek kendilerini korurlar."
+    },
+    {
+      "chapter": "Karanlıkta parlayan gözler",
+      "visual": "fox night",
+      "text": "Gece yürüyüşünde bir el feneri tuttuğunda, çalıların arasında parlayan gözler görebilirsin. Tilki, kedi ve geyik gibi pek çok hayvanın gözünün arkasında ayna gibi bir tabaka vardır. Bu tabaka gözden geçen ışığı geri yansıtır ve görme hücrelerine ikinci bir şans verir. Parıltının sırrı budur."
+    },
+    {
+      "chapter": "Gecenin şarkıcıları",
+      "visual": "frog night",
+      "text": "Bu arada kulaklarını dinlendir. O ritmik sesler cırcır böceklerinden ve kurbağalardan geliyor. Cırcır böceği kanatlarını birbirine sürterek öter; kurbağalar ise ses keselerini bir balon gibi şişirerek seslerini uzaklara taşır. Gece, aslında sessiz değil; sadece sakin bir orkestradır."
+    },
+    {
+      "chapter": "Sabaha doğru",
+      "visual": "deer dusk",
+      "text": "Gökyüzü yavaş yavaş aydınlanırken gecenin ustaları da evlerine döner. Baykuşlar ağaç kovuklarına, yarasalar mağaralara, kirpiler yaprak yuvalarına çekilir. Biz uyanırken onlar dinlenmeye başlar. Doğa, böylece yirmi dört saat boyunca nöbetleşe yaşar."
+    },
+    {
+      "chapter": "İyi geceler",
+      "visual": "starry sky",
+      "text": "Bu gecelik bu kadar. Bir dahaki sefere dışarıda karanlığa baktığında, orada sessizce çalışan ustaları hatırla. Şimdi sana bir sorum var: Sence en etkileyici gece yeteneği hangisi; sessiz uçmak mı, sesle görmek mi, yoksa kendi ışığını üretmek mi? Yorumlarda bana yaz. İyi geceler, ben Bilge."
+    }
   ],
   "shorts": [
-    {"segments": [3], "title": "Baykuşlar Neden Sessiz Uçar?", "hook": "Baykuşlar neden neredeyse hiç ses çıkarmadan uçar?"},
-    {"segments": [10], "title": "Kendi Işığını Üreten Böcek", "hook": "Bu minik böcek kendi ışığını nasıl üretiyor?"}
+    {
+      "segments": [
+        3
+      ],
+      "title": "Baykuşlar Neden Sessiz Uçar?",
+      "hook": "Baykuşlar neden neredeyse hiç ses çıkarmadan uçar?"
+    },
+    {
+      "segments": [
+        11
+      ],
+      "title": "Kendi Işığını Üreten Böcek",
+      "hook": "Bu minik böcek kendi ışığını nasıl üretiyor?"
+    }
   ]
 }
