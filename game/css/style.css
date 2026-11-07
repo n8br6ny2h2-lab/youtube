@@ -527,3 +527,17 @@ input[type=range] { flex: none; width: 150px; padding: 0; border: 0; background:
 .sv-cell { position: relative; } .sv-cell.off .item { opacity: .35; filter: grayscale(1); }
 .sv-x { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-12deg); background: #ef4444; color: #fff; font-size: 9px; font-weight: 900; padding: 1px 4px; border-radius: 5px; pointer-events: none; }
 .salvage [data-s=everything] { margin-bottom: 4px; }
+/* güç kartı simgeleri: animasyonlu */
+.sk-i .ska { display: inline-block; will-change: transform; }
+.a-spin { animation: skspin 2.4s linear infinite; }
+.a-flick { animation: skflick .55s ease-in-out infinite alternate; }
+.a-pulse { animation: skpulse 1.1s ease-in-out infinite; }
+.a-bob { animation: skbob 1.4s ease-in-out infinite; }
+.a-evo { animation: skevo 1.6s ease-in-out infinite; filter: drop-shadow(0 0 8px #f0abfc); }
+@keyframes skspin { to { transform: rotate(360deg); } }
+@keyframes skflick { from { transform: scale(1) rotate(-6deg); filter: brightness(1); } to { transform: scale(1.12) rotate(6deg); filter: brightness(1.35); } }
+@keyframes skpulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.16); } }
+@keyframes skbob { 0%, 100% { transform: translateY(2px); } 50% { transform: translateY(-4px); } }
+@keyframes skevo { 0%, 100% { transform: scale(1) rotate(0); } 50% { transform: scale(1.18) rotate(12deg); } }
+.stars.rep { color: #86efac; } .stars .maxl { font-size: 10px; color: #f87171; margin-left: 4px; }
+@media (prefers-reduced-motion: reduce) { .sk-i .ska { animation: none !important; } }

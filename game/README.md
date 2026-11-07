@@ -22,8 +22,8 @@ cd game && python3 -m http.server 8080   →  http://localhost:8080
 | Günlük | Giriş ödülü, 7 görev, günün mücadelesi, ücretsiz sandık, devriye ödülü | Seri bozulmasın, bilet kademesi dolsun |
 | Sezonluk | Efsun Bileti (30 kademe), başarımlar, yeni bölümler (Kabus → Cehennem → Kıyamet) | Uzun vadeli hedef |
 
-### Savaş içi (19 güç)
-Çoklu Atış, Çapraz Atış, Arka Atış, Delici, Seken Atış, Güç Patlaması, Hız Ruhu, Keskin Göz, Dev Kalbi, Şifa, Vampir Dişi, Ateş Küresi, Dönen Bıçaklar, Yıldırım, Buz Halkası, Meteor, Ruh Kalkanı, Mıknatıs, Rüzgâr Adımı.
+### Savaş içi (22 güç)
+Çoklu Atış, Çapraz Atış, Arka Atış, Delici, Seken Atış, Güç Patlaması, Hız Ruhu, Keskin Göz, Dev Kalbi, Şifa, Vampir Dişi, Ateş Küresi, Dönen Bıçaklar, Yıldırım, Buz Halkası, Meteor, Ruh Kalkanı, Mıknatıs, Rüzgâr Adımı, ☠️ Zehir Bulutu, 🪃 Bumerang, ♨️ Alev İzi. Kart simgeleri animasyonlu; Şifa gibi tekrar alınabilen güçlerde yıldız yerine "Tekrar alınabilir" yazar.
 
 ### 🧬 Evrimler (6)
 Aktif beceri en yüksek seviyede + eşleşen destek gücü alınmışsa seviye atlarken (%50) veya 🎁 hazine sandığında (kesin) evrim seçeneği çıkar. Seçim kartında hangi gücün hangi evrime gittiği yazar.

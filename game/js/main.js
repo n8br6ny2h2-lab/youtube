@@ -1094,11 +1094,20 @@ function hud(d) {
   else H.boss.hidden = true;
 }
 
+// güç kartı simgesinin animasyonu: dönenler döner, ateş titrer, diğerleri nabız gibi atar
+function skAnim(s) {
+  if (s.evo) return 'a-evo';
+  if (['orb', 'blade', 'boomer', 'bounce', 'multi', 'diag'].includes(s.id)) return 'a-spin';
+  if (['trail', 'meteor', 'atk', 'bolt'].includes(s.id)) return 'a-flick';
+  if (['poison', 'frost', 'vamp', 'hp', 'heal'].includes(s.id)) return 'a-pulse';
+  return 'a-bob';
+}
+
 function levelUpModal(choices, cb, opt = {}) {
   const m = modal('', { cls: 'levelup' + (opt.chest ? ' chestup' : ''), closable: false });
   const draw = list => {
     m.el.innerHTML = `<h2 class="glow">${opt.chest ? '🎁 HAZİNE SANDIĞI!' : 'SEVİYE ATLADIN!'}</h2><p class="muted center">${list.some(s => s.evo) ? '🧬 Evrim hazır!' : 'Bir güç seç'}</p>
-      <div class="skills">${list.map(s => `<button class="skill ${s.evo ? 'evo' : ''}" data-id="${s.id}"><div class="sk-i">${s.icon}</div><b>${s.evo ? 'EVRİM: ' : ''}${s.name}</b><small>${s.desc}</small>${s.evo ? '<div class="stars">🧬 Süper güç</div>' : `<div class="stars">${'★'.repeat(s.lvl)}${'☆'.repeat(Math.max(0, Math.min(s.max, 6) - s.lvl))}</div>`}${s.hint ? `<em class="sk-hint">${s.hint}</em>` : ''}</button>`).join('')}</div>
+      <div class="skills">${list.map(s => `<button class="skill ${s.evo ? 'evo' : ''}" data-id="${s.id}"><div class="sk-i"><span class="ska ${skAnim(s)}">${s.icon}</span></div><b>${s.evo ? 'EVRİM: ' : ''}${s.name}</b><small>${s.desc}</small>${s.evo ? '<div class="stars">🧬 Süper güç</div>' : s.max > 6 ? '<div class="stars rep">♻️ Tekrar alınabilir</div>' : `<div class="stars">${'★'.repeat(Math.min(s.lvl, s.max))}${'☆'.repeat(Math.max(0, s.max - s.lvl))}${s.lvl >= s.max ? ' <b class="maxl">SON SEVİYE</b>' : ''}</div>`}${s.hint ? `<em class="sk-hint">${s.hint}</em>` : ''}</button>`).join('')}</div>
       ${run.rerolls > 0 ? `<button class="btn blue small" data-r>${ADS ? '📺' : '🔄'} Yenile</button>` : ''}`;
   };
   draw(choices);
@@ -1211,7 +1220,7 @@ function arenaEnd(res) {
 // Savaş sonu hasar dökümü (hangi güç ne kadar vurdu)
 const DMG_SRC = { weapon: ['🏹', 'Silah'], chain: ['⚡', 'Şimşek Zinciri'], burn: ['🔥', 'Yanma'], orb: ['🔥', 'Ateş Küresi'], blade: ['🌀', 'Dönen Bıçaklar'],
   bolt: ['🌩️', 'Yıldırım'], frost: ['❄️', 'Buz Halkası'], meteor: ['☄️', 'Meteor'], pet: ['🐾', 'Evcil'], spirit: ['👻', 'Gölge Ruh'], set: ['🛡️', 'Set Gücü'],
-  thorns: ['🌵', 'Diken'], revive: ['✨', 'Diriliş'], evo_bolt: ['⛈️', 'Gök Hükmü'], evo_shield: ['😇', 'Kutsal Aura'] };
+  thorns: ['🌵', 'Diken'], revive: ['✨', 'Diriliş'], poison: ['☠️', 'Zehir Bulutu'], boomer: ['🪃', 'Bumerang'], trail: ['♨️', 'Alev İzi'], evo_bolt: ['⛈️', 'Gök Hükmü'], evo_shield: ['😇', 'Kutsal Aura'] };
 function dmgHtml(res) {
   const ent = Object.entries(res.dmgBy || {}).filter(([, v]) => v >= 1).sort((a, b) => b[1] - a[1]).slice(0, 6);
   if (!ent.length) return '';

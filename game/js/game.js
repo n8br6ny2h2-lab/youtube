@@ -24,6 +24,15 @@ const CH_ENEMIES = [
   ['bat', 'archer', 'mage', 'golem', 'bomber', 'slime', 'boar', 'splitter'],
   ['slime', 'bat', 'archer', 'golem', 'bomber', 'mage', 'boar', 'splitter'],
 ];
+// Her bölümün düşman renk paleti (görünüm bölüme göre değişir; aksesuarları art.js çizer)
+const CH_PAL = [
+  { slime: '#4ade80', bat: '#a78bfa', golem: '#78716c', boar: '#92400e', splitter: '#14b8a6', mage: '#f472b6' },
+  { slime: '#fbbf24', bat: '#b45309', golem: '#d6b98c', boar: '#a16207', splitter: '#f59e0b', mage: '#fb7185' },
+  { slime: '#7dd3fc', bat: '#93c5fd', golem: '#cbd5e1', boar: '#64748b', splitter: '#38bdf8', mage: '#a5b4fc' },
+  { slime: '#c084fc', bat: '#6d28d9', golem: '#57534e', boar: '#4c1d95', splitter: '#8b5cf6', mage: '#e879f9' },
+  { slime: '#f87171', bat: '#7f1d1d', golem: '#44403c', boar: '#7c2d12', splitter: '#ef4444', mage: '#fb923c' },
+];
+const MINI_BOSS = ['mushroom', 'sandworm', 'yeti', 'wraith', 'ember'];
 const BOSSES = {
   treant:       { name: 'Yaşlı Kökdev',    color: '#3f9b55', patterns: ['slam', 'summon', 'radial'] },
   scorpion:     { name: 'Kum Akrebi',      color: '#e08a1e', patterns: ['charge', 'spread', 'radial'] },
@@ -31,6 +40,12 @@ const BOSSES = {
   shadowDragon: { name: 'Gölge Ejder',     color: '#8b5cf6', patterns: ['charge', 'spread', 'spiral'] },
   magmaTitan:   { name: 'Magma Titanı',    color: '#ef4444', patterns: ['slam', 'radial', 'charge'] },
   guardian:     { name: 'Kadim Muhafız',   color: '#eab308', patterns: ['radial', 'charge'] },
+  // bölüm mini bossları (5. dalga): her bölümün kendi mini boss'u
+  mushroom:     { name: 'Dev Mantar',      color: '#ef4444', patterns: ['summon', 'radial'] },
+  sandworm:     { name: 'Kum Solucanı',    color: '#d97706', patterns: ['charge', 'spread'] },
+  yeti:         { name: 'Kar Yetisi',      color: '#e0f2fe', patterns: ['slam', 'spread'] },
+  wraith:       { name: 'Hayalet Şövalye', color: '#a78bfa', patterns: ['charge', 'spiral'] },
+  ember:        { name: 'Ateş Elementali', color: '#fb923c', patterns: ['radial', 'spiral'] },
 };
 
 export const RUN_SKILLS = [
@@ -53,6 +68,9 @@ export const RUN_SKILLS = [
   { id: 'shield', name: 'Ruh Kalkanı',   icon: '🔰', desc: 'Düzenli olarak bir darbeyi engelle', max: 3, apply: g => g.st.shieldSkill++ },
   { id: 'magnet', name: 'Mıknatıs',      icon: '🧲', desc: 'Ganimet çekim alanı +%60',           max: 2, apply: g => { g.st.pickR *= 1.6; } },
   { id: 'speed',  name: 'Rüzgâr Adımı',  icon: '👟', desc: '+%15 hareket hızı',                  max: 3, apply: g => { g.st.move *= 1.15; } },
+  { id: 'poison', name: 'Zehir Bulutu',  icon: '☠️', desc: 'Düşmanların üstüne zehir bulutu (yavaşlatır, eritir)', max: 3, apply: g => g.st.poison++ },
+  { id: 'boomer', name: 'Bumerang',      icon: '🪃', desc: 'Delip geçen, geri dönen bumerang (+1)', max: 3, apply: g => g.st.boomer++ },
+  { id: 'trail',  name: 'Alev İzi',      icon: '♨️', desc: 'Yürüdüğün yerde yanan alevler bırakır', max: 3, apply: g => g.st.trail++ },
 ];
 
 // Evrimler: aktif beceri en yüksek seviyede + eşleşen destek gücü alınmışsa seviye atlarken veya hazine sandığında çıkar.
@@ -87,19 +105,19 @@ export class Game {
     const s = this.cfg.stats;
     this.st = {
       ...s, dmgMul: this.mods.playerDmg || 1, aspdMul: 1, diag: 0, rear: 0, orbs: 0, blades: 0, bolt: 0, frost: 0,
-      meteor: 0, shieldSkill: 0, pickR: 95 + (s.pet === 'fox' ? 80 : 0), move: s.move,
+      meteor: 0, shieldSkill: 0, poison: 0, boomer: 0, trail: 0, pickR: 95 + (s.pet === 'fox' ? 80 : 0), move: s.move,
     };
     const hp = Math.round(s.hp * (this.mods.playerHp || 1));
     this.p = { x: 0, y: 0, r: 18, hp, maxHp: hp, inv: 0, face: 0, atkT: 0.3, shield: s.shieldEvery ? 1 : 0, walk: 0, vx: 0, vy: 0, hurtT: 0 };
     this.pet = { x: -30, y: -30, t: 0, t2: 0 };
-    this.enemies = []; this.bullets = []; this.ebullets = []; this.pickups = []; this.parts = []; this.texts = []; this.fx = []; this.spirits = [];
+    this.enemies = []; this.bullets = []; this.ebullets = []; this.pickups = []; this.parts = []; this.texts = []; this.fx = []; this.spirits = []; this.clouds = []; this.booms = []; this.flames = [];
     this.wave = 1; this.waveT = 0; this.bossActive = false; this.bossSpawned = false; this.boss = null;
     this.level = 1; this.xp = 0; this.xpNeed = 5; this.pendingLv = 0;
     this.combo = 0; this.comboT = 0; this.maxCombo = 0;
     this.kills = 0; this.goldPicked = 0; this.runes = 0; this.bossKills = 0; this.time = 0;
     this.spawnAcc = 0; this.paused = false; this.over = false; this.revived = false;
     this.shake = 0; this.timeScale = 1; this.slowT = 0;
-    this.timers = { bolt: 2, meteor: 3, frostTick: 0, shield: 0, kaya: 0, fireNova: 5, frostNova: 6, stormCall: 4, fox: 4 };
+    this.timers = { bolt: 2, meteor: 3, frostTick: 0, shield: 0, kaya: 0, fireNova: 5, frostNova: 6, stormCall: 4, fox: 4, poison: 1.2, boomer: 0.6, trail: 0 };
     this.skills = {}; this.dmgBy = {}; this.nextChest = 0;
     this.hudT = 0;
     this.banner = { text: this.theme.name, sub: `${this.ch}. Bölüm • Dalga 1`, t: 2.4 };
@@ -479,6 +497,7 @@ export class Game {
   // ---------------- dalgalar ----------------
   isBossWave(w) { return this.arena ? w % 5 === 0 : w === 5 || w === GAME.wavesPerChapter || (this.mods.extraBoss && w === 8); }
   waveLen() { return this.arena ? 15 : GAME.waveLen; }
+  loopTier() { return this.arena ? 0 : Math.floor((this.ch - 1) / CHAPTERS.length); } // Kabus, Cehennem… turları
 
   // Arena: bölge (görünüm + düşman türleri) her 5 dalgada değişir; güç seviyesi her 4 dalgada bir bölüm kadar artar
   arenaStage() {
@@ -542,9 +561,9 @@ export class Game {
     pos = pos || this.spawnPos();
     this.enemies.push({
       type, ai: d.ai, x: pos.x, y: pos.y, r: d.r * sc, hp, maxHp: hp, speed: d.speed * (this.mods.enemySpeed || 1) * rand(0.9, 1.1),
-      dmg: d.dmg * this.diffDmg() * (elite ? 1.5 : 1), xp: d.xp * (elite ? 3 : 1), color: d.color || this.theme.accent,
+      dmg: d.dmg * this.diffDmg() * (elite ? 1.5 : 1), xp: d.xp * (elite ? 3 : 1), color: CH_PAL[this.chIdx]?.[type] || d.color || this.theme.accent,
       elite, big: elite || type === 'golem', cd: d.cd ? rand(0.8, d.cd) : 0, kx: 0, ky: 0, flash: 0, frozen: 0, slow: 1,
-      ph: rand(0, TAU), fuse: 0, tp: rand(4, 7), age: 0, hitS: 0, accent: this.theme.accent,
+      ph: rand(0, TAU), fuse: 0, tp: rand(4, 7), age: 0, hitS: 0, accent: this.theme.accent, deco: this.chIdx, nightmare: this.loopTier() > 0,
     });
     if (opt.portal !== false && pos && Math.hypot(pos.x - this.p.x, pos.y - this.p.y) < 500) this.fx.push({ type: 'portal', x: pos.x, y: pos.y, r: d.r * sc * 1.6, t: 0, life: 0.5, color: '#a78bfa' });
   }
@@ -559,14 +578,14 @@ export class Game {
   spawnBoss() {
     this.bossSpawned = true; this.bossActive = true; this.bossHit = false;
     const mini = this.arena ? this.wave % 10 !== 0 : this.wave < GAME.wavesPerChapter;
-    const key = mini ? 'guardian' : this.theme.boss;
+    const key = mini ? MINI_BOSS[this.chIdx] || 'guardian' : this.theme.boss;
     const b = BOSSES[key];
     const hp = (mini ? 550 : 1300) * TUNE.bossHp * Math.pow(TUNE.hpPerChapter, this.arena ? this.arenaK() : this.ch - 1) * (this.mods.enemyHp || 1);
     const pos = this.spawnPos(320);
     const e = {
       type: 'boss', boss: true, mini, key, name: b.name, ai: 'boss', x: pos.x, y: pos.y, r: mini ? 38 : 52, hp, maxHp: hp,
       speed: mini ? 70 : 62, dmg: (mini ? 22 : 30) * this.diffDmg(), xp: 30, color: b.color, patterns: b.patterns,
-      state: 'move', pt: 2, kx: 0, ky: 0, flash: 0, frozen: 0, slow: 1, ph: 0, big: true, elite: false, age: -0.6, hitS: 0,
+      state: 'move', pt: 2, kx: 0, ky: 0, flash: 0, frozen: 0, slow: 1, ph: 0, big: true, elite: false, age: -0.6, hitS: 0, nightmare: this.loopTier() > 0,
     };
     this.fx.push({ type: 'portal', x: pos.x, y: pos.y, r: e.r * 2.2, t: 0, life: 1.1, color: '#ef4444' });
     this.enemies.push(e); this.boss = e;
@@ -835,6 +854,43 @@ export class Game {
     }
     if (st.shieldSkill > 0 && p.shield < 1 && (T.shield -= dt) <= 0) { T.shield = st.evoShield ? 3 : 10 - st.shieldSkill * 2; p.shield = 1; }
     if (st.shieldEvery && p.shield < 1 && (T.kaya -= dt) <= 0) { T.kaya = st.shieldEvery; p.shield = 1; }
+    // ☠️ zehir bulutu: rastgele görünür düşmanın üstüne; içindekileri yavaşlatır ve eritir
+    if (st.poison > 0 && (T.poison -= dt) <= 0) {
+      T.poison = 3.2 - st.poison * 0.4;
+      const vis = this.enemies.filter(e => !e.dead && Math.abs(e.x - p.x) < this.W / this.zoom / 2 && Math.abs(e.y - p.y) < this.H / this.zoom / 2);
+      const tg = vis[Math.floor(Math.random() * vis.length)];
+      if (tg) this.clouds.push({ x: tg.x, y: tg.y, r: 70 + st.poison * 14, t: 0, life: 3.2, tick: 0, dmg: dmg * 0.3 * st.poison, seed: Math.random() * 9 });
+    }
+    for (const c of this.clouds) {
+      c.t += dt; c.tick -= dt; const tick = c.tick <= 0; if (tick) c.tick = 0.5;
+      for (const e of this.enemies) if (!e.dead && (e.x - c.x) ** 2 + (e.y - c.y) ** 2 < (c.r + e.r) ** 2) { e.slow = Math.min(e.slow, 0.65); if (tick) this.hitEnemy(e, c.dmg, { proc: false, src: 'poison' }); }
+    }
+    this.clouds = this.clouds.filter(c => c.t < c.life);
+    // 🪃 bumerang: en yakına fırlar, menzilin sonunda geri döner; gidişte ve dönüşte bir kez vurur
+    if (st.boomer > 0 && (T.boomer -= dt) <= 0) {
+      const tg = this.nearest(p, 420);
+      if (tg) {
+        T.boomer = 1.9 - st.boomer * 0.25;
+        const a0 = Math.atan2(tg.y - p.y, tg.x - p.x);
+        for (let i = 0; i < st.boomer; i++) { const a = a0 + (i - (st.boomer - 1) / 2) * 0.45; this.booms.push({ x: p.x, y: p.y, a, d: 0, max: 280, back: false, hit: new Set(), dmg: dmg * 0.95, spin: 0 }); }
+      } else T.boomer = 0.2;
+    }
+    for (const bm of this.booms) {
+      bm.spin += dt * 22;
+      if (!bm.back) { bm.d += 620 * dt; bm.x = p.x + Math.cos(bm.a) * bm.d; bm.y = p.y + Math.sin(bm.a) * bm.d; if (bm.d >= bm.max) { bm.back = true; bm.hit.clear(); bm.bx = bm.x; bm.by = bm.y; } }
+      else { const dx = p.x - bm.x, dy = p.y - bm.y, l = Math.hypot(dx, dy) || 1; const sp = 700 * dt; if (l < 24) bm.done = true; else { bm.x += dx / l * Math.min(sp, l); bm.y += dy / l * Math.min(sp, l); } }
+      for (const e of this.enemies) if (!e.dead && !bm.hit.has(e) && (e.x - bm.x) ** 2 + (e.y - bm.y) ** 2 < (e.r + 16) ** 2) { bm.hit.add(e); this.hitEnemy(e, bm.dmg, { proc: false, src: 'boomer', kx: Math.cos(bm.a) * (bm.back ? -1 : 1), ky: Math.sin(bm.a) * (bm.back ? -1 : 1) }); }
+    }
+    this.booms = this.booms.filter(b => !b.done);
+    // ♨️ alev izi: hareket ederken arkada yanan alevler
+    if (st.trail > 0) {
+      if (p.moving && (T.trail -= dt) <= 0) { T.trail = 0.11; this.flames.push({ x: p.x + rand(-6, 6), y: p.y + 12, t: 0, life: 1.4 + st.trail * 0.4, tick: rand(0, 0.4), seed: Math.random() * 9 }); if (this.flames.length > 60) this.flames.shift(); }
+      for (const f of this.flames) {
+        f.t += dt; f.tick -= dt; if (f.tick > 0) continue; f.tick = 0.4;
+        for (const e of this.enemies) if (!e.dead && (e.x - f.x) ** 2 + (e.y - f.y) ** 2 < (e.r + 24) ** 2) { this.hitEnemy(e, dmg * 0.22 * st.trail, { proc: false, src: 'trail' }); if (Math.random() < 0.3) this.burn(e, dmg * 0.3); }
+      }
+      this.flames = this.flames.filter(f => f.t < f.life);
+    }
     for (const pw of st.setPowers) {
       if ((T[pw] -= dt) > 0) continue;
       if (pw === 'fireNova') { T[pw] = 5; this.fx.push({ type: 'ring', x: p.x, y: p.y, r: 20, maxR: 180, t: 0, life: 0.45, color: '#ff6b3d', fill: true }); this.aoe(p.x, p.y, 180, dmg * 1.6, { burn: true, src: 'set' }); this.sfx('boom'); }
@@ -1026,6 +1082,7 @@ export class Game {
     ctx.translate(W / 2 + sx, H / 2 + sy); ctx.scale(z, z); ctx.translate(-p.x, -p.y);
     this.drawGround();
     if (this.frostR) { ctx.fillStyle = 'rgba(125,211,252,0.10)'; ctx.strokeStyle = 'rgba(125,211,252,0.45)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x, p.y, this.frostR, 0, TAU); ctx.fill(); ctx.stroke(); }
+    this.drawClouds(); this.drawFlames();
     for (const f of this.fx) if (f.type === 'tele' || f.type === 'teleLine' || f.type === 'meteor') this.drawFx(f);
     for (const q of this.parts) if (q.dust) { ctx.globalAlpha = Math.max(0, q.life / q.max); ctx.fillStyle = q.color; ctx.beginPath(); ctx.arc(q.x, q.y, q.size * (1.4 - q.life / q.max * 0.6), 0, TAU); ctx.fill(); }
     ctx.globalAlpha = 1;
@@ -1036,6 +1093,7 @@ export class Game {
     ctx.globalCompositeOperation = 'lighter';
     for (const b of this.bullets) this.drawBullet(b);
     for (const o of this.orbitals || []) this.drawOrbital(o);
+    for (const bm of this.booms) this.drawBoomer(bm);
     for (const s of this.spirits) { ctx.fillStyle = 'rgba(167,139,250,0.85)'; ctx.beginPath(); ctx.arc(s.x, s.y, 8, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(167,139,250,0.25)'; ctx.beginPath(); ctx.arc(s.x, s.y, 16, 0, TAU); ctx.fill(); }
     for (const b of this.ebullets) { ctx.fillStyle = b.color; ctx.globalAlpha = 0.35; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * 1.9, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, TAU); ctx.fill(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * 0.45, 0, TAU); ctx.fill(); }
     for (const q of this.parts) { if (q.dust) continue; ctx.globalAlpha = Math.max(0, q.life / q.max); ctx.fillStyle = q.color; ctx.fillRect(q.x - q.size / 2, q.y - q.size / 2, q.size, q.size); }
@@ -1163,6 +1221,48 @@ export class Game {
       ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, TAU); ctx.fill();
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * 0.45, 0, TAU); ctx.fill();
     }
+  }
+
+  // ☠️ zehir bulutu: kaynayan yeşil puflar ve yükselen kabarcıklar
+  drawClouds() {
+    const ctx = this.ctx, lite = this.cfg.quality === 'low';
+    for (const c of this.clouds) {
+      const k = Math.min(1, c.t / 0.3, (c.life - c.t) / 0.5);
+      ctx.globalAlpha = 0.5 * k;
+      const n = lite ? 5 : 8;
+      for (let i = 0; i < n; i++) {
+        const a = c.seed + i * TAU / n + c.t * 0.6, rr = c.r * (0.45 + 0.15 * Math.sin(c.t * 3 + i));
+        ctx.fillStyle = i % 2 ? '#4d7c0f' : '#65a30d';
+        ctx.beginPath(); ctx.arc(c.x + Math.cos(a) * rr, c.y + Math.sin(a) * rr * 0.7, c.r * (0.42 + 0.08 * Math.sin(c.t * 4 + i * 2)), 0, TAU); ctx.fill();
+      }
+      ctx.fillStyle = '#84cc16'; ctx.beginPath(); ctx.arc(c.x, c.y, c.r * 0.5, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 0.85 * k; ctx.fillStyle = '#d9f99d';
+      for (let i = 0; i < (lite ? 3 : 7); i++) { const ph = (c.t * 0.8 + i / 7 + c.seed) % 1; const bx = c.x + Math.sin(i * 2.7 + c.seed) * c.r * 0.6, by = c.y + c.r * 0.3 - ph * c.r * 0.9; ctx.beginPath(); ctx.arc(bx, by, 2.5 + (1 - ph) * 2, 0, TAU); ctx.fill(); }
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // ♨️ alev izi: titreyen alev dilleri
+  drawFlames() {
+    const ctx = this.ctx;
+    for (const f of this.flames) {
+      const k = Math.min(1, f.t / 0.15, (f.life - f.t) / 0.4), h = 16 + Math.sin(this.time * 18 + f.seed) * 4;
+      ctx.globalAlpha = 0.9 * k;
+      ctx.fillStyle = '#f97316'; ctx.beginPath(); ctx.moveTo(f.x - 9, f.y); ctx.quadraticCurveTo(f.x - 6 + Math.sin(this.time * 14 + f.seed) * 3, f.y - h, f.x, f.y - h * 1.35); ctx.quadraticCurveTo(f.x + 6, f.y - h * 0.8, f.x + 9, f.y); ctx.fill();
+      ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.moveTo(f.x - 4.5, f.y); ctx.quadraticCurveTo(f.x - 2, f.y - h * 0.6, f.x + Math.sin(this.time * 20 + f.seed) * 2, f.y - h * 0.85); ctx.quadraticCurveTo(f.x + 3, f.y - h * 0.4, f.x + 4.5, f.y); ctx.fill();
+      ctx.globalAlpha = 0.25 * k; ctx.fillStyle = '#fb923c'; ctx.beginPath(); ctx.ellipse(f.x, f.y, 14, 5, 0, 0, TAU); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // 🪃 bumerang: dönen V şekli + iz
+  drawBoomer(bm) {
+    const ctx = this.ctx;
+    ctx.save(); ctx.translate(bm.x, bm.y); ctx.rotate(bm.spin);
+    ctx.fillStyle = 'rgba(251,191,36,0.25)'; ctx.beginPath(); ctx.arc(0, 0, 20, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#b45309'; ctx.strokeStyle = '#fde68a'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(-15, 4); ctx.quadraticCurveTo(-6, -2, 0, -14); ctx.quadraticCurveTo(2, -4, 4, 0); ctx.quadraticCurveTo(-2, 2, 15, 6); ctx.quadraticCurveTo(0, 8, -15, 4); ctx.fill(); ctx.stroke();
+    ctx.restore();
   }
 
   drawOrbital(o) {
