@@ -84,7 +84,7 @@ def portrait(path: Path, size: int = 800, bg: str = "#0E1A2B") -> Path:
 
 
 def track(voice_wav: Path, seconds: float, out: Path, size: int, seed: int = 1) -> Path:
-    """Sesten ağız hareketli, saydam (yuva420p+alpha yerine qtrle/png) avatar katmanı üretir."""
+    """Sesten ağız hareketli avatar için kare listesi (ffmpeg concat) üretir; overlay_filter ile birlikte kullanılır."""
     sig = audio.read_mono(voice_wav)
     sr = audio.SR
     hop = sr // FPS
@@ -115,9 +115,11 @@ def track(voice_wav: Path, seconds: float, out: Path, size: int, seed: int = 1) 
         cur, run = s, 1
     lines.append(f"file '{p[states[-1] if states else 'm0']}'")
     lst.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    # hafif süzülme (nefes) + ölçek; saydamlık korunur
-    vf = (f"fps={FPS},scale={size}:{size}:flags=lanczos,format=rgba,"
-          f"pad=iw:ih+24:0:12:color=0x00000000,crop=iw:ih-24:0:'12+10*sin(2*PI*t/5)'")
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", str(lst), "-vf", vf,
-                    "-t", f"{seconds:.3f}", "-c:v", "qtrle", str(out)], check=True)
-    return out
+    return lst
+
+
+def overlay_filter(size: int) -> str:
+    """Kare listesinden (concat) gelen avatar akışına uygulanacak süzgeç: ölçek + hafif süzülme (nefes); saydamlık korunur.
+    Ara video dosyası üretilmez (4K'da GB'larca yer tutuyordu)."""
+    return (f"fps={FPS},scale={size}:{size}:flags=lanczos,format=rgba,"
+            f"pad=iw:ih+24:0:12:color=0x00000000,crop=iw:ih-24:0:'12+10*sin(2*PI*t/5)'")

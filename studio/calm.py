@@ -567,10 +567,10 @@ def build_video(tlp: dict, work: Path, out: Path, mix: Path, w: int, h: int, ass
     if voice and Path(voice).exists():  # Bilge baykuş sunucu: sese göre konuşur
         from . import avatar
         size = int(h * 0.26) if w > h else int(w * 0.34)
-        mov = avatar.track(Path(voice), total, work / f"avatar_{w}x{h}.mov", size)
+        lst_av = avatar.track(Path(voice), total, work / f"avatar_{w}x{h}.mov", size)
         x, y = (int(w * 0.02), h - size - int(h * 0.015)) if w > h else (int(w * 0.03), int(h * 0.70))
-        cmd += ["-i", str(mov)]
-        fc += f";[{last}][{nxt}:v]overlay={x}:{y}:shortest=0[v2]"
+        cmd += ["-f", "concat", "-safe", "0", "-i", str(lst_av)]
+        fc += f";[{nxt}:v]{avatar.overlay_filter(size)}[av];[{last}][av]overlay={x}:{y}:shortest=0:eof_action=repeat[v2]"
         last = "v2"
     cmd += ["-filter_complex", fc, "-map", f"[{last}]", "-map", "1:a"]
     big = w * h > 1920 * 1080
