@@ -156,7 +156,7 @@ export class Ads {
   }
 
   async interstitial() {
-    if (!isNative()) return this.onSimulate ? this.onSimulate('interstitial') : false;
+    if (!isNative()) return false; // web sürümünde zorunlu reklam yok
     if (!this.admob || !this.ready.interstitial) { this.preload('interstitial'); return false; }
     this.onBusy?.(true);
     try { await this.admob.showInterstitial(); return true; } catch (e) { return false; }
@@ -257,7 +257,7 @@ export async function share({ title, text, url, blob }) {
     if (navigator.share) { await navigator.share({ title, text, url }); return 'shared'; }
     await navigator.clipboard.writeText(`${text} ${url}`);
     return 'copied';
-  } catch (e) { return 'cancel'; }
+  } catch (e) { return e?.name === 'AbortError' ? 'cancel' : 'fail'; }
 }
 
 export function openUrl(url) { window.open(url, '_blank', 'noopener'); }

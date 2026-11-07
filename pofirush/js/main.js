@@ -109,6 +109,7 @@ async function onBack() {
   if (!$('#modal').classList.contains('hidden')) { closeModal(false); return; }
   if (view === 'play') { if (game.state === 'play' || game.state === 'ready') pauseGame(); return; }
   if (view === 'pause') { resumeGame(); return; }
+  if (view === 'continue') { $('#cNo')?.click(); return; }
   if (panel) { showMenu(); return; }
   if (view === 'over') { showMenu(); return; }
   if (view === 'menu' && isNative() && await dialog({ title: t('exitQ'), ok: t('yes'), cancel: t('no') })) plugin('App')?.exitApp?.();
@@ -199,7 +200,7 @@ function pauseGame() {
   $('#resume').onclick = () => { click(); resumeGame(); };
   $('#quit').onclick = async () => {
     click();
-    if (game.state === 'play' && game.score > 0) {
+    if ((game.state === 'play' || game.state === 'ready') && game.score > 0) {
       if (!await dialog({ title: t('quitQ'), ok: t('yes'), cancel: t('no') })) return;
       game.paused = false; game.state = 'dead';
       finishRun({ score: game.score, coins: game.coins, perfects: game.perfects, bestCombo: game.bestCombo, powerups: game.powerups }, true);
@@ -334,7 +335,7 @@ function finishRun(info, quit = false) {
   if (isNew && prevBest > 0) audio.play('best');
   showOver(quit);
   const offerNow = S.offer.shown && st.runs === 3;
-  if (!S.rate.asked && S.rate.good >= 3 && !offerNow) { S.rate.asked = true; persist(S); setTimeout(askRate, 1100); }
+  if (isNative() && !S.rate.asked && S.rate.good >= 3 && !offerNow) { S.rate.asked = true; persist(S); setTimeout(askRate, 1100); }
 }
 
 function medalFor(score) { let m = null; for (const x of TUNING.medals) if (score >= x.at) m = x; return m; }
@@ -401,9 +402,15 @@ async function shareScore(score) {
   c.font = '800 44px system-ui, sans-serif'; c.fillStyle = m ? m.color : '#ffffff'; c.fillText(m ? t('medal_' + m.id) + ' · ' + t(lastRun?.mode || mode) : t(lastRun?.mode || mode), 360, 1060);
   c.font = '700 40px system-ui, sans-serif'; c.fillStyle = 'rgba(255,255,255,.8)'; c.fillText(getLang() === 'tr' ? 'Beni geçebilir misin?' : 'Can you beat me?', 360, 1160);
   const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
-  const url = platform() === 'ios' ? GAME.iosUrl : GAME.androidUrl;
+  const url = isNative() ? (platform() === 'ios' ? GAME.iosUrl : GAME.androidUrl) : (GAME.webUrl || location.href.split('#')[0]);
   const res = await share({ title: GAME.name, text: t('shareText', { n: score }), url, blob });
   if (res === 'copied') toast(t('copied'));
+  if (res === 'fail') {
+    // Paylaşım menüsü ve pano engelliyse (ör. gömülü sayfa) metni seçilebilir olarak göster
+    const msg = `${t('shareText', { n: score })} ${url}`;
+    dialog({ title: t('share'), text: `<textarea id="shareTxt" readonly style="width:100%;height:84px;border-radius:12px;border:0;padding:10px;font:inherit;font-size:14px;background:rgba(255,255,255,.1);color:#fff;resize:none">${esc(msg)}</textarea>`, ok: t('close') });
+    const ta = $('#shareTxt'); if (ta) { ta.focus(); ta.select(); }
+  }
 }
 
 // ---------------------------------------------------------------- Paneller

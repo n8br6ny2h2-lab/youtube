@@ -142,7 +142,7 @@ export class Game {
     if (!this.paused) {
       let ts = 1;
       if (this.slowT > 0) ts = 0.62;
-      if (this.state === 'dying' && this.deathT < 0.35) ts = 0.3;
+      if (this.state === 'dying' && this.deathT < 0.25) ts = 0.3;
       this.acc += dt * ts;
       let n = 0;
       while (this.acc >= STEP && n++ < 12) { this.step(STEP); this.acc -= STEP; }
@@ -204,7 +204,7 @@ export class Game {
         b.y = Math.min(this.floorY - T.birdR, b.y + b.vy * dt);
         b.rot = lerp(b.rot, 1.57, dt * 6);
       } else if (this.state === 'dying') { this.shake = Math.max(this.shake, 4); }
-      if (this.state === 'dying' && this.deathT > 0.9) {
+      if (this.state === 'dying' && this.deathT > 0.75) {
         this.state = 'dead';
         this.on.death?.({ score: this.score, coins: this.coins, perfects: this.perfects, bestCombo: this.bestCombo, powerups: this.powerups, continued: this.continued });
       }

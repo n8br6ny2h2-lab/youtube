@@ -7,6 +7,7 @@ export const GAME = {
   // YAYIN ÖNCESİ: mağaza bağlantıları ve gizlilik politikası adresi (mağazalar zorunlu tutar)
   androidUrl: 'https://play.google.com/store/apps/details?id=com.pofirush.game',
   iosUrl: 'https://apps.apple.com/app/id0000000000',
+  webUrl: '',  // web sürümünün paylaşım adresi (boşsa açık olan sayfanın adresi kullanılır)
   privacyUrl: 'https://example.com/pofirush/privacy',
   termsUrl: 'https://example.com/pofirush/terms',
   supportEmail: 'destek@example.com',

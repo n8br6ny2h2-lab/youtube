@@ -13,7 +13,8 @@
     "android": "npm run build && npx cap sync android && npx cap open android",
     "ios": "npm run build && npx cap sync ios && npx cap open ios",
     "test": "node scripts/smoke-test.mjs",
-    "validator": "node server/validate.mjs"
+    "validator": "node server/validate.mjs",
+    "web": "node scripts/bundle-web.mjs"
   },
   "dependencies": {
     "@capacitor-community/admob": "^8.3.0",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^4.0.0",
-    "@capacitor/cli": "^8.6.0"
+    "@capacitor/cli": "^8.6.0",
+    "esbuild": "^0.25.12"
   }
 }

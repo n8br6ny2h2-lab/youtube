@@ -7,6 +7,7 @@ Saf HTML5 + JavaScript, derleme adımı yok, harici görsel veya ses dosyası yo
 ```bash
 cd pofirush && npm run dev        # → http://localhost:8090  (tarayıcıda dene)
 npm test                          # ayrı terminalde: uçtan uca duman testi
+npm run web                       # paylaşılabilir tek dosya: dist/pofi-rush.html
 ```
 
 ---
@@ -92,6 +93,21 @@ Kodda değişiklik yaptıktan sonra: `npm run build && npx cap sync`.
 
 ---
 
+## 3.5 Web sürümü ve paylaşma
+
+```bash
+npm run web      # → dist/pofi-rush.html (tek dosya, ~100 KB, internetsiz açılır)
+```
+
+`dist/pofi-rush.html` hazır olarak repoda da var. Şu yollarla paylaşabilirsiniz:
+- **Doğrudan dosya:** WhatsApp, Telegram veya e-postayla gönderin; telefonda ya da bilgisayarda tarayıcıda açılır.
+- **itch.io:** Yeni proje › Kind: HTML › dosyayı `index.html` adıyla zip'leyip yükleyin › "Mobile friendly" ve "Fullscreen button" seçeneklerini açın. Ücretsiz yayınlanır, oyunun ilk tanıtımı ve geri bildirim için iyidir.
+- **GitHub Pages / Netlify:** dosyayı `index.html` olarak yükleyin. Paylaşılan skor kartları açık sayfanın adresini kullanır (sabit bir adres istiyorsanız `GAME.webUrl` alanını doldurun).
+
+Web sürümünde zorunlu reklam yoktur. Ödüllü reklam düğmeleri "TEST REKLAMI" penceresiyle anında ödül verir, satın almalar ise "TEST MAĞAZASI" penceresiyle çalışır (gerçek ödeme alınmaz). Gerçek gelir telefon uygulamasından gelir.
+
+---
+
 ## 4. Yayın öncesi kontrol listesi
 
 1. **Ad ve kimlik**: `capacitor.config.json` → `appId` (ör. `com.sirketiniz.pofirush`). `server/validate.mjs` içinde `PACKAGE_NAME` ile aynı olmalı. Mağazada adın boşta olduğunu kontrol edin
@@ -121,7 +137,8 @@ pofirush/
 ├── js/services.js   ← IAP (cordova-plugin-purchase), AdMob + onay + ATT, ses/müzik, titreşim, paylaşım
 ├── js/save.js       ← kayıt (localStorage + Capacitor Preferences yedeği, bütünlük özeti)
 ├── js/i18n.js       ← Türkçe / İngilizce metinler
-├── scripts/         ← build, patch-native, make-assets, smoke-test, store-shots
+├── scripts/         ← build, bundle-web, patch-native, make-assets, smoke-test, store-shots
+├── dist/            ← paylaşılabilir tek dosyalık web sürümü
 ├── assets/          ← simge ve açılış ekranı kaynakları (@capacitor/assets)
 ├── server/          ← makbuz doğrulama sunucusu
 └── store-listing/   ← mağaza metinleri, gizlilik politikası, ekran görüntüleri
