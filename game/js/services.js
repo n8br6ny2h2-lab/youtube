@@ -15,7 +15,7 @@ export const CONFIG = {
   // Apple ile Giriş (Services ID) ve Google ile Giriş (Web istemci kimliği)
   appleServiceId: 'com.efsunavcisi.game.signin',
   googleWebClientId: '',
-  supportEmail: '',
+  supportEmail: 'k.k.kavcioglu01@icloud.com',
   // Game Center / Google Play Games sıralama kimlikleri (konsollarda oluşturulan değerler)
   leaderboards: {
     chapter: { ios: 'efsun.maxchapter', android: '' },
