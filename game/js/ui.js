@@ -68,6 +68,7 @@ export function itemCell(it, { equipped = false, small = false, mergeable = fals
     ${it.set ? `<div class="iset" style="background:${SETS[it.set].color}">${SETS[it.set].icon}</div>` : ''}
     ${equipped ? '<div class="ieq">✓</div>' : ''}
     ${it.isNew ? '<div class="inew">YENİ</div>' : ''}
+    ${it.lock ? '<div class="ilock">🔒</div>' : ''}
     ${mergeable ? '<div class="imerge">⇧</div>' : ''}
   </div>`;
 }

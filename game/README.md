@@ -70,6 +70,8 @@ Her takvim ayı yeni sezon (Sezon 1 = Kasım 2026), cihaz saatine göre kendili�
 - **Yükseltme**: altın + parşömen, her seviyede +%12. "×5" düğmesiyle tek dokunuşta beş seviye.
 - **Birleştirme**: aynı yuva ve nadirlikten 3 eşya → bir üst nadirlik. Seviye ve efsunlar korunur. Destansı altı eşyalar için "Otomatik Birleştir" düğmesi var.
 - **Parçalama**: altın, parşömen ve efsun taşı iade eder. Yükseltmeye harcananın %80'i geri gelir.
+- **Toplu Parçala** penceresi: parçalanacak nadirlikleri (Sıradan…Mitik) ve yuvayı seç, set/sezon/yükseltilmiş eşyaları koru, önizlemede eşyaya dokunup listeden çıkar; kazanç önceden gösterilir. Seçimler hatırlanır.
+- **🔒 Kilit**: eşya penceresinden kilitlenen eşya parçalanmaz ve birleştirmede eritilmez.
 
 ### ✨ Efsunlar
 19 efsun türü: Saldırı%, Can%, Kritik Şansı/Hasarı, Saldırı Hızı, Can Çalma, Hareket, Altın, Tecrübe, Can Yenileme, 🔥 Yakma, ❄️ Dondurma, ⚡ Şimşek Zinciri, Diken, Boss Hasarı, Kaçınma, Hasar Azaltma ve sadece üst nadirliklerde çıkan **Çoklu Atış** ve **Delici**.

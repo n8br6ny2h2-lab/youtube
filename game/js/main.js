@@ -548,7 +548,8 @@ function openItem(uid) {
         <button class="btn gold" data-i="up5" ${maxed ? 'disabled' : ''}>⇧×5</button>
         <button class="btn purple" data-i="ench" ${it.affixes.length ? '' : 'disabled'}>🔮 Efsunla<small>🔮${ec.runes}${ec.seals ? ` 🔒${ec.seals}` : ''}</small></button>
         <button class="btn blue" data-i="merge" ${mc.length >= 2 ? '' : 'disabled'}>⇧ Birleştir<small>${it.rarity >= 5 ? 'En yüksek' : `${mc.length}/2 aynı eşya`}</small></button>
-        <button class="btn red" data-i="salv" ${eq ? 'disabled' : ''}>♻️ Parçala</button>
+        <button class="btn red" data-i="salv" ${eq || it.lock ? 'disabled' : ''}>♻️ Parçala</button>
+        <button class="btn ${it.lock ? 'gold' : 'grey'}" data-i="lock" aria-label="${it.lock ? 'Kilidi aç' : 'Kilitle'}">${it.lock ? '🔒' : '🔓'}<small>${it.lock ? 'Kilitli' : 'Kilitle'}</small></button>
       </div>`;
   };
   draw();
@@ -587,6 +588,7 @@ function openItem(uid) {
       rewardPopup([{ icon: E.itemIcon(it), text: E.itemName(it), rarity: it.rarity }], 'Birleştirildi!');
       return draw();
     }
+    if (act === 'lock') { it.lock = !it.lock; play('click'); toast(it.lock ? '🔒 Eşya kilitlendi: parçalanmaz ve birleştirmede eritilmez' : '🔓 Kilit açıldı'); save(); return draw(); }
     if (act === 'salv') {
       const v = E.salvageValue(it);
       if (it.rarity >= 3 && !(await confirmBox('Parçala?', `${D.RARITIES[it.rarity].name} eşyayı parçalamak istediğine emin misin?`, 'Parçala'))) return;
@@ -639,15 +641,60 @@ function autoMerge() {
   render();
 }
 
-async function bulkSalvage() {
-  const eqIds = Object.values(S.equipped);
-  const list = S.inventory.filter(i => i.rarity <= 1 && !eqIds.includes(i.uid));
-  if (!list.length) return toast('Parçalanacak Sıradan/Nadir eşya yok');
-  if (!(await confirmBox('Toplu Parçala', `${list.length} adet Sıradan ve Nadir eşya parçalanacak.`, 'Parçala'))) return;
-  const tot = { gold: 0, scrolls: 0, runes: 0 };
-  for (const it of list) { const v = E.salvageValue(it); tot.gold += v.gold; tot.scrolls += v.scrolls; tot.runes += v.runes; }
-  S.inventory = S.inventory.filter(i => !list.includes(i));
-  play('coin'); rewardPopup(E.grant(S, tot), 'Parçalandı'); render();
+// Toplu parçalama: nadirlik, yuva ve koruma seçenekleri; önizlemede tek tek eşya hariç tutulabilir.
+// Seçimler hatırlanır (S.settings.salvage). Kuşanılı ve 🔒 kilitli eşyalar asla parçalanmaz.
+function bulkSalvage() {
+  const cfg = S.settings.salvage = { rar: [0, 1], slot: 'all', keepSet: true, keepSeason: true, keepUp: false, ...(S.settings.salvage || {}) };
+  const skip = new Set();
+  const eqIds = new Set(Object.values(S.equipped));
+  const base = () => S.inventory.filter(i => !eqIds.has(i.uid) && !i.lock);
+  const pool = () => base().filter(i => (cfg.slot === 'all' || i.slot === cfg.slot)
+    && !(cfg.keepSet && i.set && !i.season) && !(cfg.keepSeason && i.season) && !(cfg.keepUp && i.lvl > 1));
+  const picked = () => pool().filter(i => cfg.rar.includes(i.rarity) && !skip.has(i.uid)).sort((a, b) => a.rarity - b.rarity || a.slot.localeCompare(b.slot));
+  const m = modal('', { cls: 'salvage', onClose: render });
+  const draw = () => {
+    const list = picked(), tot = { gold: 0, scrolls: 0, runes: 0 };
+    for (const it of list) { const v = E.salvageValue(it); tot.gold += v.gold; tot.scrolls += v.scrolls; tot.runes += v.runes; }
+    const cnt = r => pool().filter(i => i.rarity === r).length;
+    const high = list.filter(i => i.rarity >= 3).length;
+    const chk = (k, label) => `<button class="sv-opt ${cfg[k] ? 'on' : ''}" data-s="opt" data-k="${k}">${cfg[k] ? '☑' : '☐'} ${label}</button>`;
+    m.el.innerHTML = `<button class="x" data-close>✕</button><h2>♻️ Toplu Parçala</h2>
+      <h4 class="sv-h">Hangi nadirlikler?</h4>
+      <div class="sv-rar">${D.RARITIES.map(r => `<button class="${cfg.rar.includes(r.id) ? 'on' : ''}" style="--rc:${r.color}" data-s="rar" data-r="${r.id}"><b>${r.name}</b><small>${cnt(r.id)} eşya</small></button>`).join('')}</div>
+      <h4 class="sv-h">Yuva</h4>
+      <div class="sv-slot">${['all', ...D.SLOT_ORDER].map(f => `<button class="${cfg.slot === f ? 'on' : ''}" data-s="slot" data-f="${f}">${f === 'all' ? 'Tümü' : D.SLOTS[f].icon}</button>`).join('')}</div>
+      <h4 class="sv-h">Koru</h4>
+      <div class="sv-opts">${chk('keepSet', 'Set eşyaları')}${chk('keepSeason', 'Sezon eşyaları')}${chk('keepUp', 'Yükseltilmiş (Sv2+)')}</div>
+      <p class="muted small">Kuşanılı ve 🔒 kilitli eşyalar her zaman korunur. Eşyaya dokunarak listeden çıkar.</p>
+      <div class="sv-list inv-grid">${list.map(it => itemCell(it, {})).join('') || '<p class="muted center">Seçime uyan eşya yok</p>'}</div>
+      ${skip.size ? `<button class="btn small grey" data-s="reset">↩ Çıkarılan ${skip.size} eşyayı geri al</button>` : ''}
+      <div class="sv-sum"><span>Kazanç:</span><b>🪙 ${fmt(tot.gold)}</b><b>📜 ${fmt(tot.scrolls)}</b><b>🔮 ${fmt(tot.runes)}</b></div>
+      <button class="btn red wide" data-s="go" ${list.length ? '' : 'disabled'}>♻️ ${list.length} eşyayı parçala${high ? ` <small>(${high} Destansı+)</small>` : ''}</button>`;
+  };
+  draw();
+  m.el.addEventListener('click', async e => {
+    const it = e.target.closest('.item[data-uid]');
+    if (it) { skip.add(it.dataset.uid); play('click'); return draw(); }
+    const b = e.target.closest('[data-s]'); if (!b || b.disabled) return;
+    const k = b.dataset.s;
+    if (k === 'rar') { const r = +b.dataset.r; cfg.rar = cfg.rar.includes(r) ? cfg.rar.filter(x => x !== r) : [...cfg.rar, r]; }
+    if (k === 'slot') cfg.slot = b.dataset.f;
+    if (k === 'opt') cfg[b.dataset.k] = !cfg[b.dataset.k];
+    if (k === 'reset') skip.clear();
+    if (k === 'go') {
+      const list = picked(); if (!list.length) return;
+      const high = list.filter(i => i.rarity >= 3).length;
+      if (high && !(await confirmBox('Emin misin?', `Listede <b>${high} adet Destansı veya üstü</b> eşya var. Parçalanan eşya geri gelmez.`, 'Parçala'))) return;
+      const tot = { gold: 0, scrolls: 0, runes: 0 };
+      for (const x of list) { const v = E.salvageValue(x); tot.gold += v.gold; tot.scrolls += v.scrolls; tot.runes += v.runes; }
+      const ids = new Set(list.map(x => x.uid));
+      S.inventory = S.inventory.filter(i => !ids.has(i.uid));
+      m.close(); play('coin'); vib(30); save(true);
+      rewardPopup(E.grant(S, tot), `♻️ ${list.length} eşya parçalandı`); render();
+      return;
+    }
+    play('click'); save(); draw();
+  });
 }
 
 // ============================================================ PENCERELER
