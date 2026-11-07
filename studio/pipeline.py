@@ -137,6 +137,10 @@ def full() -> dict:
         except Exception as exc:
             out["gece"] = {"error": str(exc)}
         try:
+            out["analytics"] = _run("analytics", do_analytics)
+        except Exception as exc:
+            out["analytics"] = {"error": str(exc)}
+        try:
             out["cleanup"] = cleanup()
         except Exception as exc:
             out["cleanup"] = {"error": str(exc)}

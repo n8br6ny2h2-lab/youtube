@@ -191,12 +191,18 @@ class Director(Agent):
         me = self.name
         log = {"started": db.now()}
         try:
+            from . import planner
             radar = self.scout.run(me)
-            # Son 3 bölümde kullanılmamış en yüksek puanlı tema
-            recent = [r["path"] for r in db.query("SELECT path FROM stories ORDER BY id DESC LIMIT 3")]
-            theme = next((r["theme"] for r in radar["ranked"] if not any(r["theme"] in p for p in recent)), radar["ranked"][0]["theme"])
-            log["theme"] = theme
-            log["theme_score"] = next(r["score"] for r in radar["ranked"] if r["theme"] == theme)
+            # Haftalık plana uy: yakın günlerde boş uzun slot yoksa üretim yapılmaz
+            need = planner.next_production()
+            if not need:
+                pub = self.publisher.publish(me)
+                log.update(result="Plan: önümüzdeki günlerin uzun videoları hazır; bugün üretim yapılmadı.",
+                           uploaded=[u["youtube_id"] for u in pub["uploaded"]])
+                return log
+            theme = need["theme"]
+            log["theme"], log["plan_slot"] = theme, need["slot"]
+            log["theme_score"] = next((r["score"] for r in radar["ranked"] if r["theme"] == theme), None)
             best = None
             for attempt in range(2):  # Kontrolcü reddederse bir tur daha taslak
                 drafts = self.writer.drafts(me, theme, 3)

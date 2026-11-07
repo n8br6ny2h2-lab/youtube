@@ -598,9 +598,14 @@ def produce_short(script: dict, tlp: dict, sh: dict, work: Path, k: int, parent:
 
 
 def run_day() -> dict:
-    s = next_script()
+    from . import planner
     out: dict = {}
-    if s:
+    need = planner.next_production()
+    s = next_script() if need else None
+    if not need:
+        out["produced"] = None
+        out["note"] = "Plan: önümüzdeki günlerin uzun videoları hazır; bugün üretim yapılmadı."
+    elif s:
         out["produced"] = produce(s)
     else:
         out["produced"] = None

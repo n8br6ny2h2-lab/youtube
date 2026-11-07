@@ -39,3 +39,9 @@ sonra her kanal için `python main.py --mode auth` (Gece için `--channel gece` 
 ## Temizlik kuralı
 `pipeline.cleanup()` yüklenen bölümlerin ara dosyalarını siler (yalnızca `timeline.json` kalır),
 30 günden eski yüklenmiş final videoları siler. Modeller (`models/`) yeniden indirilebilir.
+
+## Haftalık plan (studio/planner.py)
+- `python scripts/weekly_plan.py 1` → `plans/<hafta>.md` (iki kanal birleşik); `0` = bu hafta.
+- Üretim plana bağlı: önümüzdeki 9 gündeki uzun slotlar doluysa gece üretim yapılmaz.
+- Tema puanı = trend radarı; en az 3 videoda izlenme verisi olunca %50 kanal performansı (günlük izlenme).
+- Zamanlanmış görevler: 02:37 üretim + plan yenileme (Pazar gecesi gelecek haftanın planı kullanıcıya gider), 11:17 otomatik yükleme.

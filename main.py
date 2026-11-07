@@ -16,6 +16,7 @@ Kullanım:
   python main.py --mode status        # sistem ve bağlantı durumu
   python main.py --mode dashboard     # web yönetim paneli
   python main.py --mode daemon        # n8n yoksa dahili zamanlayıcı
+  python main.py --mode plan          # bu hafta + gelecek hafta planı (plans/)
   python main.py --mode enable-auto-publish / disable-auto-publish
 """
 from __future__ import annotations
@@ -29,7 +30,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Bulutkent otomatik çocuk animasyon stüdyosu")
     ap.add_argument("--mode", default="full", choices=[
         "research", "story", "video", "shorts", "publish", "analytics", "full", "brand", "auth", "channel-setup",
-        "status", "dashboard", "daemon", "set-key", "set-client", "test-upload", "enable-auto-publish", "disable-auto-publish", "schedule"])
+        "status", "dashboard", "daemon", "set-key", "set-client", "test-upload", "enable-auto-publish", "disable-auto-publish", "schedule", "plan"])
     ap.add_argument("--code", help="OAuth yönlendirme adresi veya yetki kodu")
     ap.add_argument("--story-id", type=int)
     ap.add_argument("--video-id", type=int)
@@ -137,6 +138,9 @@ def main() -> int:
             return 1
         db.kv_set("auto_publish", True)
         print("Otomatik planlı yayın etkin. Videolar takvim saatinde herkese açık olacak (publishAt).")
+    elif m == "plan":
+        from studio import planner
+        out([planner.write(0), planner.write(1)])
     elif m == "disable-auto-publish":
         db.kv_set("auto_publish", False)
         print("Otomatik yayın kapatıldı; yüklemeler ÖZEL yapılacak.")
