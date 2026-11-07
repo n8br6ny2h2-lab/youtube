@@ -1,5 +1,7 @@
 """Henüz yüklenmemiş videoları güncel seslerle yeniden üretir (yüklenmişlere dokunmaz).
-Kullanım: python scripts/revoice.py [story_id ...]   (boşsa: bekleyen tüm hikâyeler)"""
+Kullanım: python scripts/revoice.py [--replace] [story_id ...]   (boşsa: bekleyen tüm hikâyeler)
+--replace: yüklenmiş videoları da yeniden üretir; eskiler 'replaced' olur ve yenileri yüklenince
+          `python scripts/revoice.py --retire` ile YouTube'dan silinir."""
 import sys
 from pathlib import Path
 
@@ -8,7 +10,22 @@ from studio import db, pipeline, scheduler  # noqa: E402
 from studio.config import Paths  # noqa: E402
 
 pipeline.setup()
-ids = [int(a) for a in sys.argv[1:]] or [r["story_id"] for r in db.query(
+args = sys.argv[1:]
+if "--retire" in args:
+    from studio import youtube
+    for r in db.query("SELECT v.id, v.kind, v.story_id, u.youtube_id FROM videos v JOIN uploads u ON u.video_id=v.id "
+                      "WHERE v.status='replaced' AND u.youtube_id IS NOT NULL"):
+        new = db.one("SELECT COUNT(*) n FROM videos WHERE story_id=? AND kind=? AND status='uploaded'", (r["story_id"], r["kind"]))["n"]
+        if new:
+            youtube.delete_video(r["youtube_id"])
+            db.execute("UPDATE videos SET status='deleted' WHERE id=?", (r["id"],))
+            print("silindi:", r["youtube_id"])
+        else:
+            print("yenisi henüz yüklenmedi, bekliyor:", r["youtube_id"])
+    sys.exit(0)
+replace = "--replace" in args
+args = [a for a in args if not a.startswith("--")]
+ids = [int(a) for a in args] or [r["story_id"] for r in db.query(
     "SELECT DISTINCT story_id FROM videos WHERE kind='long' AND status IN ('ready','scheduled','qc_failed')")]
 for sid in ids:
     uploaded_titles = {r["title"] for r in db.query("SELECT title FROM videos WHERE story_id=? AND status='uploaded'", (sid,))}
@@ -19,6 +36,10 @@ for sid in ids:
         db.execute("DELETE FROM schedule WHERE video_id=? AND status!='uploaded'", (r["id"],))
         db.execute("DELETE FROM videos WHERE id=?", (r["id"],))
         (Paths.root / r["path"]).unlink(missing_ok=True)
+    if replace:
+        db.execute("UPDATE videos SET status='replaced' WHERE status='uploaded' AND (story_id=? OR parent_id IN "
+                   "(SELECT id FROM videos WHERE story_id=?))", (sid, sid))
+        uploaded_titles = set()
     db.execute("UPDATE stories SET status='written' WHERE id=?", (sid,))
     v = pipeline.video(sid)
     print("uzun:", v["video_id"], v["title"], "QC", v["qc_passed"], v["qc_failed"], flush=True)

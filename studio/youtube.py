@@ -29,7 +29,7 @@ REDIRECT = "http://localhost:8765/"
 # Kota maliyetleri (birim) — Google belgelerindeki değerler; değişirse buradan güncelleyin
 QUOTA = {"videos.insert": settings()["publishing"].get("upload_quota_units", 1600), "thumbnails.set": 50, "playlists.insert": 50,
          "playlistItems.insert": 50, "captions.insert": 400, "search.list": 100, "videos.list": 1, "channels.list": 1,
-         "channels.update": 50, "channelBanners.insert": 50, "playlists.list": 1}
+         "channels.update": 50, "channelBanners.insert": 50, "playlists.list": 1, "videos.delete": 50}
 
 CAPABILITIES = [
     # (işlem, API ile mümkün mü, açıklama)
@@ -233,6 +233,12 @@ def upload_caption(video_id: str, srt: Path) -> None:
     _quota("captions.insert")
     _svc().captions().insert(part="snippet", body={"snippet": {"videoId": video_id, "language": "tr", "name": "Türkçe", "isDraft": False}},
                              media_body=MediaFileUpload(str(srt), mimetype="application/octet-stream")).execute()
+
+
+def delete_video(video_id: str) -> None:
+    """Kanaldan videoyu kalıcı olarak siler (geri alınamaz; yalnızca kullanıcı isteğiyle çağrılır)."""
+    _quota("videos.delete")
+    _svc().videos().delete(id=video_id).execute()
 
 
 def video_status(ids: list[str]) -> list[dict]:
