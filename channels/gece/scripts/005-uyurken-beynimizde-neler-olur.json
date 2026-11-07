@@ -1,0 +1,39 @@
+{
+  "title": "Uyurken Beynimizde Neler Olur?",
+  "thumb_text": "Uyurken Beynimiz Ne Yapar?",
+  "category": "curiosity",
+  "description": "Gözlerimizi kapattığımızda beynimiz kapanmaz; düzenler, temizler, hatırlar ve rüya görür. Bilge ile uykunun dört aşamasını, rüyaların sırrını ve beynin gece temizliğini sakin bir yolculukla keşfediyoruz.",
+  "tags": ["uyku", "beyin", "rüya", "REM uykusu", "melatonin", "uyku bilimi", "uyku öncesi", "Bilge", "Gece Kütüphanesi"],
+  "sources": [
+    "NIH – NINDS: Brain Basics: Understanding Sleep",
+    "Sleep Foundation – Stages of Sleep",
+    "Xie, L. et al. (2013). Sleep drives metabolite clearance from the adult brain. Science 342",
+    "American Academy of Sleep Medicine & Sleep Research Society (2015). Recommended amount of sleep for a healthy adult",
+    "Rasch, B. & Born, J. (2013). About sleep's role in memory. Physiological Reviews",
+    "Britannica – Sleep; Circadian rhythm; Melatonin",
+    "Rattenborg, N. C. et al. (2000). Behavioral, neurophysiological and evolutionary perspectives on unihemispheric sleep"
+  ],
+  "segments": [
+    {"chapter": "Hoş geldin", "visual": "moon clouds", "text": "Merhaba, ben Bilge. Gece Kütüphanesi'ne hoş geldin. Bu gece, her gece yaptığımız ama pek az düşündüğümüz bir şeyden konuşacağız: uykudan. Rahatça uzan, omuzlarını gevşet. Sen yavaş yavaş uykuya yaklaşırken, beyninin o sırada neler yaptığını birlikte merak edelim."},
+    {"chapter": "Beyin kapanmaz", "visual": "neurons", "text": "Uzun süre uykunun, beynin bir lamba gibi söndüğü bir dinlenme olduğu düşünüldü. Bugün biliyoruz ki öyle değil. Uyurken beynimiz çok çalışkandır. Bazı bölgeleri gündüz olduğundan daha etkin hale gelir; düzenler, temizler, hatırladıklarımızı yerleştirir."},
+    {"chapter": "İç saatimiz", "visual": "clock", "text": "Ne zaman uykumuzun geleceğini büyük ölçüde iç saatimiz belirler. Beynin derinlerinde, gözlerin hemen arkasında, birkaç on bin sinir hücresinden oluşan küçük bir bölge bu saati yönetir. Gözlerimizden gelen ışık bilgisiyle her gün kendini yeniden ayarlar."},
+    {"chapter": "Karanlığın hormonu", "visual": "night sky", "text": "Hava karardığında beyindeki küçük epifiz bezi melatonin salgılamaya başlar. Melatonin bedene gece oldu mesajını verir. Parlak ışık, özellikle mavi tonlu ekran ışığı, bu salgıyı geciktirebilir. Bu yüzden yatmadan önce ışıkları kısmak, beynine gece olduğunu fısıldamak gibidir."},
+    {"chapter": "Dört aşama", "visual": "lake fog", "text": "Uyku tek parça değildir; aşamalardan oluşur. İlk üç aşamaya, hızlı göz hareketi olmayan uyku denir. Dördüncü aşama ise REM uykusudur. Gece boyunca bu aşamalar sırayla dönüp durur. Bir tur yaklaşık doksan dakika sürer ve bir gecede genellikle dört ile altı tur tamamlarız."},
+    {"chapter": "Uykuya dalış", "visual": "candle", "text": "Birinci aşama uyanıklıkla uyku arasındaki ince köprüdür. Kaslar gevşer, düşünceler dağılır. Bazen bu sırada ani bir sıçramayla irkiliriz; buna uyku sıçraması denir ve son derece yaygındır. İkinci aşamada kalp atışı yavaşlar, beden ısısı biraz düşer."},
+    {"chapter": "Derin uyku", "visual": "waves beach", "text": "Üçüncü aşama derin uykudur. Beyin dalgaları yavaşlar ve genişler, tıpkı sakin bir okyanusun uzun dalgaları gibi. Bu aşamada uyanmak zordur. Beden kendini onarır, büyüme hormonu salgılanır, bağışıklık sistemi güçlenir. Gecenin ilk yarısında derin uyku daha uzundur."},
+    {"chapter": "Beynin gece temizliği", "visual": "rain window", "text": "Beynin uykuda yaptığı en şaşırtıcı işlerden biri temizliktir. Fareler üzerinde yapılan bir araştırmada, uyku sırasında beyin hücreleri arasındaki boşlukların genişlediği ve beyin sıvısının bu boşluklardan daha kolay akıp atıkları taşıdığı görüldü. Yani uyku, beyin için sessiz bir gece temizliğidir."},
+    {"chapter": "Hafızanın atölyesi", "visual": "brain", "text": "Uyku aynı zamanda hafızanın atölyesidir. Gün içinde öğrendiklerimiz, uyurken beyinde yeniden oynatılır. Hipokampus adlı bölge günün izlerini tekrar eder ve önemli olanları beynin kalıcı bölgelerine aktarır. Bu yüzden iyi bir uyku, yeni bir şey öğrenmenin en sessiz yardımcısıdır."},
+    {"chapter": "REM: rüyaların sahnesi", "visual": "milky way", "text": "Şimdi REM uykusuna gelelim. Bu aşamada gözlerimiz kapalı göz kapaklarının altında hızla hareket eder. Beyin neredeyse uyanıkken olduğu kadar etkindir. En canlı ve hikâyeli rüyalarımızı çoğunlukla bu aşamada görürüz. Gecenin ikinci yarısında REM dönemleri uzar."},
+    {"chapter": "Güvenli rüyalar", "visual": "sleeping cat", "text": "REM sırasında beyin, kollarımızı ve bacaklarımızı geçici olarak hareketsiz bırakır. Nefes ve göz kasları ise çalışmaya devam eder. Bu akıllıca bir korumadır: rüyamızda koşarken yatağımızdan fırlamayız. Uyandığımızda bu hareketsizlik hemen kaybolur."},
+    {"chapter": "Herkes rüya görür", "visual": "night sky stars", "text": "Rüya görmediğini düşünen pek çok insan aslında her gece rüya görür; sadece hatırlamaz. Rüyalar genellikle uyandıktan birkaç dakika sonra silinir. Rüyayı hatırlamak istersen, uyanır uyanmaz kıpırdamadan birkaç saniye onu düşünmek ve not almak yardımcı olabilir."},
+    {"chapter": "Yarım beyinle uyumak", "visual": "dolphin", "text": "Hayvanlar âleminde uyku bazen çok farklıdır. Yunuslar, beyinlerinin yalnızca bir yarısıyla uyuyabilir. Bir yarısı dinlenirken diğer yarısı uyanık kalır; böylece nefes almak için yüzeye çıkmayı ve çevreyi izlemeyi sürdürürler. Bazı kuşlar da uzun uçuşlarda benzer bir yöntem kullanır."},
+    {"chapter": "Ne kadar uyumalıyız?", "visual": "bedroom night", "text": "Uyku bilimcileri, yetişkinlerin sağlıklı kalmak için gecede yedi saat ya da daha fazla uyumasını öneriyor. Gençlerin ve çocukların ise daha fazla uykuya ihtiyacı vardır. Düzenli saatlerde yatıp kalkmak, iç saatin işini kolaylaştırır ve uykunun kalitesini artırır."},
+    {"chapter": "Uykuya hazırlık", "visual": "lavender field", "text": "Beynine iyi bir gece hazırlamak için küçük alışkanlıklar yeterlidir. Akşam ışıkları kısmak, odayı serin ve karanlık tutmak, yatmadan önce ekranlardan uzaklaşmak ve her gün benzer saatte uyumak. Şu an yaptığın gibi sakin bir şey dinlemek de bu hazırlığın güzel bir parçası olabilir."},
+    {"chapter": "Sabah", "visual": "sunrise", "text": "Sabaha karşı vücut ısın yükselmeye, melatonin azalmaya başlar. İç saatin seni uyanmaya hazırlar. Gün ışığı gözlerine ulaştığında saat yeniden ayarlanır ve döngü baştan başlar. Her sabah, aslında beyninin gece boyunca yaptığı sessiz bir işin sonucudur."},
+    {"chapter": "İyi geceler", "visual": "moon clouds", "text": "Bu gecelik bu kadar. Şimdi gözlerini kapattığında, beyninin senin için çalışmaya başlayacağını bil: temizleyecek, düzenleyecek, hatırlayacak. Sana bir sorum var: En son hatırladığın rüya neydi? Yorumlarda bana yaz. Tatlı rüyalar, ben Bilge."}
+  ],
+  "shorts": [
+    {"segments": [7], "title": "Beyin Uyurken Kendini Temizler", "hook": "Beynin uyurken kendini temizlediğini biliyor muydun?"},
+    {"segments": [10], "title": "Rüyada Neden Koşmayız?", "hook": "Rüyanda koşarken neden yataktan fırlamıyorsun?"}
+  ]
+}
