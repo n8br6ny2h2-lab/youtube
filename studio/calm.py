@@ -124,7 +124,10 @@ def pixabay_clips(query: str, need: int, used: set, target_w: int = 1920) -> lis
                                                              "safesearch": "true", "video_type": "film"}, timeout=30)
     r.raise_for_status()
     out = []
-    for v in r.json().get("hits", []):
+    hits = r.json().get("hits", [])
+    if target_w > 1920:  # 4K klipler önce
+        hits.sort(key=lambda v: -((v.get("videos") or {}).get("large", {}).get("width") or 0))
+    for v in hits:
         vid = f"pb{v['id']}"
         if vid in used or v.get("duration", 0) < 6:
             continue

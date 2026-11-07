@@ -14,7 +14,7 @@
 | Pazartesi | 🌌 Evrenin Sessizliği | Uzay, gezegenler, yıldızlar |
 | Çarşamba | 🦉 Hayvanlar Âlemi | Gece hayvanları, göçler, okyanus canlıları, hayvan zekâsı |
 | Cuma | 🧠 Merak Kütüphanesi | İnsan bedeni, uyku ve beyin, tarih, doğa olayları, gündelik bilim |
-| Cumartesi | 🫧 Rahatlatıcı 4K | Slime, su, kum, yağmur görüntüleri ve bunları neden rahatlatıcı bulduğumuzun bilimi |
+| Cumartesi | 🫧 Rahatlatıcı 4K | Suda mürekkep, akışkan sanat, kinetik kum, bal, lav lambası, köpük, yağmur görüntüleri ve bunları neden rahatlatıcı bulduğumuzun bilimi |
 | Her gün 20:30 | Shorts: "Bilge'den bir bilgi" | Uzun bölümlerden 50–60 saniyelik ilginç bilgiler |
 
 Ayrıca her ayın ilk Pazar günü 2–3 saatlik **"Uzun Uyku" derlemesi** yayınlanacak: o ayın bölümleri arka arkaya, reklamsız akış hissiyle.
@@ -57,8 +57,11 @@ Bu biçim uyku ve arka plan dinleme kitlesinde izlenme süresini en çok artıra
 - **Haftalık plan:** En az 3 videoda veri birikince konu seçimi bu veriyle yapılır. Çok izlenen kategoriye haftada ek bölüm verilir, az izlenen konu biçimi değiştirilir.
 - **Her Pazar:** Gelecek haftanın planı kullanıcıya gönderilir.
 
+## Not: slime görüntüsü
+Pixabay'de gerçek oyuncak slime videosu neredeyse yok (aramada çoğu salyangoz çıkıyor). Aynı "tatmin edici" etkiyi veren akışkan görüntülerde ise çok sayıda 4K klip var: suda mürekkep, akışkan sanat, kinetik kum, bal, lav lambası, köpük. Cumartesi bölümleri bunlarla yapılır. Gerçek slime için ileride kendi slime animasyonumuzu üretmek de mümkün.
+
 ## Gerekenler
-- **Pexels ve Pixabay ücretsiz API anahtarları:** hayvan, doğa ve slime görüntüleri için.
+- ~~Pixabay anahtarı~~ ✅ eklendi (Pexels gerekmiyor).
 - **Profil resmini Bilge ile değiştirmek:** YouTube API profil resmini değiştirmeye izin vermiyor, bu adım Studio'dan elle yapılır.
 
 ## Kaynaklar
