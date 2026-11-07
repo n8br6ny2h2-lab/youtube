@@ -115,6 +115,12 @@ def cleanup(days: int = 7) -> dict:
             size = sum(f.stat().st_size for f in sub.rglob("*") if f.is_file()) if sub.is_dir() else sub.stat().st_size
             shutil.rmtree(sub, ignore_errors=True) if sub.is_dir() else sub.unlink(missing_ok=True)
             freed += size
+    # Stok klip önbelleği (Pixabay/Pexels 4K dosyaları çok büyük): 2 günden eski olanlar silinir, gerekirse yeniden iner
+    for sub in ("pixabay", "pexels"):
+        for f in (Paths.images / sub).glob("*.mp4") if (Paths.images / sub).exists() else []:
+            if f.stat().st_mtime < _t.time() - 2 * 86400:
+                freed += f.stat().st_size
+                f.unlink(missing_ok=True)
     # 30 günden eski ve yüklenmiş final videolar
     for r in db.query("SELECT v.path FROM videos v JOIN uploads u ON u.video_id=v.id WHERE u.status='uploaded' "
                       "AND u.created_at < datetime('now','-30 days')"):

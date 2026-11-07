@@ -541,6 +541,7 @@ def build_video(tlp: dict, work: Path, out: Path, mix: Path, w: int, h: int, ass
     silent = work / f"silent_{w}x{h}.mp4"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy", str(silent)],
                    check=True, cwd=clips_dir)
+    shutil.rmtree(clips_dir, ignore_errors=True)  # ara klipler (4K'da GB'larca) birleştirince silinir
     grad = work / f"grad_{w}x{h}.png"
     if not grad.exists():
         from PIL import Image
