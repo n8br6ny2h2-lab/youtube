@@ -27,6 +27,7 @@ Kalıcı sunucu için: `scripts/server_setup.sh` (Ubuntu 24.04, systemd).
 
 Konteyner sıfırlanırsa bunlar gider: `client_secret.json` dosyasını tekrar yükleyin,
 sonra her kanal için `python main.py --mode auth` (Gece için `--channel gece` ekleyin) ile yeniden yetki verin.
+Ardından `python scripts/restore_state.py` (YouTube video kayıtlarını geri yükler) ve `python scripts/weekly_plan.py 0`.
 
 ## Bekleyenler
 - **Google API denetimi** gönderildi; onay gelene kadar yüklemeler *özel* kalır, kullanıcı Studio'da elle planlar.
