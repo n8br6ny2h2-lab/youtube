@@ -104,11 +104,11 @@
     "enabled": true,
     "model": "gemini-omni-1.2-flash",
     "monthly_budget_usd": 45,
-    "usd_per_clip": 1.0,
+    "usd_per_clip": 0.75,
     "bulutkent_intro": true,
     "shorts_3d_per_long": 1,
     "max_clips_per_short": 3,
     "gece_relax_clips": 4,
-    "_not": "usd_per_clip: gerçek fatura görülünce güncellenecek tahmini klip başı maliyet (10 sn)"
+    "_not": "usd_per_clip: 7 Kasım faturası 280 TL / ~12 klip (~23 TL/klip) gözlemine göre ihtiyatlı tahmin; fatura gecikmeli olabilir, yeniden kontrol edilecek"
   }
 }
