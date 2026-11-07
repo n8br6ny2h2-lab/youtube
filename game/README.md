@@ -143,6 +143,8 @@ Oyun içi para birimleriyle satılanlar: sandıklar (Bronz / Elmas / Efsane, 10'
 
 ## 5. Ana menü ve hesap sistemi
 
+> **Yalnızca Apple modu** (`features.js` → `apple`): tek giriş yöntemi Apple ile Giriş; bulut kaydı sunucusuz, `@capacitor-firebase/firestore` ile `saves/{uid}` belgesinde. Sıralama yok. Kurulum: `store/APPLE-GIRIS-KURULUM.md`. Bulut derlemesi `GOOGLE_SERVICE_INFO_PLIST` gizli ayarını bulunca kendiliğinden açar.
+
 **Ana menü (başlık ekranı):** OYNA, Hesap, Sıralama, Posta, Haberler, Hediye Kodu, Destek, Hakkında ve Ayarlar. Lobide sol üstteki ☰ aynı menüyü açar; avatar profil sayfasını açar.
 
 | Bölüm | İçerik |

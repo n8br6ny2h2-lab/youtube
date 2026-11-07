@@ -28,12 +28,13 @@ for (const f of ['legal/privacy.html', 'legal/terms.html', 'legal/support.html']
   let s = readFileSync(p, 'utf8');
   for (const [k, v] of Object.entries(map)) s = s.split(`{{${k}}}`).join(esc(v));
   // Sürüm notu: bu sürümde hangi özellikler var (js/features.js)
-  const noteTr = !FEATURES.accounts && !FEATURES.ads
+  const ACC = FEATURES.accounts || FEATURES.apple;
+  const noteTr = !ACC && !FEATURES.ads
     ? '<p class="note"><b>Bu sürümde (v' + VERSION + ')</b> hesap bağlama, bulut kaydı, sıralama ve reklam <b>bulunmaz</b>. Oyun kişisel veri toplamaz ve bize hiçbir veri göndermez; ilerlemen yalnızca cihazında saklanır. Aşağıdaki hesap ve reklam bölümleri bu özellikler eklendiğinde geçerli olacaktır.</p>'
-    : '<p class="note">Bu sürümde: ' + [FEATURES.accounts && 'hesap bağlama ve bulut kaydı', FEATURES.ads && 'ödüllü reklamlar'].filter(Boolean).join(', ') + ' etkindir.</p>';
-  const noteEn = !FEATURES.accounts && !FEATURES.ads
+    : '<p class="note">Bu sürümde: ' + [ACC && (FEATURES.accounts ? 'hesap bağlama ve bulut kaydı' : 'Apple ile Giriş ve bulut kaydı (sıralama yok)'), FEATURES.ads && 'ödüllü reklamlar'].filter(Boolean).join(', ') + ' etkindir.</p>';
+  const noteEn = !ACC && !FEATURES.ads
     ? '<p class="note"><b>In this version (v' + VERSION + ')</b> there is <b>no</b> account linking, cloud save, leaderboard or advertising. The Game collects no personal data and sends nothing to us; your progress is stored only on your device. The account and advertising sections below apply once those features are added.</p>'
-    : '<p class="note">Enabled in this version: ' + [FEATURES.accounts && 'account linking and cloud save', FEATURES.ads && 'rewarded ads'].filter(Boolean).join(', ') + '.</p>';
+    : '<p class="note">Enabled in this version: ' + [ACC && (FEATURES.accounts ? 'account linking and cloud save' : 'Sign in with Apple and cloud save (no leaderboard)'), FEATURES.ads && 'rewarded ads'].filter(Boolean).join(', ') + '.</p>';
   s = s.replace(/<!--SURUM_NOTU_TR-->[\s\S]*?<!--\/SURUM_NOTU_TR-->/, `<!--SURUM_NOTU_TR-->${noteTr}<!--/SURUM_NOTU_TR-->`)
        .replace(/<!--SURUM_NOTU_EN-->[\s\S]*?<!--\/SURUM_NOTU_EN-->/, `<!--SURUM_NOTU_EN-->${noteEn}<!--/SURUM_NOTU_EN-->`);
   writeFileSync(p, s);

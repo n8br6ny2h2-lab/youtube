@@ -15,6 +15,7 @@ const NATIVE = {
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { FEATURES } = await import(pathToFileURL(join(root, 'js/features.js')).href);
 console.log('Özellikler:', JSON.stringify(FEATURES));
+const FIREBASE = FEATURES.accounts || FEATURES.apple; // Firebase (giriş) kullanan her mod
 let changed = 0;
 const patch = (file, fn) => {
   if (!existsSync(file)) return console.log('atlandı (yok):', file);
@@ -67,15 +68,15 @@ patch(join(root, 'android/app/build.gradle'), g => g
 
 // ---------------- iOS: yetkiler, Firebase dosyası, sadece iPhone, sürüm ----------------
 const ent = join(root, 'ios/App/App/App.entitlements');
-if (FEATURES.accounts && existsSync(join(root, 'ios/App/App')) && !existsSync(ent)) {
+if (FIREBASE && existsSync(join(root, 'ios/App/App')) && !existsSync(ent)) {
   writeFileSync(ent, `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 \t<key>com.apple.developer.applesignin</key>
-\t<array><string>Default</string></array>
+\t<array><string>Default</string></array>${FEATURES.accounts ? `
 \t<key>com.apple.developer.game-center</key>
-\t<true/>
+\t<true/>` : ''}
 </dict>
 </plist>
 `); changed++; console.log('oluşturuldu:', ent);
@@ -83,11 +84,11 @@ if (FEATURES.accounts && existsSync(join(root, 'ios/App/App')) && !existsSync(en
 patch(plist, xml => addKey(xml, 'ITSAppUsesNonExemptEncryption', '<false/>'));
 const hasFirebasePlist = existsSync(join(root, 'ios/App/App/GoogleService-Info.plist'));
 patch(join(root, 'ios/App/App.xcodeproj/project.pbxproj'), p => {
-  if (FEATURES.accounts && !p.includes('CODE_SIGN_ENTITLEMENTS')) p = p.replace(/(\t+)INFOPLIST_FILE = App\/Info\.plist;/g, '$1CODE_SIGN_ENTITLEMENTS = App/App.entitlements;\n$1INFOPLIST_FILE = App/Info.plist;');
+  if (FIREBASE && !p.includes('CODE_SIGN_ENTITLEMENTS')) p = p.replace(/(\t+)INFOPLIST_FILE = App\/Info\.plist;/g, '$1CODE_SIGN_ENTITLEMENTS = App/App.entitlements;\n$1INFOPLIST_FILE = App/Info.plist;');
   p = p.replace(/TARGETED_DEVICE_FAMILY = "1,2";/g, 'TARGETED_DEVICE_FAMILY = 1;');
   p = p.replace(/MARKETING_VERSION = [^;]+;/g, `MARKETING_VERSION = ${pkgVersion};`).replace(/CURRENT_PROJECT_VERSION = [^;]+;/g, `CURRENT_PROJECT_VERSION = ${build};`);
   // GoogleService-Info.plist dosyasını projeye ve "Copy Bundle Resources" adımına kaydet
-  if (FEATURES.accounts && hasFirebasePlist && !p.includes('GoogleService-Info.plist')) {
+  if (FIREBASE && hasFirebasePlist && !p.includes('GoogleService-Info.plist')) {
     const F = 'E5F0A1B2C3D4E5F6A7B8C901', B = 'E5F0A1B2C3D4E5F6A7B8C902';
     p = p.replace('/* End PBXBuildFile section */', `\t\t${B} /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ${F} /* GoogleService-Info.plist */; };\n/* End PBXBuildFile section */`);
     p = p.replace('/* End PBXFileReference section */', `\t\t${F} /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };\n/* End PBXFileReference section */`);
@@ -98,7 +99,7 @@ patch(join(root, 'ios/App/App.xcodeproj/project.pbxproj'), p => {
 });
 
 console.log(changed ? `\n${changed} dosya güncellendi.` : '\nDeğişiklik gerekmedi.');
-if (FEATURES.accounts) {
-  console.log('Yetkiler (Game Center, Apple ile Giriş) App.entitlements ile eklendi; Xcode otomatik imzalamada bunları App ID\'ye kendisi işler.');
+if (FIREBASE) {
+  console.log('Yetkiler (Apple ile Giriş' + (FEATURES.accounts ? ', Game Center' : '') + ') App.entitlements ile eklendi; Xcode otomatik imzalamada bunları App ID\'ye kendisi işler.');
   console.log('Firebase: android/app/google-services.json ve ios/App/App/GoogleService-Info.plist dosyalarını koyun.');
 }

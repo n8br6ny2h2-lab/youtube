@@ -7,6 +7,7 @@
 #
 # Kullanılan gizli anahtarlar (hepsi isteğe bağlı):
 #   GOOGLE_SERVICES_JSON, GOOGLE_SERVICE_INFO_PLIST    Firebase dosyalarının İÇERİĞİ (olduğu gibi yapıştır)
+#     GOOGLE_SERVICE_INFO_PLIST varsa iOS'te Apple ile Giriş + bulut kaydı açılır
 #   ANDROID_KEYSTORE_B64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD   Play yükleme anahtarı
 #   APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8   App Store Connect API anahtarı (.p8 içeriği olduğu gibi)
 name: Mobil Derleme
@@ -105,6 +106,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: iOS projesi
         run: |
+          # Firebase dosyası eklendiyse "Apple ile Giriş + bulut kaydı" kendiliğinden açılır (store/APPLE-GIRIS-KURULUM.md)
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then node scripts/features.mjs --on apple; fi
           npm run build
           npm run features
           npx cap add ios

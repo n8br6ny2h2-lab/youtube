@@ -62,6 +62,9 @@ Android için olanlar (şimdilik gerekmiyor): `ANDROID_KEYSTORE_B64`, `ANDROID_K
 `game/promo/` → `bash promo/render.sh` 3 video üretir (boss, guc, kombo), her biri 9:16 ve 4:5. Videolar git'e eklenmiyor (büyük); kullanıcıya gönderildi.
 Kapanış yazısı: `PROMO_CTA="…"`. Uygulama-yükleme reklamları için oyunun App Store'da yayında olması gerekir.
 
+## Apple ile Giriş + bulut kaydı (hazır, kapalı)
+Kod hazır; `features.js` → `apple`. Kurulum rehberi: **`game/store/APPLE-GIRIS-KURULUM.md`** (Firebase ücretsiz, sunucu yok). GitHub'a `GOOGLE_SERVICE_INFO_PLIST` gizli ayarı eklenince iOS bulut derlemesi özelliği kendiliğinden açar. Mağazaya göndermeden önce gizlilik etiketleri ve gizlilik sayfası güncellenmeli (rehber 8. adım).
+
 ## Sonraki güncelleme (1.1)
 `js/features.js` → `accounts: true` ve `ads: true`. Ardından Firebase (Game Center/Apple girişi) ve AdMob kurulur (`store/TELEFONDAN-YAYIN.md` Adım 2), sunucu kurulur (`server/cloud.mjs`, `CONFIG.cloudUrl`). Gizlilik sayfası `legal-fill` ile yeniden üretilir.
 

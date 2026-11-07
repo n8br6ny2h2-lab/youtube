@@ -495,3 +495,7 @@ input[type=range] { flex: none; width: 150px; padding: 0; border: 0; background:
 .subtabs button { min-width: 0; }
 .sh-dates { font-size: 12px; color: #e2e8f0; font-weight: 700; }
 .dates { color: #fde68a !important; font-weight: 700; font-size: 11px; }
+/* Apple ile Giriş düğmesi (Apple tasarım kuralları: siyah, Apple logosu, standart metin) */
+.siwa { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: 10px; background: #000; color: #fff; border: 1px solid #fff4; font: 600 14px -apple-system, system-ui, sans-serif; white-space: nowrap; }
+.siwa svg { width: 16px; height: 16px; margin-top: -2px; }
+.prov.siwa-row { flex-wrap: wrap; } .prov.siwa-row .pinfo { flex: 1; } .prov.siwa-row .siwa { flex: 1 0 100%; margin-top: 8px; min-height: 44px; font-size: 16px; }

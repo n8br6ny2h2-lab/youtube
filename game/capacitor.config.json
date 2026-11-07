@@ -45,10 +45,7 @@
     "FirebaseAuthentication": {
       "skipNativeAuth": false,
       "providers": [
-        "apple.com",
-        "gc.apple.com",
-        "google.com",
-        "playgames.google.com"
+        "apple.com"
       ]
     }
   },

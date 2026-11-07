@@ -26,8 +26,8 @@ export function createMenus(app) {
 
   function refreshTitle() {
     const s = S(), links = Object.keys(s.account.links);
-    $('#title-acc').dataset.m = FEATURES.accounts ? 'account' : 'profile';
-    if (!FEATURES.accounts) $('#title-acc').innerHTML = `<span class="dot on"></span>${esc(s.playerName)}`;
+    $('#title-acc').dataset.m = app.account.enabled ? 'account' : 'profile';
+    if (!app.account.enabled) $('#title-acc').innerHTML = `<span class="dot on"></span>${esc(s.playerName)}`;
     else $('#title-acc').innerHTML = links.length
       ? `<span class="dot on"></span>${links.map(l => esc(PROVIDERS[l].name)).join(' • ')}`
       : '<span class="dot"></span>Misafir hesap • <u>Bağla</u>';
@@ -108,7 +108,7 @@ export function createMenus(app) {
 
   // ================================================================ MENÜ LİSTESİ (lobide ☰)
   function openMenu() {
-    const items = [['home', '🏠', 'Ana Menü'], ['profile', '👤', 'Profil'], ['account', FEATURES.accounts ? '🔗' : '💾', FEATURES.accounts ? 'Hesap & Bulut' : 'Hesap & Yedek'], ['leader', '🏆', 'Sıralama'],
+    const items = [['home', '🏠', 'Ana Menü'], ['profile', '👤', 'Profil'], ['account', app.account.enabled ? '🔗' : '💾', app.account.enabled ? 'Hesap & Bulut' : 'Hesap & Yedek'], ['leader', '🏆', 'Sıralama'],
       ['mail', '✉️', `Posta${mailCount() ? ` (${mailCount()})` : ''}`], ['news', '📰', 'Haberler'], ['code', '🎁', 'Hediye Kodu'], ['settings', '⚙️', 'Ayarlar'], ['help', '❓', 'Destek & SSS'], ['about', 'ℹ️', 'Hakkında']];
     const m = modal(`<h2>Menü</h2><div class="menu-list">${items.map(([k, i, n]) => `<button data-mm="${k}"><span>${i}</span>${n}<em>›</em></button>`).join('')}</div>`, { cls: 'menusheet' });
     m.el.addEventListener('click', e => { const b = e.target.closest('[data-mm]'); if (!b) return; m.close(); app.play('click'); open(b.dataset.mm); });
@@ -121,7 +121,7 @@ export function createMenus(app) {
 
   // ================================================================ HESAP
   function account() {
-    if (!FEATURES.accounts) return backupOnly();
+    if (!app.account.enabled) return backupOnly();
     const m = modal('', { cls: 'acc', onClose: () => { refreshTitle(); app.render(); } });
     const draw = () => {
       const s = S(), links = s.account.links, av = app.account.available();
@@ -134,11 +134,11 @@ export function createMenus(app) {
         </div>
         <div class="prov-list">${av.map(id => {
           const P = PROVIDERS[id], l = links[id];
-          return `<div class="prov prov-${id}"><div class="pi">${provIcon(id)}</div><div class="pinfo"><b>${P.name}</b><small>${l ? `${esc(l.name)}${l.test ? ' (test)' : ''}` : P.kind === 'games' ? 'Sıralama, başarımlar ve kimlik' : 'Bulut kaydı ve hesap kurtarma'}</small></div>
-            ${l ? `<button class="btn small grey" data-a="unlink" data-id="${id}">Çıkış</button>` : `<button class="btn small ${id === 'apple' ? 'black' : 'blue'}" data-a="link" data-id="${id}">Bağla</button>`}</div>`;
+          return `<div class="prov prov-${id} ${!l && id === 'apple' ? 'siwa-row' : ''}"><div class="pi">${provIcon(id)}</div><div class="pinfo"><b>${P.name}</b><small>${l ? `${esc(l.name)}${l.test ? ' (test)' : ''}` : P.kind === 'games' ? 'Sıralama, başarımlar ve kimlik' : 'Bulut kaydı ve hesap kurtarma'}</small></div>
+            ${l ? `<button class="btn small grey" data-a="unlink" data-id="${id}">Çıkış</button>` : id === 'apple' ? `<button class="siwa" data-a="link" data-id="apple">${APPLE_SVG}<span>Apple ile Giriş Yap</span></button>` : `<button class="btn small blue" data-a="link" data-id="${id}">Bağla</button>`}</div>`;
         }).join('')}</div>
         <h3>☁️ Bulut Kaydı</h3>
-        ${CONFIG.cloudUrl ? `<p class="muted small">${cloudOk ? `Son eşitleme: ${s.account.lastSync ? new Date(s.account.lastSync).toLocaleString('tr-TR') : 'henüz yok'}` : 'Bulut kaydı için Apple veya Google ile giriş yap.'}</p>
+        ${app.account.cloudAvailable() ? `<p class="muted small">${cloudOk ? `Son eşitleme: ${s.account.lastSync ? new Date(s.account.lastSync).toLocaleString('tr-TR') : 'henüz yok'} • 3 dakikada bir otomatik` : app.account.appleOnly ? 'Bulut kaydı için Apple ile giriş yap. Yeni iPhone\'da aynı Apple hesabıyla ilerlemen geri gelir.' : 'Bulut kaydı için Apple veya Google ile giriş yap.'}</p>
           <div class="row gap"><button class="btn blue" data-a="push" ${cloudOk ? '' : 'disabled'}>☁️ Kaydet</button><button class="btn purple" data-a="pull" ${cloudOk ? '' : 'disabled'}>⬇️ Yükle</button></div>`
         : `<p class="muted small">Bulut kaydı çok yakında. O zamana kadar Ayarlar &gt; Kayıt kodu ile ilerlemeni yedekleyebilirsin.</p>`}
         <div class="pid">Oyuncu kimliği: <b>${s.account.playerId}</b> <button class="btn small grey" data-a="copy">Kopyala</button></div>
@@ -227,7 +227,7 @@ export function createMenus(app) {
         <div class="setgroup"><h4>Bildirimler</h4>${tg('notify', '⚡ Enerji dolunca haber ver')}</div>
         <div class="setgroup"><h4>Dil</h4><div class="setrow"><span>🌐 Dil</span><div class="seg"><button class="on">Türkçe</button><button disabled>English (yakında)</button></div></div></div>
         <div class="setgroup"><h4>Hesap & Veri</h4><div class="col gap">
-          <button class="btn blue" data-b="account">${FEATURES.accounts ? '🔗 Hesap & Bulut' : '💾 Hesap & Yedek'}</button>
+          <button class="btn blue" data-b="account">${app.account.enabled ? '🔗 Hesap & Bulut' : '💾 Hesap & Yedek'}</button>
           <button class="btn grey" data-b="restore">🧾 Satın alımları geri yükle</button>
           ${app.ads?.privacyRequired ? '<button class="btn grey" data-b="adprivacy">🛡️ Reklam gizlilik seçenekleri</button>' : ''}
           <div class="row gap"><button class="btn grey" data-b="export">💾 Yedek kodu al</button><button class="btn grey" data-b="import">📥 Yedekten yükle</button></div>
@@ -277,7 +277,7 @@ export function createMenus(app) {
       m.el.innerHTML = `<button class="x" data-close>✕</button><h2>🏆 Sıralama</h2>
         <div class="subtabs">${boards.map(([k, n]) => `<button class="${cur === k ? 'on' : ''}" data-b="${k}">${n}</button>`).join('')}</div>
         <div class="lb-list"><p class="muted center">${CONFIG.cloudUrl ? 'Yükleniyor…' : 'Küresel sıralama yakında açılıyor! Şimdilik kişisel rekorlarını geliştir.'}</p></div>
-        ${linked || !FEATURES.accounts ? '' : '<button class="btn green wide" data-l="link">🔗 Sıralamaya girmek için hesabını bağla</button>'}
+        ${linked || !FEATURES.accounts || !CONFIG.cloudUrl ? '' : '<button class="btn green wide" data-l="link">🔗 Sıralamaya girmek için hesabını bağla</button>'}
         <div class="lb-me"><span>Senin skorun</span><b>${app.fmt(mine[cur])}</b></div>`;
       if (!CONFIG.cloudUrl) return;
       try {
@@ -346,7 +346,7 @@ export function createMenus(app) {
   function help() {
     const s = S();
     modal(`<h2>❓ Destek & SSS</h2>
-      <div class="faq">${D.FAQ.filter(([q]) => FEATURES.accounts || !q.startsWith('Hesabımı')).map(([q, a]) => [q, !FEATURES.accounts && q.startsWith('İlerlemem') ? 'Şimdilik ilerlemen bu telefonda saklanıyor. Ana Menü > Hesap > Yedek kodu al ile kodunu notlarına kaydet; yeni telefonda Yedekten yükle ile geri getirirsin. Hesap bağlama yakında geliyor.' : a]).map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
+      <div class="faq">${D.FAQ.filter(([q]) => app.account.enabled || !q.startsWith('Hesabımı')).map(([q, a]) => [q, !q.startsWith('İlerlemem') ? a : !app.account.enabled ? 'Şimdilik ilerlemen bu telefonda saklanıyor. Ana Menü > Hesap > Yedek kodu al ile kodunu notlarına kaydet; yeni telefonda Yedekten yükle ile geri getirirsin. Hesap bağlama yakında geliyor.' : app.account.appleOnly ? 'Ana Menü > Hesap\'tan Apple ile giriş yaparsan ilerlemen buluta kaydedilir. Yeni iPhone\'da aynı Apple hesabıyla giriş yapınca geri gelir. Giriş yapmazsan ilerleme sadece bu telefonda kalır.' : a]).map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
       <div class="pid">Oyuncu kimliğin: <b>${s.account.playerId}</b></div>
       ${CONFIG.supportEmail ? `<a class="btn blue wide" href="mailto:${CONFIG.supportEmail}?subject=${encodeURIComponent('Efsun Avcısı Destek - ' + s.account.playerId)}&body=${encodeURIComponent(`Oyuncu: ${s.account.playerId}\nSürüm: ${D.GAME.version}\nCihaz: ${navigator.userAgent}\n\nSorun:\n`)}">✉️ Destek ekibine yaz</a>` : ''}`, { cls: 'helpbox' });
   }
@@ -376,7 +376,7 @@ export function createMenus(app) {
       m.el.innerHTML = `<button class="x" data-close>✕</button>
         <div class="prof-head" style="--hc:${h.color}"><canvas class="hero-cv" data-hero="${s.hero}" data-w="${st.wtype}" data-color="${h.color}" data-skin="${s.cos.skin || ''}" data-aura="${s.cos.aura || ''}"></canvas>
           <div><input id="pname2" value="${esc(s.playerName)}" maxlength="16" aria-label="Oyuncu adı">${s.cos.title ? `<small class="ptitle">🏅 Sezon ${s.cos.title.slice(1)} Şampiyonu</small>` : ''}<small>${h.name} • ⚡ ${app.fmt(st.power)}</small>
-          <small>${!FEATURES.accounts ? '💾 İlerleme bu telefonda' : links.length ? '🔗 ' + links.map(l => PROVIDERS[l].name).join(', ') : '⚠️ Misafir hesap'}</small></div></div>
+          <small>${!app.account.enabled ? '💾 İlerleme bu telefonda' : links.length ? '🔗 ' + links.map(l => PROVIDERS[l].name).join(', ') : '⚠️ Misafir hesap'}</small></div></div>
         <div class="statgrid">${[['🗺️ Bölüm', s.maxChapter], ['⚔️ Savaş', s.stats.runs], ['🏆 Zafer', s.stats.wins], ['💀 Düşman', app.fmt(s.stats.kills)], ['👑 Boss', s.stats.bossKills], ['🔥 En iyi kombo', s.stats.maxCombo || 0],
           ['🏟️ Arena rekoru', s.arena.best || 0], ['🎁 Sandık', s.stats.chests], ['✨ Efsun', s.stats.enchants], ['🌟 Mitik eşya', s.stats.mythics], ['⏱️ Oyun süresi', Math.floor((s.stats.playSec || 0) / 60) + ' dk']].map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('')}</div>
         <div class="row gap"><button class="btn blue" data-p="account">🔗 Hesap</button><button class="btn purple" data-p="ach">🏆 Başarımlar</button></div>`;

@@ -33,7 +33,7 @@ for (const f of ['legal/privacy.html', 'legal/terms.html', 'legal/support.html']
 check(false, 'info', 'Gizlilik politikasını herkese açık bir adreste yayınlayın', 'legal/privacy.html dosyasını kendi sitenize/GitHub Pages\'e koyup adresini App Store Connect ve Play Console formlarına yazın.');
 // --- dosyalar
 if (FEATURES.accounts && !IOS_ONLY) check(existsSync(join(root, 'android/app/google-services.json')), existsSync(join(root, 'android')) ? 'block' : 'info', 'Firebase: android/app/google-services.json', 'Firebase konsolu > Android uygulaması ekle > dosyayı indirin.');
-if (FEATURES.accounts) check(existsSync(join(root, 'ios/App/App/GoogleService-Info.plist')), existsSync(join(root, 'ios')) ? 'block' : 'info', 'Firebase: ios/App/App/GoogleService-Info.plist', 'Firebase konsolu > iOS uygulaması ekle > dosyayı Xcode\'a ekleyin.');
+if (FEATURES.accounts || FEATURES.apple) check(existsSync(join(root, 'ios/App/App/GoogleService-Info.plist')), existsSync(join(root, 'ios')) ? 'block' : 'info', 'Firebase: ios/App/App/GoogleService-Info.plist', 'Firebase konsolu > iOS uygulaması ekle > dosyayı Xcode\'a ekleyin.');
 check(existsSync(join(root, 'assets/icon-only.png')) && existsSync(join(root, 'assets/splash.png')), 'block', 'Uygulama ikonu ve açılış ekranı kaynakları', 'assets/ klasörü');
 const shots = d => (existsSync(join(root, 'store', d)) ? readdirSync(join(root, 'store', d)).filter(f => f.startsWith('screenshot-')).length : 0);
 check(shots('app-store') >= 3, 'block', `App Store ekran görüntüleri (${shots('app-store')} adet, 1320×2868)`, 'store/app-store/');
@@ -42,7 +42,7 @@ if (!IOS_ONLY) check(existsSync(join(root, 'store/google-play/feature-graphic.pn
 // --- kod sağlığı
 check(!/initializeForTesting: true/.test(services), 'block', 'Reklamlar test modunda sabitlenmemiş', 'js/services.js');
 const inc = cap.ios?.includePlugins || [];
-check(FEATURES.ads === inc.includes('@capacitor-community/admob') && FEATURES.accounts === inc.includes('@capacitor-firebase/authentication'), 'block',
+check(FEATURES.ads === inc.includes('@capacitor-community/admob') && (FEATURES.accounts || FEATURES.apple) === inc.includes('@capacitor-firebase/authentication') && !!FEATURES.apple === inc.includes('@capacitor-firebase/firestore'), 'block',
   'Uygulama paketine giren eklentiler özellik anahtarlarıyla uyumlu', 'npm run features');
 check(/isNativePlatform/.test(read('js/main.js')) && /this.device && !this.native/.test(services), 'block', 'Telefonda test mağazasına düşme koruması', 'js/services.js > Store.buy');
 check(pkg.version === (data.match(/version: '([^']+)'/) || [])[1], 'warn', `Sürüm uyumu: package.json ${pkg.version} / oyun ${(data.match(/version: '([^']+)'/) || [])[1]}`, 'package.json ve js/data.js > GAME.version aynı olmalı; Xcode/Gradle sürüm numarasını da artırın.');

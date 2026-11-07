@@ -82,7 +82,9 @@ App Store Connect > uygulaman > **Para Kazanma > Uygulama İçi Satın Almalar >
 | Ürün kimliği | Referans ad | Fiyat (TR) |
 |---|---|---|
 | `monthly_card` | Aylık Kart | ₺99,99 |
-| `battle_pass` | Efsun Bileti | ₺199,99 |
+| `battle_pass` | Efsun Bileti (1 ay) | ₺199,99 |
+
+Efsun Bileti açıklamasına mutlaka şunu yaz: **"1 sezon (1 ay) geçerlidir; her ayın son günü biter, yeni sezonda yeniden alınır."** Sezon ve bilet her takvim ayı yenilenir (oyunda tarihleri yazar).
 
 `vip_noads` ürününü **oluşturma**; reklam olmadığı için bu sürümde gizli.
 
