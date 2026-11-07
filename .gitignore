@@ -23,3 +23,6 @@ game/node_modules/
 game/www/
 game/android/
 game/ios/
+
+# tanıtım videoları büyük; promo/render.sh ile yeniden üretilir
+game/store/instagram/*.mp4
