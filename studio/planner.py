@@ -143,10 +143,17 @@ def build(offset: int = 1) -> dict:
         elif s["kind"] == "long":
             produce_on = (s["local"] - timedelta(days=2)).strftime("%d.%m")
             if gece:
-                sc = pending_scripts.pop(0) if pending_scripts else None
-                title = sc["title"] if sc else "yeni uzay senaryosu (yazılacak)"
-                it.update(status="üretilecek", title=title, produce_on=produce_on)
-                production.append({"slot": key, "title": title, "produce_on": produce_on})
+                prog = settings().get("program", {})
+                cat = prog.get(["mon", "tue", "wed", "thu", "fri", "sat", "sun"][s["local"].weekday()])
+                sc = next((x for x in pending_scripts if x.get("category") == cat), None) or \
+                    (pending_scripts[0] if pending_scripts and not cat else None)
+                if sc:
+                    pending_scripts.remove(sc)
+                cname = settings().get("program_names", {}).get(cat, cat or "")
+                title = sc["title"] if sc else f"Yeni bölüm yazılacak · {cname}"
+                it.update(status="üretilecek", title=title, produce_on=produce_on, category=cat)
+                production.append({"slot": key, "title": title, "produce_on": produce_on, "category": cat,
+                                   "file": sc["_file"] if sc else None})
             else:
                 pick = next((x for x in scores if x["theme"] not in used and x["theme"] not in recent), scores[0])
                 used.append(pick["theme"])
@@ -169,7 +176,8 @@ def next_production() -> dict | None:
     for off in (0, 1):
         plan = build(off)
         for p in plan["production"]:
-            if datetime.fromisoformat(p["slot"]) <= horizon:
+            t = datetime.fromisoformat(p["slot"])
+            if datetime.now(tz()) + timedelta(hours=18) <= t <= horizon:  # yetişmeyecek kadar yakın slot atlanır
                 return p
     return None
 

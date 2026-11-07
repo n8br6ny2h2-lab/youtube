@@ -3,12 +3,15 @@
     "min_long_seconds": 420,
     "shorts_per_long": 2,
     "shorts_min_seconds": 20,
-    "shorts_max_seconds": 58
+    "shorts_max_seconds": 58,
+    "long_resolution": [
+      3840,
+      2160
+    ]
   },
   "audio": {
     "target_lufs": -16.0,
-    "music_gain_db": -24.0,
-    "tts_engine": "piper"
+    "music_gain_db": -24.0
   },
   "schedule": {
     "long": [
@@ -22,6 +25,10 @@
       ],
       [
         "fri",
+        "21:30"
+      ],
+      [
+        "sat",
         "21:30"
       ]
     ],
@@ -60,5 +67,17 @@
     "made_for_kids": false,
     "category_id": "27",
     "contains_synthetic_media": false
+  },
+  "program": {
+    "mon": "space",
+    "wed": "animals",
+    "fri": "curiosity",
+    "sat": "relax"
+  },
+  "program_names": {
+    "space": "Evrenin Sessizliği (uzay)",
+    "animals": "Hayvanlar Âlemi",
+    "curiosity": "Merak Kütüphanesi (insan, bilim, tarih, doğa olayları)",
+    "relax": "Rahatlatıcı 4K (slime, doğa, su) + bilimi"
   }
 }

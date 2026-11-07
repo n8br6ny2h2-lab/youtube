@@ -28,7 +28,8 @@ def _filter_log(path: Path, vf: str | None = None, af: str | None = None) -> str
 
 
 def check(path: Path, kind: str = "long", min_s: float = 60, max_s: float | None = None,
-          intelligibility: float | None = None, safety_passed: bool = True, black_pix_th: float = 0.10) -> dict:
+          intelligibility: float | None = None, safety_passed: bool = True, black_pix_th: float = 0.10,
+          want: tuple[int, int] | None = None) -> dict:
     res: dict = {"checks": {}, "passed": False}
     c = res["checks"]
     try:
@@ -39,7 +40,7 @@ def check(path: Path, kind: str = "long", min_s: float = 60, max_s: float | None
     v = next((s for s in info["streams"] if s["codec_type"] == "video"), None)
     a = next((s for s in info["streams"] if s["codec_type"] == "audio"), None)
     dur = float(info["format"]["duration"])
-    want = (1920, 1080) if kind == "long" else (1080, 1920)
+    want = want or ((1920, 1080) if kind == "long" else (1080, 1920))
     c["video_stream"] = v is not None
     c["audio_stream"] = a is not None
     c["resolution"] = bool(v) and (v["width"], v["height"]) == want

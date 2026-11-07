@@ -24,7 +24,12 @@ from .config import ROOT, Paths, env, has_key, settings
 from .render_static import html_page, render, render_many
 
 SCRIPTS = ROOT / "channels" / "gece" / "scripts"
-W, H, FPS = 1920, 1080, 30
+W, H, FPS = 1920, 1080, 30  # varsayılan; kanal ayarı video.long_resolution ile 4K yapılır
+
+
+def long_res() -> tuple[int, int]:
+    r = settings()["video"].get("long_resolution") or [W, H]
+    return int(r[0]), int(r[1])
 CLIP_SECONDS = 7.5
 
 PALETTE = {"night": "#0E1A2B", "midnight": "#1B2A41", "amber": "#F2B866", "moon": "#F7E7C6", "sage": "#8FB9A8"}
@@ -109,14 +114,49 @@ def build_brand() -> dict:
 
 # --------------------------------------------------------------------------- görüntü kaynakları
 
-def pexels_clips(query: str, need: int, used: set) -> list[Path]:
+def pixabay_clips(query: str, need: int, used: set, target_w: int = 1920) -> list[Path]:
+    """Pixabay'den yatay klip (Pixabay Lisansı: ticari kullanım serbest, atıf gerekmez); önbellekli."""
+    if not has_key("PIXABAY_API_KEY"):
+        return []
+    cache = Paths.images / "pixabay"
+    cache.mkdir(parents=True, exist_ok=True)
+    r = httpx.get("https://pixabay.com/api/videos/", params={"key": env("PIXABAY_API_KEY"), "q": query, "per_page": 20,
+                                                             "safesearch": "true", "video_type": "film"}, timeout=30)
+    r.raise_for_status()
+    out = []
+    for v in r.json().get("hits", []):
+        vid = f"pb{v['id']}"
+        if vid in used or v.get("duration", 0) < 6:
+            continue
+        vs = [x for x in (v.get("videos") or {}).values() if x.get("url") and x.get("width", 0) >= 1280 and x["width"] > x.get("height", 0)]
+        if not vs:
+            continue
+        best = min(vs, key=lambda f: abs(f["width"] - target_w))
+        dst = cache / f"{vid}.mp4"
+        if not dst.exists():
+            with httpx.stream("GET", best["url"], timeout=180, follow_redirects=True) as resp:
+                resp.raise_for_status()
+                with open(dst, "wb") as fh:
+                    for chunk in resp.iter_bytes():
+                        fh.write(chunk)
+            db.insert("licenses", created_at=db.now(), asset_path=str(dst.relative_to(ROOT)), kind="stock_video",
+                      source="Pixabay", license="Pixabay Content License (ücretsiz, ticari kullanım serbest, atıf gerekmez)",
+                      author=v.get("user", ""), url=v.get("pageURL", ""))
+        used.add(vid)
+        out.append(dst)
+        if len(out) >= need:
+            break
+    return out
+
+
+def pexels_clips(query: str, need: int, used: set, target_w: int = 1920) -> list[Path]:
     """Pexels'ten yatay HD klip indirir (önbellekli) ve lisansını kaydeder."""
     if not has_key("PEXELS_API_KEY"):
         return []
     cache = Paths.images / "pexels"
     cache.mkdir(parents=True, exist_ok=True)
     r = httpx.get("https://api.pexels.com/videos/search", headers={"Authorization": env("PEXELS_API_KEY")},
-                  params={"query": query, "orientation": "landscape", "size": "medium", "per_page": 15}, timeout=30)
+                  params={"query": query, "orientation": "landscape", "size": "large" if target_w > 1920 else "medium", "per_page": 15}, timeout=30)
     r.raise_for_status()
     out = []
     for v in r.json().get("videos", []):
@@ -126,7 +166,7 @@ def pexels_clips(query: str, need: int, used: set) -> list[Path]:
                  and f["width"] > f["height"]]
         if not files:
             continue
-        best = min(files, key=lambda f: abs(f["width"] - 1920))
+        best = min(files, key=lambda f: abs(f["width"] - target_w))
         dst = cache / f"{v['id']}.mp4"
         if not dst.exists():
             with httpx.stream("GET", best["link"], timeout=120, follow_redirects=True) as resp:
@@ -242,7 +282,9 @@ def still_clip(img: Path, seconds: float, idx: int, w: int, h: int, out: Path) -
     zin = idx % 2 == 0
     # %6 içeriden başlar: taranmış fotoğraflardaki çerçeve/kenar şeritleri kadraja girmez
     z = "if(eq(on,0),1.06,min(zoom+0.0005,1.18))" if zin else "if(eq(on,0),1.18,max(zoom-0.0005,1.06))"
-    vf = (f"scale={w*2}:{h*2}:force_original_aspect_ratio=increase,crop={w*2}:{h*2},"
+    f = 2 if w <= 1920 else 1.3  # 4K'da 2 kat ölçek çok yavaş; 1.3 yeterli
+    sw, sh = int(w * f) // 2 * 2, int(h * f) // 2 * 2
+    vf = (f"scale={sw}:{sh}:force_original_aspect_ratio=increase,crop={sw}:{sh},"
           f"zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}:s={w}x{h}:fps={FPS},"
           f"eq=brightness=-0.03:saturation=0.92,fade=t=in:st=0:d=0.8,fade=t=out:st={max(0.1, seconds-0.8):.2f}:d=0.8,format=yuv420p")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-loop", "1", "-i", str(img), "-t", f"{seconds:.3f}", "-vf", vf,
@@ -284,7 +326,7 @@ def scripts() -> list[dict]:
 
 def producible(s: dict) -> bool:
     """Görsel kaynağı olmayan senaryo (uzay dışı + Pexels anahtarı yok) çizimlerle yayınlanmaz, sırası bekletilir."""
-    if has_key("PEXELS_API_KEY"):
+    if has_key("PEXELS_API_KEY") or has_key("PIXABAY_API_KEY"):
         return True
     return all(seg.get("nasa_ids") or seg.get("nasa") for seg in s.get("segments", []))
 
@@ -335,6 +377,7 @@ def build_audio(tlp: dict, out_dir: Path, seed: int, segs: list[dict] | None = N
     music = audio.music("calm", dur + 0.5, seed)
     mix = audio.mix(voice, music, np.zeros(1, np.float32), music_db=settings()["audio"].get("music_gain_db", -24))
     out_dir.mkdir(parents=True, exist_ok=True)
+    audio.write_wav(out_dir / "voice.wav", voice)
     raw = audio.write_wav(out_dir / "mix_raw.wav", mix)
     final = out_dir / "mix.wav"
     audio.loudnorm(raw, final, settings()["audio"].get("target_lufs", -16))
@@ -346,7 +389,7 @@ def build_audio(tlp: dict, out_dir: Path, seed: int, segs: list[dict] | None = N
             intel = round(subtitles.similarity(text, words), 3)
     except Exception as exc:
         logger.warning(f"Whisper: {exc}")
-    return {"mix": str(final), "duration": dur, "intelligibility": intel}
+    return {"mix": str(final), "voice": str(out_dir / "voice.wav"), "duration": dur, "intelligibility": intel}
 
 
 def _ass_time(t: float) -> str:
@@ -357,13 +400,14 @@ def _ass_time(t: float) -> str:
 def write_ass(tlp: dict, path: Path, w: int, h: int, title: str | None, segs: list[dict] | None = None, offset: float = 0.0,
               big: bool = False, hook: str | None = None) -> Path:
     segs = segs or tlp["segments"]
-    fs = 66 if big else 54
-    mv = 520 if big else 70
+    k = h / 1080 if w > h else 1.0  # 4K'da yazılar orantılı büyür
+    fs = int((66 if big else 54) * k)
+    mv = int((520 if big else 70) * k)
     head = (f"[Script Info]\nScriptType: v4.00+\nPlayResX: {w}\nPlayResY: {h}\nWrapStyle: 0\n\n[V4+ Styles]\n"
             "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, "
             "ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n"
-            f"Style: Sub,Noto Serif,{fs},&H00F2F2F2,&H000000FF,&H00101820,&H80000000,0,0,0,0,100,100,0.5,0,1,3.2,2.2,2,{int(w*0.08)},{int(w*0.08)},{mv},1\n"
-            f"Style: Title,Noto Serif,{int(fs*1.7)},&H00C6E7F7,&H000000FF,&H00101820,&H80000000,1,0,0,0,100,100,1,0,1,3,2,5,80,80,0,1\n"
+            f"Style: Sub,Noto Serif,{fs},&H00F2F2F2,&H000000FF,&H00101820,&H80000000,0,0,0,0,100,100,0.5,0,1,{3.2*k:.1f},{2.2*k:.1f},2,{int(w*(0.2 if w > h else 0.08))},{int(w*0.08)},{mv},1\n"
+            f"Style: Title,Noto Serif,{int(fs*1.7)},&H00C6E7F7,&H000000FF,&H00101820,&H80000000,1,0,0,0,100,100,1,0,1,{3*k:.1f},{2*k:.1f},5,80,80,0,1\n"
             f"Style: Hook,Noto Serif,{int(fs*1.25)},&H0066B8F2,&H000000FF,&H00101820,&H80000000,1,0,0,0,100,100,0.5,0,1,3,2,8,60,60,220,1\n\n"
             "[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n")
     ev = []
@@ -388,7 +432,7 @@ def _norm_clip(src: Path, dst: Path, seconds: float, w: int, h: int) -> Path:
 
 
 def build_video(tlp: dict, work: Path, out: Path, mix: Path, w: int, h: int, ass: Path, segs: list[dict] | None = None,
-                offset: float = 0.0, total: float | None = None) -> Path:
+                offset: float = 0.0, total: float | None = None, voice: Path | None = None) -> Path:
     segs = segs or tlp["segments"]
     total = total or tlp["duration"]
     clips_dir = work / f"clips_{w}x{h}"
@@ -420,10 +464,13 @@ def build_video(tlp: dict, work: Path, out: Path, mix: Path, w: int, h: int, ass
                 if stills:
                     break
         if not stills:
-            try:
-                srcs = pexels_clips(vis, k, used)
-            except Exception as exc:
-                logger.warning(f"Pexels '{vis}': {exc}")
+            for fn in (pexels_clips, pixabay_clips):
+                try:
+                    srcs = fn(vis, k, used, target_w=w)
+                except Exception as exc:
+                    logger.warning(f"{fn.__name__} '{vis}': {exc}")
+                if srcs:
+                    break
         for j in range(k):
             dst = clips_dir / f"{n:04d}.mp4"
             if stills:
@@ -452,14 +499,24 @@ def build_video(tlp: dict, work: Path, out: Path, mix: Path, w: int, h: int, ass
     fontsdir = "/usr/share/fonts/truetype/noto"
     vf = f"subtitles={ass.as_posix()}:fontsdir={fontsdir}"
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", str(silent), "-i", str(mix), "-i", str(grad)]
+    fc = f"[0:v][2:v]overlay=0:0[g];[g]{vf}[v0]"
+    last, nxt = "v0", 3
     if wm.is_file():
-        cmd += ["-i", str(wm), "-filter_complex",
-                f"[0:v][2:v]overlay=0:0[g];[g]{vf}[v];[3:v]scale={int(w*0.055)}:-1,format=rgba,colorchannelmixer=aa=0.7[l];"
-                f"[v][l]overlay=W-w-{int(w*0.025)}:{int(w*0.025)}[out]",
-                "-map", "[out]", "-map", "1:a"]
-    else:
-        cmd += ["-filter_complex", f"[0:v][2:v]overlay=0:0[g];[g]{vf}[out]", "-map", "[out]", "-map", "1:a"]
-    cmd += ["-c:v", "libx264", "-preset", "medium", "-crf", "22", "-pix_fmt", "yuv420p", "-r", str(FPS), "-c:a", "aac", "-b:a", "192k",
+        cmd += ["-i", str(wm)]
+        fc += (f";[{nxt}:v]scale={int(w*0.055)}:-1,format=rgba,colorchannelmixer=aa=0.7[l];"
+               f"[{last}][l]overlay=W-w-{int(w*0.025)}:{int(w*0.025)}[v1]")
+        last, nxt = "v1", nxt + 1
+    if voice and Path(voice).exists():  # Bilge baykuş sunucu: sese göre konuşur
+        from . import avatar
+        size = int(h * 0.26) if w > h else int(w * 0.34)
+        mov = avatar.track(Path(voice), total, work / f"avatar_{w}x{h}.mov", size)
+        x, y = (int(w * 0.02), h - size - int(h * 0.015)) if w > h else (int(w * 0.03), int(h * 0.70))
+        cmd += ["-i", str(mov)]
+        fc += f";[{last}][{nxt}:v]overlay={x}:{y}:shortest=0[v2]"
+        last = "v2"
+    cmd += ["-filter_complex", fc, "-map", f"[{last}]", "-map", "1:a"]
+    big = w * h > 1920 * 1080
+    cmd += ["-c:v", "libx264", "-preset", "faster" if big else "medium", "-crf", "20" if big else "22", "-pix_fmt", "yuv420p", "-r", str(FPS), "-c:a", "aac", "-b:a", "192k",
             "-ar", "48000", "-t", f"{total:.3f}", "-movflags", "+faststart", str(out)]
     subprocess.run(cmd, check=True)
     return out
@@ -539,14 +596,16 @@ def produce(script: dict) -> dict:
     tlp = plan(script, work)
     script["_plan"] = tlp["segments"]
     au = build_audio(tlp, work, seed)
-    ass = write_ass(tlp, work / "subs.ass", W, H, script["title"])
+    lw, lh = long_res()
+    ass = write_ass(tlp, work / "subs.ass", lw, lh, script["title"])
     out = Paths.renders / f"{slug}.mp4"
-    logger.info(f"[gece] Montaj ({tlp['duration']/60:.1f} dk)")
-    build_video(tlp, work, out, Path(au["mix"]), W, H, ass)
-    th = make_thumbnail(script, out, Paths.thumbnails / slug, clean=work / f"silent_{W}x{H}.mp4")
+    logger.info(f"[gece] Montaj ({tlp['duration']/60:.1f} dk, {lw}x{lh})")
+    build_video(tlp, work, out, Path(au["mix"]), lw, lh, ass, voice=Path(au["voice"]))
+    th = make_thumbnail(script, out, Paths.thumbnails / slug, clean=work / f"silent_{lw}x{lh}.mp4")
     md = metadata(script, "long")
     v = settings()["video"]
-    report = qc.check(out, "long", min_s=v["min_long_seconds"], intelligibility=au.get("intelligibility"), black_pix_th=0.02)
+    report = qc.check(out, "long", min_s=v["min_long_seconds"], intelligibility=au.get("intelligibility"), black_pix_th=0.02,
+                      want=(lw, lh))
     # Sakin içerikte cümle arası duraklamalar uzun; 4 sn sessizlik eşiği ve donma testi yavaş görüntülerde yanlış alarm verebilir
     for k in ("no_long_silence", "no_frozen_video"):
         report["checks"][k] = True
@@ -578,7 +637,7 @@ def produce_short(script: dict, tlp: dict, sh: dict, work: Path, k: int, parent:
     total = au["duration"]
     ass = write_ass(tlp, sw / "subs.ass", 1080, 1920, None, segs=segs, offset=offset, big=True, hook=sh.get("hook"))
     out = Paths.shorts / f"{Path(script['_file']).stem}_s{k}.mp4"
-    build_video(tlp, sw, out, Path(au["mix"]), 1080, 1920, ass, segs=segs, offset=offset, total=total)
+    build_video(tlp, sw, out, Path(au["mix"]), 1080, 1920, ass, segs=segs, offset=offset, total=total, voice=Path(au["voice"]))
     th = make_thumbnail({**script, "thumb_text": sh["title"]}, out, Paths.thumbnails / Path(script["_file"]).stem, portrait=True,
                         prefix=f"short{k}", clean=sw / "silent_1080x1920.mp4")
     md = metadata(script, "short", sh)
@@ -601,7 +660,9 @@ def run_day() -> dict:
     from . import planner
     out: dict = {}
     need = planner.next_production()
-    s = next_script() if need else None
+    s = None
+    if need:  # plandaki günün konusuna (program) uyan senaryo; yoksa sıradaki
+        s = next((x for x in scripts() if x["_file"] == need.get("file")), None) or next_script()
     if not need:
         out["produced"] = None
         out["note"] = "Plan: önümüzdeki günlerin uzun videoları hazır; bugün üretim yapılmadı."
