@@ -108,6 +108,7 @@ PLAN = {
     'boss':  dict(music=[(0, 'battle'), (2.7, 'boss'), (11.6, None), (14.5, 'end')], hits=[(0.2, 11.5)]),
     'guc':   dict(music=[(0, 'menu'), (10.8, 'battle'), (14.8, 'end')], hits=[(10.9, 14.8)]),
     'kombo': dict(music=[(0, 'battle'), (8.0, 'menu'), (10.6, 'battle'), (13.8, 'end')], hits=[(0.2, 8.0), (10.6, 13.8)]),
+    'hikaye': dict(music=[(0, 'battle'), (5.6, 'boss'), (8.8, 'battle'), (11.6, 'end')], hits=[(0.2, 3.0), (4.4, 11.5)]),
 }
 
 def main():

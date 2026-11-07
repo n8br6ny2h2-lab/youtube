@@ -8,7 +8,11 @@
 | `guc` | "Güç: 3.316 😐" | Efsane Sandık → MİTİK! → "En İyisini Giy" → güç uçar → düşmanlar tek vuruş |
 | `kombo` | "Ekranda 90 düşman… 😳" | Bıçaklar, yıldırım, meteorlar → kombo → "Hangisini seçerdin? 👇" → 300+ KOMBO |
 
-Üretmek için: `bash promo/render.sh`. Kapanış kartındaki yazıyı değiştirmek için `PROMO_CTA="Şimdi indir • App Store" bash promo/render.sh` kullan.
+| `hikaye` | "90 düşman. Tek parmak ☝️" | **15 sn** Instagram hikâyesi: sürü → hazine sandığında evrim → boss → Sonsuz Arena (Dalga 23) → sezon kostümlü kapanış |
+
+Üretmek için: `bash promo/render.sh` (hikâye için `bash promo/render.sh hikaye`).
+
+**Reklam görseli** (Instagram akış 4:5, 1080×1350): `node promo/ad-image.cjs store/instagram/efsun-reklam-4x5.png` (önce `python3 -m http.server 8765` ile oyunu sun). Gerçek savaş karesi + logo, 3 özellik ve çağrı düğmesi. Kapanış kartındaki yazıyı değiştirmek için `PROMO_CTA="Şimdi indir • App Store" bash promo/render.sh` kullan.
 
 **Nasıl çalışır?** `capture.cjs` oyunu tarayıcıda açar ve oyunun saatini dışarıdan ilerletir. Böylece her kare tek tek çekilir; kare atlaması ya da takılma olmaz. Yazılar oyunun kendi yazı tipiyle sahnenin üstüne çizilir. `audio.py` oyunun müziğini aynı akor ve tempoyla üretir ve efektleri sahne olaylarına senkronlar.
 

@@ -1,7 +1,7 @@
 // Efsun Avcısı — Instagram Reels/Hikâye tanıtım videoları (1080x1920, 30 FPS)
 // Oyunun saatini dışarıdan ilerletip her kareyi tek tek çeker (takılmasız, kare kaybı yok).
 // Kullanım: node promo/capture.cjs <video-adı> <çıktı-klasörü> [oyun-adresi]
-//   video-adı: boss | guc | kombo
+//   video-adı: boss | guc | kombo | hikaye (15 sn Instagram hikâyesi: evrim, boss, arena, sezon)
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
@@ -34,6 +34,7 @@ function harness() {
   #promo .end canvas{width:180px;height:190px}
   #promo .end .cta{margin-top:2px;padding:10px 22px;border-radius:16px;background:linear-gradient(#22c55e,#15803d);color:#fff;font-size:22px;box-shadow:0 6px 0 #14532d}
   #promo .end .sm{font-family:Nunito,system-ui;font-weight:800;color:#e9d5ff;font-size:15px;opacity:.9}
+  #promo .end .sm2{font-family:Nunito,system-ui;font-weight:900;color:#fde68a;font-size:17px;text-shadow:0 2px 0 #1a0b05}
   #promo .flash{position:absolute;inset:0;background:#fff}`;
   addEventListener('DOMContentLoaded', () => {
     const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
@@ -58,6 +59,7 @@ function harness() {
         const k = t - this.end.t0, o = Math.min(1, k / 0.25), s = k < 0.35 ? back(k / 0.35) : 1;
         html += `<div class="end" style="opacity:${o}"><div style="transform:scale(${s});display:flex;flex-direction:column;align-items:center;gap:10px">
           <div class="l1">EFSUN</div><div class="l2">AVCISI</div><canvas id="endcv" class="hero-cv" data-hero="kaya" data-w="sword" data-pet="drake" data-color="#fde68a"></canvas>
+          ${this.end.skin ? '<div class="sm2">👑 Her ay yeni sezon • Kalıcı kostüm</div>' : ''}
           <div class="cta" style="transform:scale(${1 + Math.max(0, Math.sin(k * 6)) * 0.05})">${this.end.cta}</div>
           <div class="sm">Tek parmakla aksiyon RPG • Oyun içi görüntüler</div></div></div>`;
       }
@@ -67,7 +69,8 @@ function harness() {
         cv.width = 180 * dpr; cv.height = 190 * dpr; const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
         x.fillStyle = 'rgba(0,0,0,.35)'; x.beginPath(); x.ellipse(90, 172, 50, 12, 0, 0, 7); x.fill();
         const cyc = t % 2.2, atk = cyc < 0.35 ? 1 - cyc / 0.35 : 0;
-        window.__art.drawHero(x, 'kaya', 82, 134, 2.7, { t, walk: 0, moving: false, aim: -0.25, atk, hurt: 0, wtype: 'sword' });
+        if (this.end.skin) window.__art.drawAura(x, this.end.skin, 82, 134 + 15 * 2.7, 2.7, t);
+        window.__art.drawHero(x, 'kaya', 82, 134, 2.7, { t, walk: 0, moving: false, aim: -0.25, atk, hurt: 0, wtype: 'sword', skin: this.end.skin || null });
         window.__art.drawPet(x, 'drake', 146, 52, 2.1, t, false);
       }
     } };
@@ -219,6 +222,45 @@ function harness() {
     await play(3.2, horde);
     await p.evaluate(([t, cta]) => { window.__promo.end = { t0: t, cta }; }, [T, CTA]); ev('end');
     await play(3.2);
+  }
+
+  if (NAME === 'hikaye') {
+    // 15,0 sn: sürü (3,0) → evrim (2,6) → boss (3,2) → arena (2,8) → kapanış (3,4)
+    await lateGame(); await clean();
+    await startBattle(3, 6, { multishot: 2, diag: 1 });
+    await p.evaluate(() => { const g = __efsun.game; g.st.atk = Math.round(g.st.atk * 0.3);
+      for (const id of ['orb', 'orb', 'orb', 'orb', 'atk', 'blade', 'blade']) { g.pendingLv++; g.chooseSkill(id); } g.pendingLv = 0;
+      g.gainXp = () => {}; const od = g.drop.bind(g); g.drop = (t, ...r) => t === 'chest' ? null : od(t, ...r); // evrim sahnesinden önce sandık düşmesin
+      for (let i = 0; i < 70; i++) g.spawn(); });
+    const horde = `(i, T) => { ${circleDrive.slice(circleDrive.indexOf('{') + 1, circleDrive.lastIndexOf('}'))}; const gm = __efsun.game; if (gm.enemies.length < 70) for (let j = 0; j < 5; j++) gm.spawn(); }`;
+    await cap(0.05, 2.85, '90 düşman.<br>Tek parmak ☝️', { pos: 'top', size: 48, cls: 'gold' });
+    await play(3.0, horde);
+    // gerçek hazine sandığı penceresi: hazır evrim kesin çıkar
+    await p.evaluate(() => { const g = __efsun.game; g.cfg.onLevelUp = window.__luOrig; g.nextChest = 1; g.pendingLv = 1; g.levelUp(); });
+    ev('level');
+    await play(1.2);
+    await p.evaluate(() => { document.querySelector('.levelup .skill.evo, .levelup .skill')?.click(); __efsun.game.cfg.onLevelUp = (c, cb) => cb(c[0].id); });
+    ev('legend'); await flash(T);
+    await cap(T + 0.05, 1.35, 'Güçlerini<br>EVRİMLEŞTİR 🧬', { pos: 'mid', size: 44, cls: 'gold' });
+    await play(1.4, horde);
+    // boss: sarmal mermi deseni
+    await p.evaluate(() => { const g = __efsun.game; g.wave = 10; g.waveT = 3; g.bossSpawned = false; g.bossActive = false; g.spawnBoss();
+      const b = g.boss; b.x = g.p.x + 10; b.y = g.p.y - 135; b.maxHp = b.hp = g.baseDmg() * 400; b.patterns = ['spiral', 'radial']; b.speed = 0; b.pt = 0.5; g.banner.t = 0; });
+    ev('boss'); await flash(T);
+    await cap(T + 0.2, 2.9, 'Dev bosslar 🐉', { pos: 'bottom', size: 52 });
+    await play(3.2, circleDrive);
+    // arena: dalga 23, yeni rekor
+    await p.evaluate(() => { __efsun.game.destroy(); __efsun.S.energy = 30; __efsun.startBattle(1, { arena: true }); const g = __efsun.game;
+      g.zoom = 0.96; g.perf.checked = 99; g.cfg.quality = 'high'; g.cfg.onLevelUp = (c, cb) => cb(c[0].id); g.gainXp = () => {};
+      g.p.maxHp = Math.max(g.p.maxHp, 9800); g.p.hp = g.p.maxHp; document.querySelectorAll('#tut').forEach(e => e.remove());
+      for (let i = 0; i < 22; i++) { if (g.boss) { g.boss.dead = true; g.boss = null; g.bossActive = false; } g.nextWave(); }
+      for (const id of ['meteor', 'meteor', 'bolt', 'bolt', 'frost', 'blade', 'blade']) { g.pendingLv++; g.chooseSkill(id); } g.pendingLv = 0;
+      g.st.atk = Math.round(g.st.atk * 0.5); g.healP = () => {};
+      for (let i = 0; i < 65; i++) g.spawn(); g.banner = { text: 'Dalga 23', sub: '🔥 YENİ REKOR!', t: 2.2 }; });
+    await cap(T, 2.7, 'Sonsuz<br>ARENA 🏟️', { pos: 'bottom', size: 50, cls: 'gold' });
+    await play(2.8, horde);
+    await p.evaluate(([t, cta]) => { window.__promo.end = { t0: t, cta, skin: 'awaken' }; }, [T, CTA]); ev('end');
+    await play(3.4);
   }
 
   fs.writeFileSync(path.join(OUT, 'events.json'), JSON.stringify({ name: NAME, fps: FPS, frames: F, duration: +(F / FPS).toFixed(3), events }, null, 1));
