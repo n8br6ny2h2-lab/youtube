@@ -26,23 +26,11 @@
       [
         "fri",
         "21:30"
-      ],
-      [
-        "sat",
-        "21:30"
       ]
     ],
     "shorts": [
       [
-        "mon",
-        "20:30"
-      ],
-      [
         "tue",
-        "20:30"
-      ],
-      [
-        "wed",
         "20:30"
       ],
       [
@@ -71,8 +59,10 @@
   "program": {
     "mon": "space",
     "wed": "animals",
-    "fri": "curiosity",
-    "sat": "relax"
+    "fri": [
+      "curiosity",
+      "relax"
+    ]
   },
   "program_names": {
     "space": "Evrenin Sessizliği (uzay)",

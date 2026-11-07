@@ -145,6 +145,8 @@ def build(offset: int = 1) -> dict:
             if gece:
                 prog = settings().get("program", {})
                 cat = prog.get(["mon", "tue", "wed", "thu", "fri", "sat", "sun"][s["local"].weekday()])
+                if isinstance(cat, list):  # dönüşümlü gün (ör. Cuma: merak / rahatlatıcı, haftaya göre)
+                    cat = cat[int(s["local"].strftime("%V")) % len(cat)]
                 sc = next((x for x in pending_scripts if x.get("category") == cat), None) or \
                     (pending_scripts[0] if pending_scripts and not cat else None)
                 if sc:

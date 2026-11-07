@@ -8,7 +8,7 @@
     "fps": 30,
     "min_long_seconds": 60,
     "target_long_seconds": 150,
-    "shorts_per_long": 3,
+    "shorts_per_long": 2,
     "shorts_min_seconds": 15,
     "shorts_max_seconds": 60
   },
@@ -36,6 +36,10 @@
         "18:00"
       ],
       [
+        "thu",
+        "18:00"
+      ],
+      [
         "sun",
         "18:00"
       ]
@@ -46,16 +50,8 @@
         "19:00"
       ],
       [
-        "tue",
-        "12:00"
-      ],
-      [
         "wed",
         "19:00"
-      ],
-      [
-        "thu",
-        "12:00"
       ],
       [
         "fri",
@@ -66,7 +62,7 @@
         "12:00"
       ],
       [
-        "sun",
+        "sat",
         "19:00"
       ]
     ],

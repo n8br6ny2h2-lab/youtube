@@ -8,14 +8,13 @@
 - **Görüntü:** 4K (3840×2160). Kaynaklar NASA (kamu malı) ile Pexels ve Pixabay (ücretsiz, ticari kullanım serbest).
   Her klibin lisansı veritabanına kaydedilir.
 
-## Haftalık program (İstanbul saati)
-| Gün | 21:30 uzun bölüm | Konu |
+## Haftalık program (İstanbul saati) · haftada 3 uzun + 5 Shorts
+| Gün | Saat | İçerik |
 |---|---|---|
-| Pazartesi | 🌌 Evrenin Sessizliği | Uzay, gezegenler, yıldızlar |
-| Çarşamba | 🦉 Hayvanlar Âlemi | Gece hayvanları, göçler, okyanus canlıları, hayvan zekâsı |
-| Cuma | 🧠 Merak Kütüphanesi | İnsan bedeni, uyku ve beyin, tarih, doğa olayları, gündelik bilim |
-| Cumartesi | 🫧 Rahatlatıcı 4K | Suda mürekkep, akışkan sanat, kinetik kum, bal, lav lambası, köpük, yağmur görüntüleri ve bunları neden rahatlatıcı bulduğumuzun bilimi |
-| Her gün 20:30 | Shorts: "Bilge'den bir bilgi" | Uzun bölümlerden 50–60 saniyelik ilginç bilgiler |
+| Pazartesi | 21:30 | 🌌 Evrenin Sessizliği (uzay) |
+| Çarşamba | 21:30 | 🦉 Hayvanlar Âlemi |
+| Cuma | 21:30 | Dönüşümlü: 🧠 Merak Kütüphanesi (çift hafta) / 🫧 Rahatlatıcı 4K slime & makro (tek hafta) |
+| Salı, Perşembe, Cuma, Cumartesi, Pazar | 20:30 | Shorts: "Bilge'den bir bilgi" |
 
 Ayrıca her ayın ilk Pazar günü 2–3 saatlik **"Uzun Uyku" derlemesi** yayınlanacak: o ayın bölümleri arka arkaya, reklamsız akış hissiyle.
 Bu biçim uyku ve arka plan dinleme kitlesinde izlenme süresini en çok artıran biçim olarak öne çıkıyor.
