@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 216">
+  <defs>
+    <linearGradient id="kg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fcd34d"/><stop offset="1" stop-color="#b45309"/></linearGradient>
+    <linearGradient id="ki" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient>
+    <linearGradient id="kk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#fbbf24"/></linearGradient>
+  </defs>
+  <path d="M30 40 L170 170" stroke="#e2e8f0" stroke-width="7" stroke-linecap="round"/>
+  <path d="M170 40 L30 170" stroke="#e2e8f0" stroke-width="7" stroke-linecap="round"/>
+  <path d="M22 32 l20 2 l-2 20z" fill="#e2e8f0"/><path d="M178 32 l-20 2 l2 20z" fill="#e2e8f0"/>
+  <path d="M100 20 L168 44 L164 120 C160 160 130 186 100 200 C70 186 40 160 36 120 L32 44 Z" fill="url(#kg)"/>
+  <path d="M100 34 L156 54 L152 120 C148 152 126 172 100 184 C74 172 52 152 48 120 L44 54 Z" fill="url(#ki)"/>
+  <path d="M74 68 h21 v32 l27 -32 h25 l-33 37 l35 41 h-26 l-22 -27 l-6 7 v20 h-21z" fill="url(#kk)" stroke="#78350f" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M100 4 l5 10 l11 2 l-8 8 l2 11 l-10 -5 l-10 5 l2 -11 l-8 -8 l11 -2z" fill="#fde68a"/>
+</svg>
