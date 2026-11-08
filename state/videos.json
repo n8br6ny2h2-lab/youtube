@@ -46,7 +46,7 @@
    "status": "scheduled",
    "title": "Tombi ile Minik Tohum Kocaman Çiçek 🌷 | Çocuk Çizgi Filmi | Bulutkent",
    "path": "renders/5de3a29d9e3b4f6d.mp4",
-   "slot_local": "2026-11-12T18:00:00+03:00",
+   "slot_local": "2026-11-10T18:00:00+03:00",
    "youtube_id": null,
    "privacy": null
   },
@@ -66,7 +66,7 @@
    "status": "scheduled",
    "title": "Bu minicik tohum gerçekten kocaman bir çiçek… 🌷 #shorts",
    "path": "shorts/5de3a29d9e3b4f6d_s2.mp4",
-   "slot_local": "2026-11-10T12:00:00+03:00",
+   "slot_local": "2026-11-11T19:00:00+03:00",
    "youtube_id": null,
    "privacy": null
   },
@@ -106,7 +106,7 @@
    "status": "scheduled",
    "title": "Bu bilmeceyi bilir misin? 🧩 #shorts",
    "path": "shorts/bc5e2e96ff3f29d6_s2.mp4",
-   "slot_local": "2026-11-15T19:00:00+03:00",
+   "slot_local": "2026-11-14T19:00:00+03:00",
    "youtube_id": null,
    "privacy": null
   },
@@ -126,7 +126,7 @@
    "status": "scheduled",
    "title": "Pofi ile Büyük Dans Gösterisi 🎶 | Çocuk Çizgi Filmi | Bulutkent",
    "path": "renders/bc4634b844912a6e.mp4",
-   "slot_local": "2026-11-15T18:00:00+03:00",
+   "slot_local": "2026-11-12T18:00:00+03:00",
    "youtube_id": null,
    "privacy": null
   },
@@ -136,7 +136,7 @@
    "status": "scheduled",
    "title": "Müzik ve dans: büyük final! 🎶 #shorts",
    "path": "shorts/bc4634b844912a6e_s1.mp4",
-   "slot_local": "2026-11-11T19:00:00+03:00",
+   "slot_local": "2026-11-18T19:00:00+03:00",
    "youtube_id": null,
    "privacy": null
   },
@@ -146,7 +146,7 @@
    "status": "scheduled",
    "title": "Bu akşam büyük dans gösterisi var ama… 🎶 #shorts",
    "path": "shorts/bc4634b844912a6e_s2.mp4",
-   "slot_local": "2026-11-12T12:00:00+03:00",
+   "slot_local": "2026-11-20T19:00:00+03:00",
    "youtube_id": null,
    "privacy": null
   },
@@ -156,7 +156,7 @@
    "status": "scheduled",
    "title": "Buldum! Davul! Rengi kırmızı! 🎶 #shorts",
    "path": "shorts/bc4634b844912a6e_s3.mp4",
-   "slot_local": "2026-11-17T12:00:00+03:00",
+   "slot_local": "2026-11-21T12:00:00+03:00",
    "youtube_id": null,
    "privacy": null
   },
@@ -166,7 +166,7 @@
    "status": "scheduled",
    "title": "Bobo ile Ritim Zamanı: Alkış, Tap ve Ördek Dansı 🥁 | Çocuk Çizgi Filmi | Bulutkent",
    "path": "renders/71a6ec9c86a88ab2.mp4",
-   "slot_local": "2026-11-10T18:00:00+03:00",
+   "slot_local": "2026-11-15T18:00:00+03:00",
    "youtube_id": null,
    "privacy": null
   },
@@ -186,9 +186,79 @@
    "status": "scheduled",
    "title": "Alkış, alkış, tap, tap! 🥁 #shorts",
    "path": "shorts/71a6ec9c86a88ab2_s2.mp4",
-   "slot_local": "2026-11-19T12:00:00+03:00",
+   "slot_local": "2026-11-21T19:00:00+03:00",
    "youtube_id": null,
    "privacy": null
+  },
+  {
+   "id": 30,
+   "kind": "long",
+   "status": "scheduled",
+   "title": "Tombi ve Kayıp Renkler 🌈 | Çocuk Çizgi Filmi | Bulutkent",
+   "path": "renders/1e1d0a40a7c954ee.mp4",
+   "slot_local": "2026-11-17T18:00:00+03:00",
+   "youtube_id": null,
+   "privacy": null
+  },
+  {
+   "id": 31,
+   "kind": "short",
+   "status": "scheduled",
+   "title": "Aaa! Gökkuşağının renkleri nereye gitti? 🌈 #shorts",
+   "path": "shorts/1e1d0a40a7c954ee_s1.mp4",
+   "slot_local": "2026-11-23T19:00:00+03:00",
+   "youtube_id": null,
+   "privacy": null
+  },
+  {
+   "id": 32,
+   "kind": "short",
+   "status": "scheduled",
+   "title": "Gökkuşağı geri geldi! 🌈 #shorts",
+   "path": "shorts/1e1d0a40a7c954ee_s2.mp4",
+   "slot_local": "2026-11-25T19:00:00+03:00",
+   "youtube_id": null,
+   "privacy": null
+  },
+  {
+   "id": 33,
+   "kind": "short",
+   "status": "scheduled",
+   "title": "Sarı rengini bulduk! 🌈 #shorts",
+   "path": "shorts/1e1d0a40a7c954ee_s3.mp4",
+   "slot_local": "2026-11-27T19:00:00+03:00",
+   "youtube_id": null,
+   "privacy": null
+  },
+  {
+   "id": 34,
+   "kind": "long",
+   "status": "uploaded",
+   "title": "Tombi ile Dört Havuç Sayalım 🔢 | Çocuk Çizgi Filmi | Bulutkent",
+   "path": "renders/af41b0854e0b7342.mp4",
+   "slot_local": null,
+   "youtube_id": "6J8LL9sax5g",
+   "privacy": "private"
+  },
+  {
+   "id": 35,
+   "kind": "short",
+   "status": "scheduled",
+   "title": "Bir eksik! Ne yapacağız? 🔢 #shorts",
+   "path": "shorts/af41b0854e0b7342_s1.mp4",
+   "slot_local": "2026-11-28T12:00:00+03:00",
+   "youtube_id": null,
+   "privacy": null
+  },
+  {
+   "id": 36,
+   "kind": "short",
+   "status": "uploaded",
+   "title": "Bugün büyük piknik günü! Ama kaç havuç lazım? 🔢 #shorts",
+   "path": "shorts/af41b0854e0b7342_s2.mp4",
+   "slot_local": null,
+   "youtube_id": "uXqq510f3q4",
+   "privacy": "private"
   }
  ],
  "gece": [
@@ -221,6 +291,36 @@
    "slot_local": "2026-11-08T20:30:00+03:00",
    "youtube_id": "r098AlaSBD8",
    "privacy": "private"
+  },
+  {
+   "id": 4,
+   "kind": "long",
+   "status": "uploaded",
+   "title": "Uyurken Beynimizde Neler Olur? 🌙 Uykudan Önce Dinle | Gece Kütüphanesi",
+   "path": "channels/gece/renders/005-uyurken-beynimizde-neler-olur.mp4",
+   "slot_local": null,
+   "youtube_id": "LR3uAMnT1WI",
+   "privacy": "private"
+  },
+  {
+   "id": 5,
+   "kind": "short",
+   "status": "uploaded",
+   "title": "Beyin Uyurken Kendini Temizler 🌙 #shorts",
+   "path": "channels/gece/shorts/005-uyurken-beynimizde-neler-olur_s1.mp4",
+   "slot_local": null,
+   "youtube_id": "TBYstVadQCU",
+   "privacy": "private"
+  },
+  {
+   "id": 6,
+   "kind": "short",
+   "status": "scheduled",
+   "title": "Rüyada Neden Koşmayız? 🌙 #shorts",
+   "path": "channels/gece/shorts/005-uyurken-beynimizde-neler-olur_s2.mp4",
+   "slot_local": "2026-11-10T20:30:00+03:00",
+   "youtube_id": null,
+   "privacy": null
   }
  ]
 }
