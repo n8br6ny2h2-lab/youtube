@@ -168,8 +168,10 @@ def pixabay_clips(query: str, need: int, used: set, target_w: int = 1920) -> lis
         vid = f"pb{v['id']}"
         if vid in used or v.get("duration", 0) < 6:
             continue
-        if checked < 15 and not _looks_like(v, query):  # görsel doğrulama (Gemini): etiket yanıltıcı olabilir
-            checked += 1
+        if checked >= 15:  # çok aday reddedildiyse doğrulanmamış klip kullanmak yerine dur (çizim yedeği devreye girer)
+            break
+        checked += 1
+        if not _looks_like(v, query):  # görsel doğrulama (Gemini): etiket yanıltıcı olabilir
             continue
         vs = [x for x in (v.get("videos") or {}).values() if x.get("url") and x.get("width", 0) >= 1280 and x["width"] > x.get("height", 0)]
         if not vs:
