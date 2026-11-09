@@ -5,7 +5,8 @@
 | Dosya | Kullanım |
 |---|---|
 | `kavcilab_logo.png` | YouTube profil resmi (yazısız amblem) |
-| `kavcilab_logo_yazili.png` | Kapak görseli, video açılışı, bitiş ekranı |
+| `kavcilab_logo_yazili.png` | Video açılışı, bitiş ekranı |
+| `kavcilab_banner_2560x1440.png` | YouTube kapak görseli (yazılar güvenli alanın içinde) |
 
 ## Renkler
 | Renk | Kod |
