@@ -16,6 +16,9 @@ Son güncelleme: 10 Kasım 2026
 - Kalite kuralı: en az Full HD, tercihen 4K. Kontrolden geçmeyen klip kullanılmaz.
 - GitHub Actions yok, zamanlanmış iş yok, sık push yok.
 
+## Sıradaki iş
+Video 1 (kara delik): ilk dakika hazır (scratchpad, repoda değil). Kalan ~7 dakika, müzik, altyazı, kapak ve 3 Shorts yapılacak; sonra yükleme paketi verilecek.
+
 ## Açık işler
 1. Pexels anahtarı: ortamda kayıtlı görünmüyor (10 Kasım kontrolü). Gizli anahtar olarak yeniden eklenmeli: api.pexels.com, Authorization, ön ek boş.
 2. Pixabay anahtarı: `PIXABAY_API_KEY` ortam değişkeni olarak KAYDEDİLDİ (10 Kasım). Yeni sohbette test et: curl "https://pixabay.com/api/videos/?key=$PIXABAY_API_KEY&q=galaxy"

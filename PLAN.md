@@ -35,3 +35,10 @@ Yayın günü önerisi: uzun video Salı veya Perşembe; Shorts haftaya yayılı
 - GitHub Actions yok, zamanlanmış iş yok, sık push yok.
 - Her video Kerem'in onayından geçer; yükleme Kerem tarafından yapılır.
 - Lisansı ticari kullanıma uygun olmayan hiçbir görüntü kullanılmaz; kaynaklar açıklamaya yazılır.
+
+## Yükleme paketi (her video için)
+Claude hazırlar, Kerem iPhone'daki YouTube Studio'dan elle yükler ve yayın saatini YouTube'un "zamanla" özelliğiyle ayarlar.
+- Video dosyası (kalite kontrolünden geçmiş), kapak resmi (1280x720)
+- Başlık, açıklama (bölümler + kaynaklar), etiketler, altyazı (SRT)
+- 3 Shorts, her biri kendi başlık ve açıklamasıyla
+API ile otomatik yükleme yok (karar: 10 Kasım 2026). İleride ancak Kerem isterse ve YouTube API denetimi geçilirse değerlendirilir.
