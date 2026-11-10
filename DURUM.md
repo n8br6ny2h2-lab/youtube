@@ -17,8 +17,10 @@ Son güncelleme: 10 Kasım 2026
 - GitHub Actions yok, zamanlanmış iş yok, sık push yok.
 
 ## Açık işler
-1. Pexels anahtarı: gizli anahtar olarak eklendi (api.pexels.com, Authorization, ön ek boş), ama testte çalışmadı. Yeni sohbette tekrar test et.
-2. Pixabay anahtarı: `PIXABAY_API_KEY` ortam değişkeni olarak eklenecek, yeni sohbette test et.
+1. Pexels anahtarı: ortamda kayıtlı görünmüyor (10 Kasım kontrolü). Gizli anahtar olarak yeniden eklenmeli: api.pexels.com, Authorization, ön ek boş.
+2. Pixabay anahtarı: ortamda kayıtlı görünmüyor. `PIXABAY_API_KEY` ortam değişkeni olarak eklenmeli, yeni sohbette test edilmeli.
+- Gelişmiş YouTube özellikleri açıldı (3/3 Enabled).
+- Ek 4K kaynaklar açık ve test edildi: ESA/Hubble, ESA/Webb, ESO, Mixkit.
 3. Anlatıcı ses kararı: ücretli yapay zekâ sesi / ücretsiz ses / Kerem'in sesi.
 4. Render: tam video için kiralık GPU önerildi, karar bekleniyor.
 5. Ortamın kurulum betiği eski Bulutkent sistemine ait ve hata veriyor; sadeleştirilecek.

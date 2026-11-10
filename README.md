@@ -15,4 +15,6 @@ Kontrolden geçmeyen hiçbir şey videoya girmez ve YouTube'a yüklenmez.
 
 ## Görüntü kaynakları
 - NASA (images.nasa.gov, svs.gsfc.nasa.gov): ücretsiz; açıklamada "Visualization: NASA Goddard" gibi kaynak yazılır, NASA logosu kullanılmaz.
+- ESA/Hubble (esahubble.org), ESA/Webb (esawebb.org), ESO (eso.org): 4K, CC BY 4.0; açıklamaya kaynak yazılır (örn. "Credit: ESO/L. Calçada").
+- Mixkit (mixkit.co): ücretsiz stok lisansı, 4K.
 - Pexels / Pixabay: ücretsiz lisans; API anahtarı ortam ayarlarından girilir, sohbete yazılmaz.
