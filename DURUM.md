@@ -18,7 +18,7 @@ Son güncelleme: 10 Kasım 2026
 
 ## Açık işler
 1. Pexels anahtarı: ortamda kayıtlı görünmüyor (10 Kasım kontrolü). Gizli anahtar olarak yeniden eklenmeli: api.pexels.com, Authorization, ön ek boş.
-2. Pixabay anahtarı: ortamda kayıtlı görünmüyor. `PIXABAY_API_KEY` ortam değişkeni olarak eklenmeli, yeni sohbette test edilmeli.
+2. Pixabay anahtarı: `PIXABAY_API_KEY` ortam değişkeni olarak KAYDEDİLDİ (10 Kasım). Yeni sohbette test et: curl "https://pixabay.com/api/videos/?key=$PIXABAY_API_KEY&q=galaxy"
 - Gelişmiş YouTube özellikleri açıldı (3/3 Enabled).
 - Ek 4K kaynaklar açık ve test edildi: ESA/Hubble, ESA/Webb, ESO, Mixkit.
 3. Anlatıcı ses kararı: ücretli yapay zekâ sesi / ücretsiz ses / Kerem'in sesi.
