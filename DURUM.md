@@ -21,6 +21,7 @@ Son güncelleme: 10 Kasım 2026
 2. Pixabay anahtarı: `PIXABAY_API_KEY` ortam değişkeni olarak KAYDEDİLDİ (10 Kasım). Yeni sohbette test et: curl "https://pixabay.com/api/videos/?key=$PIXABAY_API_KEY&q=galaxy"
 - Gelişmiş YouTube özellikleri açıldı (3/3 Enabled).
 - Ek 4K kaynaklar açık ve test edildi: ESA/Hubble, ESA/Webb, ESO, Mixkit.
-3. Anlatıcı ses kararı: ücretli yapay zekâ sesi / ücretsiz ses / Kerem'in sesi.
+3. Anlatıcı ses: ElevenLabs Creator, George sesi (config/ses.json). Anahtar gizli anahtar olarak kayıtlı ve çalışıyor.
 4. Render: tam video için kiralık GPU önerildi, karar bekleniyor.
 5. Ortamın kurulum betiği eski Bulutkent sistemine ait ve hata veriyor; sadeleştirilecek.
+6. İleride: Shorts videoları TikTok ve Instagram Reels'e de konacak (YouTube oturduktan sonra).
