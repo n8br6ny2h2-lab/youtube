@@ -17,7 +17,10 @@ Son güncelleme: 10 Kasım 2026
 - GitHub Actions yok, zamanlanmış iş yok, sık push yok.
 
 ## Sıradaki iş
-Video 1 (kara delik): ilk dakika hazır (scratchpad, repoda değil). Kalan ~7 dakika, müzik, altyazı, kapak ve 3 Shorts yapılacak; sonra yükleme paketi verilecek.
+- Short 1 (spagettileşme) HAZIR: tarif `videos/01-black-hole/build/short1.py`, metinler `videos/01-black-hole/yukleme/`. Yayın 11 Kasım 18:00.
+- Sırada: Short 2 (olay ufku, 13 Kas), Short 3 (zaman yavaşlaması, 16 Kas), uzun video (18 Kas; Kerem hafta sonu izler).
+- Müzik: telif sorunu olmasın diye kendi ürettiğimiz ambiyans müzik (`tools/muzik_ambient.py`). Mixkit müzik sayfası hız sınırı veriyor.
+- TikTok: Kerem Shorts'ları TikTok'ta da paylaşıyor (10 Kasım kararı). Her Short için TikTok açıklaması da yazılır.
 
 ## Açık işler
 1. Pexels anahtarı: ortamda kayıtlı görünmüyor (10 Kasım kontrolü). Gizli anahtar olarak yeniden eklenmeli: api.pexels.com, Authorization, ön ek boş.

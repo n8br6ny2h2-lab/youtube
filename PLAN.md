@@ -11,15 +11,26 @@
 8. Shorts: her videodan 3-4 dikey kısa video (9:16, 30-50 sn).
 9. Kerem izler, onaylar ve YouTube Studio'dan kendisi yükler.
 
-## İlk ay takvimi
-| Hafta | Uzun video | Shorts |
-|---|---|---|
-| 1 | What Would Happen If You Fell Into a Black Hole? | 3: spagettileşme, olay ufku, zaman yavaşlaması |
-| 2 | How Does a Jet Engine Actually Work? | 3 |
-| 3 | How Do Rockets Escape Earth's Gravity? | 3 |
-| 4 | How Does GPS Know Exactly Where You Are? | 3 |
+## İlk ay takvimi (10 Kasım'da Kerem onayladı)
+Yayın saati hep **18:00 (Türkiye)**. Kerem en geç 16:00'da yükleyip YouTube'un "zamanla" özelliğiyle ayarlar. Aynı videolar TikTok'ta da paylaşılır.
+Düzen: **Çarşamba uzun video; Cuma, Pazar, Salı Shorts.** (İlk hafta istisna: Shorts önce çıkar.)
 
-Yayın günü önerisi: uzun video Salı veya Perşembe; Shorts haftaya yayılır.
+| Tarih | Ne |
+|---|---|
+| 11 Kas Çar | Short 1: Spaghettification |
+| 13 Kas Cum | Short 2: Olay ufku |
+| 16 Kas Pzt | Short 3: Zaman yavaşlaması |
+| 18 Kas Çar | Uzun: What Would Happen If You Fell Into a Black Hole? |
+| 20 / 22 / 24 Kas | 3 ek kara delik Short'u |
+| 25 Kas Çar | Uzun: How Does a Jet Engine Actually Work? |
+| 27 / 29 Kas, 1 Ara | 3 jet motoru Short'u |
+| 2 Ara Çar | Uzun: How Do Rockets Escape Earth's Gravity? |
+| 4 / 6 / 8 Ara | 3 roket Short'u |
+| 9 Ara Çar | Uzun: How Does GPS Know Exactly Where You Are? |
+| 11 / 13 / 15 Ara | 3 GPS Short'u |
+| 16 Ara | Ay sonu değerlendirmesi |
+
+Hatırlatmalar: `takvim/kavcilab_yayin.ics` (iPhone Takvim'e eklenir; her yayından 2 saat önce ve yayın anında uyarır). Zamanlanmış iş kurulmaz.
 
 ## Ay sonu değerlendirmesi
 - İzlenme, izlenme süresi, tıklanma oranı (CTR), abone.
