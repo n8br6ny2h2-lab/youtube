@@ -6,6 +6,7 @@
 |---|---|
 | `kavcilab_logo.png` | YouTube profil resmi (yazısız amblem) |
 | `kavcilab_logo_yazili.png` | Video açılışı, bitiş ekranı |
+| `kavcilab_filigran_300.png` | Video filigranı (yuvarlak, şeffaf köşeler) |
 | `kavcilab_banner_2560x1440.png` | YouTube kapak görseli (yazılar güvenli alanın içinde) |
 
 ## Renkler
