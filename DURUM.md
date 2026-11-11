@@ -18,7 +18,8 @@ Son güncelleme: 10 Kasım 2026
 
 ## Sıradaki iş
 - Short 1 (spagettileşme) HAZIR: tarif `videos/01-black-hole/build/short1.py`, metinler `videos/01-black-hole/yukleme/`. Yayın 11 Kasım 18:00.
-- Sırada: Short 2 (olay ufku, 13 Kas), Short 3 (zaman yavaşlaması, 16 Kas), uzun video (18 Kas; Kerem hafta sonu izler).
+- Karar (11 Kas): her gün Short, haftada 1 uzun video (Çarşamba). Ayrıntı PLAN.md.
+- Sırada: Short 2 (12 Kas), Short 3 (13 Kas), sonra uzun videonun tam sesi; kalan kara delik Short'ları o sesten kesilir. Uzun video 18 Kas.
 - Müzik: telif sorunu olmasın diye kendi ürettiğimiz ambiyans müzik (`tools/muzik_ambient.py`). Mixkit müzik sayfası hız sınırı veriyor.
 - TikTok: Kerem Shorts'ları TikTok'ta da paylaşıyor (10 Kasım kararı). Her Short için TikTok açıklaması da yazılır.
 

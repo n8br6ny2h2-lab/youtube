@@ -11,26 +11,26 @@
 8. Shorts: her videodan 3-4 dikey kısa video (9:16, 30-50 sn).
 9. Kerem izler, onaylar ve YouTube Studio'dan kendisi yükler.
 
-## İlk ay takvimi (10 Kasım'da Kerem onayladı)
-Yayın saati hep **18:00 (Türkiye)**. Kerem en geç 16:00'da yükleyip YouTube'un "zamanla" özelliğiyle ayarlar. Aynı videolar TikTok'ta da paylaşılır.
-Düzen: **Çarşamba uzun video; Cuma, Pazar, Salı Shorts.** (İlk hafta istisna: Shorts önce çıkar.)
+## İlk ay takvimi (11 Kasım'da Kerem onayladı: her gün Short, haftada 1 uzun video)
+- **Uzun video: her Çarşamba 18:00 (Türkiye).**
+- **Short: her gün 18:00.** Çarşamba günleri Short 12:00'de çıkar (uzun videoyla çakışmasın).
+- Her uzun videodan 7 Short çıkar. Short'lar uzun videonun sesinden kesilir, ek ElevenLabs karakteri harcanmaz.
+- Bir konunun Short'ları Pazar'dan Cumartesi'ye yayınlanır (uzun video haftanın ortasında).
+- Kerem her Pazar 11:00'de haftanın paketini (1 uzun + 7 Short) YouTube Studio'ya yükleyip her birini kendi gününe zamanlar. TikTok'ta her gün 18:00'de paylaşır.
+- Hazırlık: Claude Pazartesi–Cuma bir sonraki konuyu hazırlar, Kerem Cumartesi izleyip onaylar.
 
-| Tarih | Ne |
-|---|---|
-| 11 Kas Çar | Short 1: Spaghettification |
-| 13 Kas Cum | Short 2: Olay ufku |
-| 16 Kas Pzt | Short 3: Zaman yavaşlaması |
-| 18 Kas Çar | Uzun: What Would Happen If You Fell Into a Black Hole? |
-| 20 / 22 / 24 Kas | 3 ek kara delik Short'u |
-| 25 Kas Çar | Uzun: How Does a Jet Engine Actually Work? |
-| 27 / 29 Kas, 1 Ara | 3 jet motoru Short'u |
-| 2 Ara Çar | Uzun: How Do Rockets Escape Earth's Gravity? |
-| 4 / 6 / 8 Ara | 3 roket Short'u |
-| 9 Ara Çar | Uzun: How Does GPS Know Exactly Where You Are? |
-| 11 / 13 / 15 Ara | 3 GPS Short'u |
-| 16 Ara | Ay sonu değerlendirmesi |
+| Tarih | Uzun video | Short'lar |
+|---|---|---|
+| 11–21 Kas | 18 Kas: Kara delik | 11 kara delik Short'u (ilk hafta istisna, hazır oldukça teslim) |
+| 22–28 Kas | 25 Kas: Jet motoru | 7 jet motoru Short'u |
+| 29 Kas – 5 Ara | 2 Ara: Roket | 7 roket Short'u |
+| 6–12 Ara | 9 Ara: GPS | 7 GPS Short'u |
+| 13–15 Ara | (16 Ara: 5. konu) | 3 Short |
+| 16 Ara | Ay sonu değerlendirmesi | |
 
-Hatırlatmalar: `takvim/kavcilab_yayin.ics` (iPhone Takvim'e eklenir; her yayından 2 saat önce ve yayın anında uyarır). Zamanlanmış iş kurulmaz.
+ElevenLabs (Creator, 131.000 karakter/ay): 4 uzun video ≈ 30.000 + ek Short'lar ≈ 10.000. Rahat sığar.
+
+Hatırlatmalar: `takvim/kavcilab_yayin.ics` (iPhone Takvim'e eklenir). Zamanlanmış iş kurulmaz.
 
 ## Ay sonu değerlendirmesi
 - İzlenme, izlenme süresi, tıklanma oranı (CTR), abone.
