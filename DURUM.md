@@ -23,6 +23,12 @@ Son güncelleme: 10 Kasım 2026
 - Müzik: telif sorunu olmasın diye kendi ürettiğimiz ambiyans müzik (`tools/muzik_ambient.py`). Mixkit müzik sayfası hız sınırı veriyor.
 - TikTok: Kerem Shorts'ları TikTok'ta da paylaşıyor (10 Kasım kararı). Her Short için TikTok açıklaması da yazılır.
 
+## Kerem'in içerik tercihi (12 Kasım)
+- Short 3 için uzay dışı konu ve gerçek HD/4K görüntü istedi → yıldırım Short'u yapıldı (`videos/shorts/yildirim/`).
+- "Zaman yavaşlaması" Short'u (`videos/01-black-hole/build/short3.py`) yedekte bekliyor.
+- Kapak kuralı: her video farklı kapak, yazı ilk karede (PLAN.md).
+- Shorts Pixabay 4K görüntülerle de yapılabiliyor: `tools/shorts_ortak.py` içinde `clip_frames`.
+
 ## Açık işler
 1. Pexels anahtarı: ortamda kayıtlı görünmüyor (10 Kasım kontrolü). Gizli anahtar olarak yeniden eklenmeli: api.pexels.com, Authorization, ön ek boş.
 2. Pixabay anahtarı: `PIXABAY_API_KEY` ortam değişkeni olarak KAYDEDİLDİ (10 Kasım). Yeni sohbette test et: curl "https://pixabay.com/api/videos/?key=$PIXABAY_API_KEY&q=galaxy"

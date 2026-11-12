@@ -147,6 +147,30 @@ def credit(im, txt):
     d = ImageDraw.Draw(im); f = font(26)
     d.text((40, 1700), txt, font=f, fill=(230, 230, 230, 200), stroke_width=3, stroke_fill=(0, 0, 0, 200))
 
+def clip_frames(src, t0, dur, xc=0.5, zoom0=1.0, zoom1=1.0, crop_w=1216, crop_h=2160):
+    """Yatay 4K klipten dikey kesit (xc: kesit merkezinin genişliğe oranı). Kare sayısı yetmezse son kare tekrarlanır."""
+    out = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height',
+                          '-of', 'csv=p=0', src], capture_output=True, text=True).stdout.strip().split(',')
+    sw, sh = int(out[0]), int(out[1])
+    cw, ch = min(crop_w, sw), min(crop_h, sh)
+    cw -= cw % 2; ch -= ch % 2   # tek sayı genişlik ffmpeg'de kayma yapar
+    x0 = int(min(max(0, xc * sw - cw / 2), sw - cw)) // 2 * 2
+    n = int(math.ceil(dur * FPS)) + 2
+    cmd = ['ffmpeg', '-v', 'error', '-ss', str(t0), '-t', str(dur + 0.3), '-i', src,
+           '-vf', f'fps={FPS},crop={cw}:{ch}:{x0}:{(sh - ch) // 2}', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-']
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    last = None
+    for i in range(n):
+        buf = p.stdout.read(cw * ch * 3)
+        if len(buf) < cw * ch * 3: break
+        im = Image.frombuffer('RGB', (cw, ch), buf)
+        z = zoom0 + (zoom1 - zoom0) * (i / max(1, n - 1))
+        bw, bh = cw / z, ch / z
+        box = (cw / 2 - bw / 2, ch / 2 - bh / 2, cw / 2 + bw / 2, ch / 2 + bh / 2)
+        last = im.resize((W, H), Image.LANCZOS, box=box); yield last
+    p.stdout.close(); p.wait()
+    while True: yield last
+
 def scene_end(lt):
     """Bitiş kartı (lt = kartın başından itibaren saniye)."""
     im = starfield(0).convert('RGBA')
@@ -202,7 +226,7 @@ def finish(im, t, cuts, end_t):
         im.alpha_composite(WM, (W - 96 - 36, 150))
     return im
 
-def render(D, total, frame_fn, cuts, end_t, out_name):
+def render(D, total, frame_fn, cuts, end_t, out_name, sfx=None, sfx_vol=0.8):
     """frame_fn(t) -> PIL resmi. PREVIEW="1,5,9" ortam değişkeniyle sadece önizleme kareleri."""
     if os.environ.get('PREVIEW'):
         ts = os.environ['PREVIEW'].split(',')
@@ -219,9 +243,11 @@ def render(D, total, frame_fn, cuts, end_t, out_name):
         enc.stdin.write(finish(frame_fn(t), t, cuts, end_t).convert('RGB').tobytes())
     enc.stdin.close(); enc.wait()
     mix = f'{D}/mix.wav'
-    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{D}/ses.mp3', '-i', f'{D}/muzik.wav', '-filter_complex',
-                    f'[0:a]aresample=48000,apad[v];[1:a]aresample=48000,volume=0.16[m];[v][m]amix=inputs=2:duration=longest:normalize=0,atrim=0:{total}[a]',
-                    '-map', '[a]', '-ac', '2', mix], check=True)
+    ins = ['-i', f'{D}/ses.mp3', '-i', f'{D}/muzik.wav'] + (['-i', sfx] if sfx else [])
+    fc = '[0:a]aresample=48000,apad[v];[1:a]aresample=48000,volume=0.16[m];'
+    fc += (f'[2:a]aresample=48000,volume={sfx_vol}[x];[v][m][x]amix=inputs=3' if sfx else '[v][m]amix=inputs=2')
+    fc += f':duration=longest:normalize=0,atrim=0:{total}[a]'
+    subprocess.run(['ffmpeg', '-v', 'error', '-y', *ins, '-filter_complex', fc, '-map', '[a]', '-ac', '2', mix], check=True)
     r = subprocess.run(['ffmpeg', '-i', mix, '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json', '-f', 'null', '-'],
                        capture_output=True, text=True).stderr
     m = json.loads(r[r.rindex('{'):r.rindex('}') + 1])

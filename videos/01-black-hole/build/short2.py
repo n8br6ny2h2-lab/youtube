@@ -5,7 +5,7 @@ Klasörde: ses.mp3 + words.json (shorts_ortak.tts ile), muzik.wav (tools/muzik_a
 Metin: videos/01-black-hole/yukleme/short2_event_horizon.md
 """
 import sys, os, math
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, '/workspace/youtube/tools')
 from shorts_ortak import *
 
 D = sys.argv[1]

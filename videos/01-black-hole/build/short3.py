@@ -5,7 +5,7 @@ Klasörde: ses.mp3 + words.json (shorts_ortak.tts), muzik.wav (tools/muzik_ambie
 Metin: videos/01-black-hole/yukleme/short3_time_slows.md
 """
 import sys, os, math
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, '/workspace/youtube/tools')
 import shorts_ortak as O
 from shorts_ortak import *
 
