@@ -34,15 +34,25 @@ def curve_arrow(d, p0, p1, p2, col, prog=1.0, width=8, head=26):
     r = (xb + math.cos(ang - 2.5) * head, yb + math.sin(ang - 2.5) * head)
     d.polygon([tip, l, r], fill=col)
 
-hook = disk_frames(24.0, 4.2, 1.0, 1.35)
 mid = disk_frames(30.0, 6.2, 1.15, 1.0)
 CX, CY = W / 2, 900
 
 def scene_hook(t):
-    im = next(hook).convert('RGBA'); d = ImageDraw.Draw(im)
-    text_c(d, 300, 'THE POINT OF', 80, WHITE, ramp(t, 0.0, 0.3))
-    text_c(d, 395, 'NO RETURN', 120, AMBER, ramp(t, 0.15, 0.45))
-    credit(im, CREDIT)
+    """Kapak/açılış: mavi tonlar, dev kesikli ufuk çizgisi, sınırda süzülen astronot. Yazı ilk karede hazır."""
+    im = starfield(t * 15).convert('RGBA')
+    im = Image.alpha_composite(im, Image.new('RGBA', (W, H), (10, 40, 110, 70)))
+    lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); g = ImageDraw.Draw(lay)
+    R = 1900; cx, cy = W / 2, 1180 + R
+    for j in range(8, 0, -1):
+        rr = R + j * 22
+        g.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], fill=(40, 140, 255, 14))
+    lay = lay.filter(ImageFilter.GaussianBlur(25)); im = Image.alpha_composite(im, lay)
+    g = ImageDraw.Draw(im); g.ellipse([cx - R, cy - R, cx + R, cy + R], fill=(0, 0, 0, 255))
+    dashed_circle(g, cx, cy, R, (*BLUE, 255), 9, n=520)
+    im = place_figure(im, W / 2, 1040 + 30 * t, scale=0.42)
+    d = ImageDraw.Draw(im)
+    text_c(d, 240, 'NO RETURN', 140, (120, 210, 255), 1, 10)
+    text_c(d, 410, "...and you wouldn't notice", 56, WHITE, 1, 6)
     return im
 
 def scene_horizon(t):  # 4.0 - 8.9
@@ -119,9 +129,7 @@ def frame(t):
     return scene_end(t - END)
 
 if os.environ.get('PREVIEW'):  # önizlemede disk karelerini zamana göre al
-    _h, _m = scene_hook, scene_giant
-    def scene_hook(t):
-        global hook; hook = disk_frames(24.0 + t, 0.1, 1.1, 1.1); return _h(t)
+    _m = scene_giant
     def scene_giant(t):
         global mid; mid = disk_frames(30.0 + t - 14.9, 0.1, 1.1, 1.1); return _m(t)
 

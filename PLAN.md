@@ -53,3 +53,7 @@ Claude hazırlar, Kerem iPhone'daki YouTube Studio'dan elle yükler ve yayın sa
 - Başlık, açıklama (bölümler + kaynaklar), etiketler, altyazı (SRT)
 - 3 Shorts, her biri kendi başlık ve açıklamasıyla
 API ile otomatik yükleme yok (karar: 10 Kasım 2026). İleride ancak Kerem isterse ve YouTube API denetimi geçilirse değerlendirilir.
+
+## Kapak kuralı (12 Kasım, Kerem)
+- Her video ve Short **farklı bir kapak ve açılışla** başlar: farklı renk, farklı sahne. Aynı NASA görüntüsüyle iki video açılmaz.
+- Büyük kapak yazısı **ilk karede** hazırdır (YouTube ve TikTok kapağı genelde ilk kareden seçilir).

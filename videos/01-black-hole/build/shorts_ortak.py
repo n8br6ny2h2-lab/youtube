@@ -212,7 +212,7 @@ def render(D, total, frame_fn, cuts, end_t, out_name):
         sheet.save(f'{D}/preview.png'); return
     out = f'{D}/video_only.mp4'
     enc = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS),
-                            '-i', '-', '-c:v', 'libx264', '-preset', 'medium', '-b:v', '12M', '-minrate', '10M', '-maxrate', '14M',
+                            '-i', '-', '-vf', 'noise=alls=3:allf=t', '-c:v', 'libx264', '-preset', 'medium', '-b:v', '12M', '-minrate', '10M', '-maxrate', '14M',
                             '-bufsize', '20M', '-x264-params', 'nal-hrd=cbr', '-pix_fmt', 'yuv420p', out], stdin=subprocess.PIPE)
     for i in range(int(total * FPS)):
         t = i / FPS
