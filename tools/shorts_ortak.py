@@ -223,7 +223,7 @@ def finish(im, t, cuts, end_t):
             im = Image.blend(im, Image.new('RGBA', (W, H), (0, 0, 0, 255)), 0.6 * (1 - dd / 0.1))
     if t < end_t:
         captions(im, t)
-        im.alpha_composite(WM, (W - 96 - 36, 150))
+        im.alpha_composite(WM, CFG.get('wm_pos', (W - 96 - 36, 150)))
     return im
 
 def render(D, total, frame_fn, cuts, end_t, out_name, sfx=None, sfx_vol=0.8):
