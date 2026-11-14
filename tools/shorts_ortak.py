@@ -171,6 +171,32 @@ def clip_frames(src, t0, dur, xc=0.5, zoom0=1.0, zoom1=1.0, crop_w=1216, crop_h=
     p.stdout.close(); p.wait()
     while True: yield last
 
+SQ = 1080; SQ_Y = 400
+def sq_frames(src, t0, dur, x0, zoom0=1.0, zoom1=1.0):
+    """1080x1080 kare kesit, büyütme yok (zoom>1 sadece hafif içeri yaklaşma)."""
+    n = int(math.ceil(dur * FPS)) + 2
+    cmd = ['ffmpeg', '-v', 'error', '-ss', str(t0), '-t', str(dur + 0.3), '-i', src,
+           '-vf', f'fps={FPS},crop={SQ}:{SQ}:{x0}:0', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-']
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    last = None
+    for i in range(n):
+        buf = p.stdout.read(SQ * SQ * 3)
+        if len(buf) < SQ * SQ * 3: break
+        im = Image.frombuffer('RGB', (SQ, SQ), buf)
+        z = zoom0 + (zoom1 - zoom0) * i / max(1, n - 1)
+        if z > 1.001:
+            b = SQ / z; o = (SQ - b) / 2
+            im = im.resize((SQ, SQ), Image.LANCZOS, box=(o, o, o + b, o + b))
+        last = im; yield last
+    p.stdout.close(); p.wait()
+    while True: yield last
+
+def layout(sq, dark=0.45):
+    bg = sq.resize((H, H), Image.BILINEAR).crop(((H - W) // 2, 0, (H - W) // 2 + W, H)).filter(ImageFilter.GaussianBlur(28))
+    bg = Image.blend(bg, Image.new('RGB', (W, H), (0, 0, 0)), dark).convert('RGBA')
+    bg.paste(sq, (0, CFG.get('sq_y', SQ_Y)))
+    return bg
+
 def scene_end(lt):
     """Bitiş kartı (lt = kartın başından itibaren saniye)."""
     im = starfield(0).convert('RGBA')
