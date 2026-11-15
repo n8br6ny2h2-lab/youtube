@@ -31,7 +31,7 @@ Sources:
 - National Honey Board (honey facts)
 - USDA (pollinators and food)
 
-Footage: Pixabay (adege, NickyPe, RoyBuri, RaimundoMaciel, Engin_Akyurt, mike-media, stephanframke, Hans, TAMGRA, conghuynh8, Josh_Malic, deoleoroberto626 and others)
+Footage: Pixabay (adege, NickyPe, RoyBuri, RaimundoMaciel, Engin_Akyurt, stephanframke, deoleoroberto626, TAMGRA, JustYøu, mike-media, Hans, deluxevision, Josh_Malic, conghuynh8)
 Music: original, Kavci Lab
 Narration voice: AI (ElevenLabs)
 
