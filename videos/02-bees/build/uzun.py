@@ -503,7 +503,9 @@ def frame(t):
     if spec[0] == 'c':
         key = (k, idx)
         if key not in _open:
-            _open.clear() if len(_open) > 3 else None
+            for kk in list(_open):   # eski okuyucuları kapat (bellek)
+                if _open[kk].p: _open[kk].p.kill(); _open[kk].p.wait()
+                del _open[kk]
             _, cid, t0, z0, z1, fx, fy = spec
             _open[key] = Clip(cid, t0 + max(0, tr - s0), max(0.5, s1 - max(s0, tr)) + 1.0, z0, z1, fx, fy)
             FOOTAGE_IDS.add(cid)
@@ -578,7 +580,14 @@ def srt_and_chapters():
                 out.append(f'{n}\n{ts(starts[k] + cur[0][1])} --> {ts(starts[k] + cur[-1][2] + 0.15)}\n{" ".join(x[0] for x in cur)}\n'); n += 1; cur = []
         if cur:
             out.append(f'{n}\n{ts(starts[k] + cur[0][1])} --> {ts(starts[k] + cur[-1][2] + 0.15)}\n{" ".join(x[0] for x in cur)}\n'); n += 1
-    open(f'{D}/altyazi.srt', 'w').write('\n'.join(out))
+    # bitişler bir sonraki başlangıcı geçmesin
+    import re as _re
+    ents = [e.split('\n') for e in out]
+    def sec(x): h, m, r = x.split(':'); s_, ms = r.split(','); return int(h) * 3600 + int(m) * 60 + int(s_) + int(ms) / 1000
+    for i in range(len(ents) - 1):
+        a_, b_ = ents[i][1].split(' --> '); nxt = ents[i + 1][1].split(' --> ')[0]
+        if sec(b_) > sec(nxt) - 0.02: ents[i][1] = f'{a_} --> {ts(sec(nxt) - 0.02)}'
+    open(f'{D}/altyazi.srt', 'w').write('\n'.join('\n'.join(e) for e in ents))
     ch = []
     for k in range(len(secs)):
         s = 0 if k == 0 else starts[k] - 0.3
@@ -586,6 +595,25 @@ def srt_and_chapters():
     open(f'{D}/bolumler.txt', 'w').write('\n'.join(ch) + '\n')
 
 if __name__ == '__main__':
+    if os.environ.get('PART'):   # PART="0,171" -> sadece bu aralığın görüntüsü
+        a0, a1 = [float(x) for x in os.environ['PART'].split(',')]
+        out = f'{D}/part_{int(a0)}.mp4'
+        enc = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS),
+                                '-i', '-', '-vf', 'noise=alls=2:allf=t', '-c:v', 'libx264', '-preset', 'medium', '-b:v', '12M',
+                                '-maxrate', '16M', '-bufsize', '24M', '-pix_fmt', 'yuv420p', out], stdin=subprocess.PIPE)
+        for i in range(int(round(a0 * FPS)), min(int(TOTAL * FPS), int(round(a1 * FPS)))):
+            t = i / FPS; im, _ = frame(t); enc.stdin.write(finish(im, t).tobytes())
+            if i % 900 == 0: print(f'{t:.0f} s', flush=True)
+        enc.stdin.close(); enc.wait()
+        json.dump(sorted(FOOTAGE_IDS), open(f'{D}/klipler_{int(a0)}.json', 'w')); print('parca bitti'); sys.exit()
+    if os.environ.get('JOIN'):     # parçaları birleştir + ses
+        srt_and_chapters(); mix, ln = build_audio()
+        parts = sorted([f for f in os.listdir(D) if f.startswith('part_')], key=lambda f: int(f[5:-4]))
+        open(f'{D}/parts.txt', 'w').write(''.join(f"file '{D}/{f}'\n" for f in parts))
+        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', f'{D}/parts.txt', '-i', mix, '-af', ln,
+                        '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000',
+                        '-movflags', '+faststart', f'{D}/video_bees.mp4'], check=True)
+        print('bitti', round(TOTAL, 1)); sys.exit()
     srt_and_chapters()
     mix, ln = build_audio()
     out = f'{D}/video_only.mp4'
