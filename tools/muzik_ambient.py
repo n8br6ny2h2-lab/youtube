@@ -10,19 +10,24 @@ def note(m): return 440 * 2 ** ((m - 69) / 12)
 # Am - F - C - G (yavaş), her akor 6 sn
 chords = [[45, 57, 60, 64], [41, 57, 60, 65], [48, 55, 60, 64], [43, 55, 59, 62]]
 L = 6.0; mix = np.zeros(n)
-for k in range(int(dur / L) + 2):
+for k in range(int(dur / L) + 2):   # sadece akorun süresi boyunca hesapla (hızlı)
     c = chords[k % 4]; s0 = k * L
-    env = np.clip((t - s0 + 1.5) / 3.0, 0, 1) * np.clip((s0 + L + 1.5 - t) / 3.0, 0, 1)
+    i0, i1 = max(0, int((s0 - 1.5) * SR)), min(n, int((s0 + L + 1.5) * SR))
+    if i0 >= i1: continue
+    tt = t[i0:i1]
+    env = np.clip((tt - s0 + 1.5) / 3.0, 0, 1) * np.clip((s0 + L + 1.5 - tt) / 3.0, 0, 1)
     env = env * env * (3 - 2 * env)
     for i, m in enumerate(c):
         f = note(m); det = 1 + 0.002 * (i - 1.5)
-        v = np.sin(2*np.pi*f*det*t) + 0.5*np.sin(2*np.pi*f*2.003*t) + 0.25*np.sin(2*np.pi*f*3.01*t)
-        mix += env * v * (0.6 if i == 0 else 0.35)
-# yavaş parıltı (yüksek nota arpej)
+        v = np.sin(2*np.pi*f*det*tt) + 0.5*np.sin(2*np.pi*f*2.003*tt) + 0.25*np.sin(2*np.pi*f*3.01*tt)
+        mix[i0:i1] += env * v * (0.6 if i == 0 else 0.35)
+# yavaş parıltı (yüksek nota arpej), her nota 5 sn pencere
 for k in range(int(dur / 1.5)):
     s0 = k * 1.5 + rng.uniform(0, .3); f = note(rng.choice([72, 76, 79, 81, 84]))
-    e = np.where(t >= s0, np.exp(-(t - s0) * 1.2), 0)
-    mix += 0.12 * e * np.sin(2*np.pi*f*t)
+    i0, i1 = int(s0 * SR), min(n, int((s0 + 5) * SR))
+    if i0 >= i1: continue
+    tt = t[i0:i1]
+    mix[i0:i1] += 0.12 * np.exp(-(tt - s0) * 1.2) * np.sin(2*np.pi*f*tt)
 # derin uğultu + gürültü dokusu
 mix += 0.35 * np.sin(2*np.pi*note(33)*t) * (0.6 + 0.4*np.sin(2*np.pi*0.07*t))
 noise = rng.standard_normal(n); k = np.ones(400) / 400
