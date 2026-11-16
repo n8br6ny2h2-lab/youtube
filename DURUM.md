@@ -29,6 +29,11 @@ Son güncelleme: 10 Kasım 2026
 - Kapak kuralı: her video farklı kapak, yazı ilk karede (PLAN.md).
 - Shorts Pixabay 4K görüntülerle de yapılabiliyor: `tools/shorts_ortak.py` içinde `clip_frames`.
 
+## Çocuk kanalı: Moonshelf TV (16 Kasım kararı)
+- Ad: Moonshelf TV (@MoonshelfTV), "Gece Kütüphanesi" konsepti, İngilizce, 6-10 yaş, çocuklara özel.
+- Kanalı Kerem açacak (youtube.com/channel_switcher). Logo, kapak ve açıklama: `brand/moonshelf/`.
+- Sadece özgün hikâyeler (telif). Başta haftada 1 video.
+
 ## Açık işler
 1. Pexels anahtarı: ortamda kayıtlı görünmüyor (10 Kasım kontrolü). Gizli anahtar olarak yeniden eklenmeli: api.pexels.com, Authorization, ön ek boş.
 2. Pixabay anahtarı: `PIXABAY_API_KEY` ortam değişkeni olarak KAYDEDİLDİ (10 Kasım). Yeni sohbette test et: curl "https://pixabay.com/api/videos/?key=$PIXABAY_API_KEY&q=galaxy"
