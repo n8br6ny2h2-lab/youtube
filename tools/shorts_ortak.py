@@ -117,6 +117,8 @@ def disk_frames(t0, dur, zoom0, zoom1, src=None):
         box = (S / 2 - cw / 2, S / 2 - ch / 2, S / 2 + cw / 2, S / 2 + ch / 2)
         last = im.resize((W, H), Image.LANCZOS, box=box); yield last
     p.stdout.close(); p.wait()
+    if last is None and t0 > 0:   # başlangıç klibin sonundan sonraysa baştan oku
+        yield from clip_frames(src, 0, dur, xc, zoom0, zoom1, crop_w, crop_h); return
     while True: yield last  # kare sayısı yuvarlaması için son kareyi tekrarla
 
 
@@ -169,6 +171,8 @@ def clip_frames(src, t0, dur, xc=0.5, zoom0=1.0, zoom1=1.0, crop_w=1216, crop_h=
         box = (cw / 2 - bw / 2, ch / 2 - bh / 2, cw / 2 + bw / 2, ch / 2 + bh / 2)
         last = im.resize((W, H), Image.LANCZOS, box=box); yield last
     p.stdout.close(); p.wait()
+    if last is None and t0 > 0:   # başlangıç klibin sonundan sonraysa baştan oku
+        yield from clip_frames(src, 0, dur, xc, zoom0, zoom1, crop_w, crop_h); return
     while True: yield last
 
 SQ = 1080; SQ_Y = 400
