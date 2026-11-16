@@ -92,11 +92,16 @@ def banner(path):
     for k, (col, amp, off) in enumerate([((30, 36, 96), 60, 1180), ((20, 24, 70), 80, 1260)]):
         pts = [(x, off + amp * math.sin(x / 260 + k)) for x in range(0, W + 20, 20)] + [(W, H), (0, H)]
         d.polygon(pts, fill=col)
-    # güvenli alan: ortadaki 1546x423 (x 507-2053, y 508-931)
-    em = emblem(420); im.alpha_composite(em, (560, 500))
-    text(d, (1010, 640), 'MOONSHELF TV', 150, (255, 240, 200), 'lm', 8, NAVY_BOT)
-    text(d, (1015, 790), 'Cozy bedtime stories for curious kids', 64, (255, 200, 120), 'lm')
-    for x, y, r in [(1900, 560, 22), (1980, 690, 14), (420, 300, 18), (2200, 260, 16), (300, 900, 12)]:
+    # YouTube'un her cihazda görünen en dar alanı: ortadaki 1235x338 (x 662-1897, y 551-889). Her şey bunun içinde.
+    SX0, SX1, SY0, SY1 = 690, 1870, 560, 880
+    em = emblem(320); im.alpha_composite(em, (SX0, 560)); d = ImageDraw.Draw(im)
+    tx = SX0 + 330; maxw = SX1 - tx
+    def fit(sz, s_):
+        while ImageFont.truetype(FONT, sz).getlength(s_) > maxw: sz -= 2
+        return sz
+    text(d, (tx, 680), 'MOONSHELF TV', fit(130, 'MOONSHELF TV'), (255, 240, 200), 'lm', 7, NAVY_BOT)
+    text(d, (tx + 4, 800), 'Cozy bedtime stories for curious kids', fit(56, 'Cozy bedtime stories for curious kids'), (255, 200, 120), 'lm')
+    for x, y, r in [(1960, 520, 22), (2040, 700, 14), (420, 300, 18), (2200, 260, 16), (560, 900, 12)]:
         star(d, x, y, r, (255, 236, 170))
     im.convert('RGB').save(path)
 
