@@ -50,3 +50,7 @@ bees, honey bees, honeycomb, hexagon, why hexagons, waggle dance, how honey is m
 - Değiştirilmiş/yapay içerik: Hayır (gerçekçi kişi/olay yok; anlatım sesi yapay zekâ, açıklamada belirtildi)
 - Bitiş ekranı (son 20 sn): sağdaki çerçeveye "En son yüklenen video", alttaki daireye "Abone ol" öğesini koy.
 - Görünürlük: Zamanla → 16 Kasım 18:00
+
+## Test ve Karşılaştır (A/B testi)
+- Kapaklar: A `kapak_bees.jpg` (WHY HEXAGONS?), B `kapak_bees_B.jpg` (BEES BEAT MATH 1999), C `kapak_bees_C.jpg` (PERFECT HEXAGONS). Tarif: `build/kapak_test.py`.
+- Başlıklar: A "How Do Bees Build Perfect Hexagons?" · B "Bees Solved a Math Problem Humans Only Proved in 1999" · C "Why Do Bees Build Hexagons? The Genius of the Hive"
