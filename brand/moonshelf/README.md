@@ -9,7 +9,8 @@
 ## Dosyalar
 - `moonshelf_logo_800.png`: profil resmi (YouTube daire şeklinde keser)
 - `moonshelf_banner_2560x1440.png`: kanal kapağı (yazılar ortadaki güvenli alanda)
-- `moonshelf_filigran_300.png`: video filigranı (şeffaf)
+- `moonshelf_filigran_300.png`: videolara gömülen filigran (şeffaf)
+- `moonshelf_filigran_150.png`: YouTube Studio "Video filigranı" için (150x150, koyu daire, her zeminde okunur)
 - `logo.py`: hepsini yeniden üretir
 - `font/Fredoka-SemiBold.ttf`: Fredoka (Google Fonts, SIL Open Font License 1.1, ticari kullanım serbest)
 
