@@ -1,6 +1,6 @@
 ---
 name: kavci-youtube
-description: Kerem'in (Kavci Games) YouTube kanalları için video üretimi. Kavci Lab (İngilizce bilim, çocuklara özel değil) için Shorts ve uzun videolar, Moonshelf TV (İngilizce, yetişkinler için uyku hikâyeleri) için hikâye videoları; senaryo, ElevenLabs seslendirme, Pixabay görüntü, kurgu, kalite kontrol, kapak, açıklama, altyazı ve yükleme paketi. "Short yap", "uzun video", "Moonshelf hikâyesi", "kapak", "açıklama", "yükleme paketi" gibi isteklerde kullan.
+description: Kerem'in (Kavci Games) YouTube kanalları için video üretimi. Kavci Lab (İngilizce bilim, çocuklara özel değil) için Shorts ve uzun videolar, Moonshelf TV (İngilizce, sakin doğa ve hayvan belgeselleri) için hikâye videoları; senaryo, ElevenLabs seslendirme, Pixabay görüntü, kurgu, kalite kontrol, kapak, açıklama, altyazı ve yükleme paketi. "Short yap", "uzun video", "Moonshelf hikâyesi", "kapak", "açıklama", "yükleme paketi" gibi isteklerde kullan.
 ---
 
 # Kavci YouTube üretim skill'i
@@ -36,7 +36,7 @@ description: Kerem'in (Kavci Games) YouTube kanalları için video üretimi. Kav
 - TikTok açıklaması da yaz; "AI-generated content" etiketini açmasını hatırlat.
 
 ### Moonshelf TV (@MoonshelfTV)
-- İngilizce, **yetişkinler için** uyku hikâyeleri ve sakin doğa (20-40 dk), **çocuklara özel değil** (16 Kasım kararı). Özgün metin + doğru doğa bilgileri. Marka: `brand/moonshelf/` (Fredoka yazı tipi, `logo.py`).
+- İngilizce, **sakin doğa ve hayvan belgeselleri** (15-30 dk), **çocuklara özel değil** (16 Kasım kararı). Özgün senaryo + doğru bilgiler. **Her videoda `docs/TELIF.md` kontrolü zorunlu.** Marka: `brand/moonshelf/` (Fredoka yazı tipi, `logo.py`).
 - Anlatıcı: ElevenLabs **Lily** (`pFZP5JQG7iQjIQuC4Bku`), stability 0.65, style 0.15, speed 0.88. Müzik: `tools/muzik_ninni.py`.
 - Yayın: Türkiye saatiyle **01:00** (ABD akşamı). Haftada 1 hikâye.
 

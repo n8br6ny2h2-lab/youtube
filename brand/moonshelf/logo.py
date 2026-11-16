@@ -100,7 +100,7 @@ def banner(path):
         while ImageFont.truetype(FONT, sz).getlength(s_) > maxw: sz -= 2
         return sz
     text(d, (tx, 680), 'MOONSHELF TV', fit(130, 'MOONSHELF TV'), (255, 240, 200), 'lm', 7, NAVY_BOT)
-    text(d, (tx + 4, 800), 'Calm sleep stories & relaxing nature', fit(56, 'Calm sleep stories & relaxing nature'), (255, 200, 120), 'lm')
+    text(d, (tx + 4, 800), 'Calm nature documentaries', fit(56, 'Calm nature documentaries'), (255, 200, 120), 'lm')
     for x, y, r in [(1960, 520, 22), (2040, 700, 14), (420, 300, 18), (2200, 260, 16), (560, 900, 12)]:
         star(d, x, y, r, (255, 236, 170))
     im.convert('RGB').save(path)
