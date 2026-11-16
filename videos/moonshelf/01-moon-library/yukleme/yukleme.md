@@ -1,6 +1,6 @@
 # Moonshelf TV · Story 1: The Moon's Night Library
 
-- Dosyalar (repoda yok): `teslim/moonshelf_01.mp4` (1920x1080, ~3:11), `teslim/kapak_moonshelf_01.jpg`, `teslim/altyazi_moonshelf_01.srt`
+- Dosyalar (repoda yok): `teslim/moonshelf_01.mp4` (1920x1080, 3:11), `teslim/kapak_moonshelf_01.jpg`, `teslim/altyazi_moonshelf_01.srt`
 - Kitle: **Evet, çocuklara özel**. Kategori: Eğitim (veya Film ve Animasyon).
 - Tarif: `build/hikaye.py`, `build/kapak.py`. Müzik: `tools/muzik_ninni.py muzik.wav 240 1` (kendi bestemiz). Ses: ElevenLabs Lily.
 
