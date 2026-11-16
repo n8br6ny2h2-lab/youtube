@@ -10,7 +10,10 @@
 - `earthframe_banner_2560x1440.png`: kanal kapağı (yazılar en dar güvenli alanda)
 - `earthframe_filigran_150.png`: YouTube Studio "Video filigranı"
 - `earthframe_filigran_300.png`: videolara gömülen filigran (şeffaf)
-- `logo.py`: hepsini yeniden üretir · `font/`: Inter Display (SIL Open Font License 1.1)
+- `logo.py`: hepsini yeniden üretir (gerçek fotoğraflı; eski çizim sürümü: `python3 logo.py --cizim`) · `font/`: Inter Display (SIL Open Font License 1.1)
+- `kaynak/`: kullanılan gerçek görüntüler (Pixabay Content License, ticari kullanım serbest):
+  - Kapak: Pixabay video 204095, JoshuaWoroniecki (Moraine Gölü, Kanada)
+  - Logo/filigran: Pixabay video 382581, Matthias_Groeneveld (ışık huzmeli orman)
 
 ## Renkler
 Orman yeşili `#123A32`, kum `#F4E4C4`, gün batımı `#EEA86E`, gökyüzü `#244A60`, dağ tonları `#466E70` `#2C5654` `#1A403A` `#0E2A26`.

@@ -3,7 +3,7 @@
 Kullanım: python3 brand/earthframe/logo.py
 Yazı tipi: Inter Display (SIL Open Font License 1.1).
 """
-import math, os
+import math, os, sys
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -87,7 +87,63 @@ def watermarks():
     e = emblem(380); b.alpha_composite(e, (110, 110))
     b.resize((150, 150), Image.LANCZOS).save(os.path.join(HERE, 'earthframe_filigran_150.png'))
 
+# ---------------- gerçek fotoğraflı sürüm (Kerem'in isteği, 16 Kasım)
+from PIL import ImageEnhance
+KAY = os.path.join(HERE, 'kaynak')
+def photo_emblem(S):
+    ph = Image.open(os.path.join(KAY, 'pixabay_382581_forest_rays.jpg')).convert('RGB').resize((S, S), Image.LANCZOS)
+    ph = ImageEnhance.Contrast(ImageEnhance.Color(ph).enhance(1.15)).enhance(1.08).convert('RGBA')
+    im = Image.new('RGBA', (S, S), (0, 0, 0, 0))
+    mask = Image.new('L', (S, S), 0); ImageDraw.Draw(mask).rounded_rectangle([0, 0, S - 1, S - 1], int(S * 0.2), fill=255)
+    im.paste(ph, (0, 0), mask); d = ImageDraw.Draw(im)
+    m = S * 0.11; frame_corners(d, m, m, S - m, S - m, S * 0.16, max(3, int(S * 0.038)), (255, 255, 255, 240))
+    return im
+
+def photo_logo(path, S=800):
+    ph = Image.open(os.path.join(KAY, 'pixabay_382581_forest_rays.jpg')).convert('RGB').resize((S, S), Image.LANCZOS)
+    ph = ImageEnhance.Contrast(ImageEnhance.Color(ph).enhance(1.15)).enhance(1.1).convert('RGBA')
+    sh = Image.new('RGBA', (S, S), (0, 0, 0, 0)); g = ImageDraw.Draw(sh)
+    for y in range(S):   # alta doğru koyulaşan geçiş (yazı için)
+        a = int(max(0, (y - S * 0.45) / (S * 0.55)) * 230); g.line([(0, y), (S, y)], fill=(6, 22, 20, a))
+    im = Image.alpha_composite(ph, sh); d = ImageDraw.Draw(im)
+    # YouTube profil resmini daire keser: her şey ortadaki daireye sığmalı
+    frame_corners(d, S * 0.24, S * 0.17, S * 0.76, S * 0.6, S * 0.11, int(S * 0.028), (255, 255, 255, 240))
+    T(d, (S / 2, S * 0.72), 'EARTHFRAME', FB, int(S * 0.105), SAND, 'mm')
+    T(d, (S / 2, S * 0.82), 'TV', FM, int(S * 0.07), (238, 190, 140), 'mm')
+    im.convert('RGB').save(path)
+
+def photo_banner(path):
+    W, H = 2560, 1440
+    im = Image.open(os.path.join(KAY, 'pixabay_204095_moraine_lake.jpg')).convert('RGB')
+    im = ImageEnhance.Contrast(ImageEnhance.Color(im).enhance(1.1)).enhance(1.05).convert('RGBA')
+    shade = Image.new('RGBA', (W, H), (0, 0, 0, 0)); s = ImageDraw.Draw(shade)
+    s.rounded_rectangle([660, 548, 1900, 892], 40, fill=(6, 20, 26, 150))
+    im = Image.alpha_composite(im, shade.filter(ImageFilter.GaussianBlur(10)))
+    e = photo_emblem(290); im.alpha_composite(e, (700, 575))
+    d = ImageDraw.Draw(im); tx = 1030; maxw = 1860 - tx
+    def fit(p, sz, txt):
+        while ImageFont.truetype(p, sz).getlength(txt) > maxw: sz -= 2
+        return sz
+    T(d, (tx, 680), 'EARTHFRAME TV', FB, fit(FB, 128, 'EARTHFRAME TV'), SAND, 'lm')
+    T(d, (tx + 4, 800), 'Relaxing nature, beautifully filmed', FM, fit(FM, 58, 'Relaxing nature, beautifully filmed'), (240, 200, 150), 'lm')
+    im.convert('RGB').save(path)
+
+def photo_watermarks():
+    photo_emblem(300).save(os.path.join(HERE, 'earthframe_filigran_300.png'))
+    b = Image.new('RGBA', (600, 600), (0, 0, 0, 0)); d = ImageDraw.Draw(b)
+    d.ellipse([0, 0, 599, 599], fill=FOREST + (240,), outline=SAND + (255,), width=18)
+    b.alpha_composite(photo_emblem(400), (100, 100))
+    b.resize((150, 150), Image.LANCZOS).save(os.path.join(HERE, 'earthframe_filigran_150.png'))
+
+if __name__ == '__main__' and '--cizim' in sys.argv:   # eski çizim sürümü
+    logo(os.path.join(HERE, 'earthframe_logo_800.png')); banner(os.path.join(HERE, 'earthframe_banner_2560x1440.png')); watermarks(); sys.exit()
+
 if __name__ == '__main__':
+    photo_logo(os.path.join(HERE, 'earthframe_logo_800.png'))
+    photo_banner(os.path.join(HERE, 'earthframe_banner_2560x1440.png'))
+    photo_watermarks(); print('ok (fotoğraflı)')
+    sys.exit()
+
     logo(os.path.join(HERE, 'earthframe_logo_800.png'))
     banner(os.path.join(HERE, 'earthframe_banner_2560x1440.png'))
     watermarks(); print('ok')
