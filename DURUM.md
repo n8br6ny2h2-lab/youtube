@@ -29,8 +29,9 @@ Son güncelleme: 10 Kasım 2026
 - Kapak kuralı: her video farklı kapak, yazı ilk karede (PLAN.md).
 - Shorts Pixabay 4K görüntülerle de yapılabiliyor: `tools/shorts_ortak.py` içinde `clip_frames`.
 
-## Çocuk kanalı: Moonshelf TV (16 Kasım kararı)
-- Ad: Moonshelf TV (@MoonshelfTV), "Gece Kütüphanesi" konsepti, İngilizce, 6-10 yaş, çocuklara özel.
+## İkinci kanal: Moonshelf TV
+- Ad: Moonshelf TV (@MoonshelfTV), "Gece Kütüphanesi" konsepti, İngilizce.
+- 16 Kasım: Kerem çocuk kanalından vazgeçti → **yetişkinler için uyku hikâyeleri ve sakin doğa** (çocuklara özel değil). İlk çocuk hikâyesi gizli kalır.
 - Kanalı Kerem açacak (youtube.com/channel_switcher). Logo, kapak ve açıklama: `brand/moonshelf/`.
 - Sadece özgün hikâyeler (telif). Başta haftada 1 video.
 

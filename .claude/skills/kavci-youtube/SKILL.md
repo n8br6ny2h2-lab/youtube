@@ -1,6 +1,6 @@
 ---
 name: kavci-youtube
-description: Kerem'in (Kavci Games) YouTube kanalları için video üretimi. Kavci Lab (İngilizce bilim, çocuklara özel değil) için Shorts ve uzun videolar, Moonshelf TV (İngilizce çocuk kanalı, uyku öncesi hikâyeler) için hikâye videoları; senaryo, ElevenLabs seslendirme, Pixabay görüntü, kurgu, kalite kontrol, kapak, açıklama, altyazı ve yükleme paketi. "Short yap", "uzun video", "Moonshelf hikâyesi", "kapak", "açıklama", "yükleme paketi" gibi isteklerde kullan.
+description: Kerem'in (Kavci Games) YouTube kanalları için video üretimi. Kavci Lab (İngilizce bilim, çocuklara özel değil) için Shorts ve uzun videolar, Moonshelf TV (İngilizce, yetişkinler için uyku hikâyeleri) için hikâye videoları; senaryo, ElevenLabs seslendirme, Pixabay görüntü, kurgu, kalite kontrol, kapak, açıklama, altyazı ve yükleme paketi. "Short yap", "uzun video", "Moonshelf hikâyesi", "kapak", "açıklama", "yükleme paketi" gibi isteklerde kullan.
 ---
 
 # Kavci YouTube üretim skill'i
@@ -24,7 +24,7 @@ description: Kerem'in (Kavci Games) YouTube kanalları için video üretimi. Kav
 
 ## Kalite kuralları
 - En az Full HD (Shorts 1080x1920, uzun 1920x1080), 30 fps. `python3 tools/kalite_kontrol.py dosya.mp4` geçmeli (1080p için ≥ 4 Mbps).
-- Ses: Kavci Lab **-14 LUFS**, Moonshelf **-16 LUFS** (iki geçişli loudnorm, ortak kodda var).
+- Ses: Kavci Lab **-14 LUFS**, Moonshelf **-16 LUFS** (uyku videolarında -18'e kadar inilebilir) (iki geçişli loudnorm, ortak kodda var).
 - **Her videonun kapağı ve açılışı farklı** olur (farklı renk ve sahne). Kapak yazısı **ilk karede** hazırdır.
 - 1080p kaynak büyütülmez: dikey videoda 1080x1080 kare + bulanık arka plan (`sq_frames` + `layout`).
 - Render öncesi `PREVIEW="t1,t2,..."` ile kareleri kontrol et; yazı çakışmalarına (filigran, altyazı, başlık) bak.
@@ -36,7 +36,7 @@ description: Kerem'in (Kavci Games) YouTube kanalları için video üretimi. Kav
 - TikTok açıklaması da yaz; "AI-generated content" etiketini açmasını hatırlat.
 
 ### Moonshelf TV (@MoonshelfTV)
-- İngilizce, 6-10 yaş, **çocuklara özel**. Sakin, özgün uyku öncesi hikâyeler + doğru doğa bilgileri. Marka: `brand/moonshelf/` (Fredoka yazı tipi, `logo.py`).
+- İngilizce, **yetişkinler için** uyku hikâyeleri ve sakin doğa (20-40 dk), **çocuklara özel değil** (16 Kasım kararı). Özgün metin + doğru doğa bilgileri. Marka: `brand/moonshelf/` (Fredoka yazı tipi, `logo.py`).
 - Anlatıcı: ElevenLabs **Lily** (`pFZP5JQG7iQjIQuC4Bku`), stability 0.65, style 0.15, speed 0.88. Müzik: `tools/muzik_ninni.py`.
 - Yayın: Türkiye saatiyle **01:00** (ABD akşamı). Haftada 1 hikâye.
 
