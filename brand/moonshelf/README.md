@@ -1,9 +1,8 @@
-# Moonshelf TV (sakin doğa ve hayvan belgeselleri)
+# Moonshelf TV (çocuk kanalı: uyku öncesi hikâyeler)
 
 - Ad: **Moonshelf TV** · Kullanıcı adı önerisi: **@MoonshelfTV**
-- Konsept: İngilizce, sakin anlatımlı doğa ve hayvan belgeselleri (15-30 dk). Gerçek 4K görüntü, özgün senaryo. Telif kuralları: `docs/TELIF.md`.
-- Kitle ayarı: **Çocuklara özel DEĞİL** (16 Kasım kararı: çocuk kanalından vazgeçildi).
-- İlk çocuk hikâyesi (`videos/moonshelf/01-moon-library`) çocuklara yönelik olduğu için bu kanalda yayınlanmaz, gizli tutulur.
+- Konsept: "Gece Kütüphanesi". 6-10 yaş için İngilizce, özgün, sakin uyku öncesi hikâyeler ve doğru doğa bilgileri. Telif kuralları: `docs/TELIF.md`.
+- Kitle ayarı: **Çocuklara özel (Made for Kids)**. 16 Kasım: Kerem kanalın açık kalmasını istedi; rahatlatıcı doğa videoları ayrı kanalda (Earthframe TV).
 - Ana kanaldan (Kavci Lab) ayrı bir kanal, aynı Google hesabında.
 - Sadece özgün hikâyeler. Başkasının kitap ya da videosu çevrilmez (telif).
 
@@ -20,8 +19,8 @@ Gece laciverti `#161A4A` → `#080A22`, ay sarısı `#FFE496`, kitaplar: mercan 
 
 ## Kanal açıklaması (İngilizce, kopyala)
 ```
-Welcome to Moonshelf TV. 🌙
-Calm, beautifully filmed nature and wildlife documentaries. Real 4K footage, gentle narration and original music: discover how animals live, hunt, sleep and survive, from deep oceans to quiet forests.
+Welcome to Moonshelf TV! 🌙📚
+Every night, a new book opens on the Moonshelf. Cozy, original bedtime stories and gentle "how does it work?" adventures for curious kids aged 6 to 10.
 
-New documentary every week. Sit back, relax, and explore the wild with us.
+New stories every week. Grab your blanket, and let's read together.
 ```

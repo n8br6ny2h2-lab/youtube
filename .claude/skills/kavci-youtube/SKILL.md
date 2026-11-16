@@ -1,6 +1,6 @@
 ---
 name: kavci-youtube
-description: Kerem'in (Kavci Games) YouTube kanalları için video üretimi. Kavci Lab (İngilizce bilim, çocuklara özel değil) için Shorts ve uzun videolar, Moonshelf TV (İngilizce, sakin doğa ve hayvan belgeselleri) için hikâye videoları; senaryo, ElevenLabs seslendirme, Pixabay görüntü, kurgu, kalite kontrol, kapak, açıklama, altyazı ve yükleme paketi. "Short yap", "uzun video", "Moonshelf hikâyesi", "kapak", "açıklama", "yükleme paketi" gibi isteklerde kullan.
+description: Kerem'in (Kavci Games) YouTube kanalları için video üretimi. Kavci Lab (İngilizce bilim, çocuklara özel değil) için Shorts ve uzun videolar, Moonshelf TV (İngilizce çocuk kanalı, uyku öncesi hikâyeler) ve Earthframe TV (rahatlatıcı doğa videoları) için hikâye videoları; senaryo, ElevenLabs seslendirme, Pixabay görüntü, kurgu, kalite kontrol, kapak, açıklama, altyazı ve yükleme paketi. "Short yap", "uzun video", "Moonshelf hikâyesi", "kapak", "açıklama", "yükleme paketi" gibi isteklerde kullan.
 ---
 
 # Kavci YouTube üretim skill'i
@@ -36,9 +36,14 @@ description: Kerem'in (Kavci Games) YouTube kanalları için video üretimi. Kav
 - TikTok açıklaması da yaz; "AI-generated content" etiketini açmasını hatırlat.
 
 ### Moonshelf TV (@MoonshelfTV)
-- İngilizce, **sakin doğa ve hayvan belgeselleri** (15-30 dk), **çocuklara özel değil** (16 Kasım kararı). Özgün senaryo + doğru bilgiler. **Her videoda `docs/TELIF.md` kontrolü zorunlu.** Marka: `brand/moonshelf/` (Fredoka yazı tipi, `logo.py`).
+- İngilizce, 6-10 yaş, **çocuklara özel**. Sakin, özgün uyku öncesi hikâyeler + doğru doğa bilgileri. Marka: `brand/moonshelf/` (Fredoka yazı tipi, `logo.py`).
 - Anlatıcı: ElevenLabs **Lily** (`pFZP5JQG7iQjIQuC4Bku`), stability 0.65, style 0.15, speed 0.88. Müzik: `tools/muzik_ninni.py`.
 - Yayın: Türkiye saatiyle **01:00** (ABD akşamı). Haftada 1 hikâye.
+
+### Earthframe TV (@EarthframeTV)
+- İngilizce, **5-10 dakikalık rahatlatıcı doğa ve hayvan videoları** (belgesel havası), **çocuklara özel değil**. Haftada 1 uzun video + 2-3 Short (uzun videonun sesinden kesilir).
+- Anlatıcı: Lily. Marka: `brand/earthframe/` (Inter Display). **Her videoda `docs/TELIF.md` kontrolü ve `kaynaklar.json` zorunlu.**
+- ElevenLabs bütçesi (aylık, tüm kanallar): ~70.000 / 131.000 karakter.
 
 ## Araçlar
 - `tools/shorts_ortak.py`: Shorts için her şey: `tts()` (ElevenLabs + kelime zamanları), `load_words()` (kelime kelime altyazı), `clip_frames()` (4K'dan dikey kesit), `sq_frames()`/`layout()` (1080p kare yerleşim), `disk_frames()`, `black_hole()`, `place_figure()`, `text_c()`, `scene_end()`, `render()` (önizleme, kodlama, ses karışımı, -14 LUFS; `sfx=` ile efekt). Filigran konumu: `CFG['wm_pos']`.

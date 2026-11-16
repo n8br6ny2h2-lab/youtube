@@ -31,7 +31,7 @@ Son güncelleme: 10 Kasım 2026
 
 ## İkinci kanal: Moonshelf TV
 - Ad: Moonshelf TV (@MoonshelfTV), "Gece Kütüphanesi" konsepti, İngilizce.
-- 16 Kasım: Kerem çocuk kanalından vazgeçti → **sakin doğa ve hayvan belgeselleri** (çocuklara özel değil). İlk çocuk hikâyesi gizli kalır. Kavci Lab aynen devam.
+- 16 Kasım son karar: Moonshelf TV **çocuk kanalı olarak açık kalıyor**. Rahatlatıcı doğa videoları için **üçüncü kanal: Earthframe TV** (@EarthframeTV, 5-10 dk video + haftada 2-3 Short). Marka: `brand/earthframe/`.
 - Telif kuralları: `docs/TELIF.md`. Kamu malı arşivler (NPS, FWS, NOAA, Wikimedia) ortamın ağ izinlerine eklendi (16 Kasım).
 - Kanalı Kerem açacak (youtube.com/channel_switcher). Logo, kapak ve açıklama: `brand/moonshelf/`.
 - Sadece özgün hikâyeler (telif). Başta haftada 1 video.
